@@ -1,0 +1,11 @@
+[package]
+name = "yukicoder"
+version = "0.1.0"
+authors = ["MasuqaT <occar@hotmail.co.jp>"]
+edition = "2018"
+
+[dependencies]
+
+[[bin]]
+name = "No227"
+path = "src/No227.rs"
