@@ -13,3 +13,7 @@ path = "src/no227.rs"
 [[bin]]
 name = "no24"
 path = "src/no24.rs"
+
+[[bin]]
+name = "no345"
+path = "src/no345.rs"
