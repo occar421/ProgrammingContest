@@ -9,3 +9,7 @@ edition = "2018"
 [[bin]]
 name = "No227"
 path = "src/No227.rs"
+
+[[bin]]
+name = "No24"
+path = "src/No24.rs"
