@@ -46,6 +46,7 @@ macro_rules! read_value {
     };
 }
 
+#[allow(unused_macros)]
 macro_rules! assert_judge {
     ($method:ident, $input:expr, $expected:expr) => {
         {

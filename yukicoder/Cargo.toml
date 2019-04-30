@@ -7,9 +7,9 @@ edition = "2018"
 [dependencies]
 
 [[bin]]
-name = "No227"
-path = "src/No227.rs"
+name = "no227"
+path = "src/no227.rs"
 
 [[bin]]
-name = "No24"
-path = "src/No24.rs"
+name = "no24"
+path = "src/no24.rs"

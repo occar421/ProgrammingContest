@@ -45,6 +45,22 @@ macro_rules! read_value {
     };
 }
 
+#[allow(unused_macros)]
+macro_rules! assert_judge {
+    ($method:ident, $input:expr, $expected:expr) => {
+        {
+            let input = $input.as_bytes();
+            let mut output = Vec::new();
+
+            $method(&input[..], &mut output);
+
+            let output = String::from_utf8(output).expect("Not UTF-8");
+
+            assert_eq!($expected, output);
+        }
+    };
+}
+
 fn main() {
     let stdio = io::stdin();
     let input = stdio.lock();
@@ -79,21 +95,6 @@ fn process<R, W>(mut reader: R, mut writer: W) where
         _ => "NO HAND"
     };
     write!(writer, "{}", message);
-}
-
-macro_rules! assert_judge {
-    ($method:ident, $input:expr, $expected:expr) => {
-        {
-            let input = $input.as_bytes();
-            let mut output = Vec::new();
-
-            $method(&input[..], &mut output);
-
-            let output = String::from_utf8(output).expect("Not UTF-8");
-
-            assert_eq!($expected, output);
-        }
-    };
 }
 
 #[cfg(test)]
