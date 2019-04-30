@@ -46,6 +46,21 @@ macro_rules! read_value {
     };
 }
 
+macro_rules! assert_judge {
+    ($method:ident, $input:expr, $expected:expr) => {
+        {
+            let input = $input.as_bytes();
+            let mut output = Vec::new();
+
+            $method(&input[..], &mut output);
+
+            let output = String::from_utf8(output).expect("Not UTF-8");
+
+            assert_eq!($expected, output);
+        }
+    };
+}
+
 fn main() {
     let stdio = io::stdin();
     let input = stdio.lock();
@@ -89,49 +104,35 @@ mod tests {
 
     #[test]
     fn sample1() {
-        let input = b"3
+        assert_judge!(process,
+"
+3
 1 2 4 3 NO
 8 5 6 7 NO
 0 1 2 3 NO
-";
-        let mut output = Vec::new();
-
-        process(&input[..], &mut output);
-
-        let output = String::from_utf8(output).expect("Not UTF-8");
-
-        assert_eq!("9", output)
+",
+"9");
     }
 
     #[test]
     fn sample2() {
-        let input = b"2
+        assert_judge!(process, "
+2
 1 2 3 4 YES
 4 5 6 7 YES
-";
-        let mut output = Vec::new();
-
-        process(&input[..], &mut output);
-
-        let output = String::from_utf8(output).expect("Not UTF-8");
-
-        assert_eq!("4", output)
+",
+"4");
     }
 
     #[test]
     fn sample3() {
-        let input = b"4
+        assert_judge!(process, "
+4
 2 6 5 3 NO
 1 0 4 7 YES
 1 7 8 4 YES
 7 1 9 8 NO
-";
-        let mut output = Vec::new();
-
-        process(&input[..], &mut output);
-
-        let output = String::from_utf8(output).expect("Not UTF-8");
-
-        assert_eq!("4", output)
+",
+"4");
     }
 }

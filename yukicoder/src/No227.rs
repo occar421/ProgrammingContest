@@ -81,79 +81,52 @@ fn process<R, W>(mut reader: R, mut writer: W) where
     write!(writer, "{}", message);
 }
 
+macro_rules! assert_judge {
+    ($method:ident, $input:expr, $expected:expr) => {
+        {
+            let input = $input.as_bytes();
+            let mut output = Vec::new();
+
+            $method(&input[..], &mut output);
+
+            let output = String::from_utf8(output).expect("Not UTF-8");
+
+            assert_eq!($expected, output);
+        }
+    };
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn sample1() {
-        let input = b"5 6 5 6 5";
-        let mut output = Vec::new();
-
-        process(&input[..], &mut output);
-
-        let output = String::from_utf8(output).expect("Not UTF-8");
-
-        assert_eq!("FULL HOUSE", output)
+        assert_judge!(process, "5 6 5 6 5", "FULL HOUSE");
     }
 
     #[test]
     fn sample2() {
-        let input = b"5 6 5 7 5";
-        let mut output = Vec::new();
-
-        process(&input[..], &mut output);
-
-        let output = String::from_utf8(output).expect("Not UTF-8");
-
-        assert_eq!("THREE CARD", output)
+        assert_judge!(process, "5 6 5 7 5", "THREE CARD");
     }
 
     #[test]
     fn sample3() {
-        let input = b"5 6 5 6 7";
-        let mut output = Vec::new();
-
-        process(&input[..], &mut output);
-
-        let output = String::from_utf8(output).expect("Not UTF-8");
-
-        assert_eq!("TWO PAIR", output)
+        assert_judge!(process, "5 6 5 6 7", "TWO PAIR");
     }
 
     #[test]
     fn sample4() {
-        let input = b"5 6 5 7 8";
-        let mut output = Vec::new();
-
-        process(&input[..], &mut output);
-
-        let output = String::from_utf8(output).expect("Not UTF-8");
-
-        assert_eq!("ONE PAIR", output)
+        assert_judge!(process, "5 6 5 7 8", "ONE PAIR");
     }
 
     #[test]
     fn sample5() {
-        let input = b"5 6 7 8 9";
-        let mut output = Vec::new();
-
-        process(&input[..], &mut output);
-
-        let output = String::from_utf8(output).expect("Not UTF-8");
-
-        assert_eq!("NO HAND", output)
+        assert_judge!(process, "5 6 7 8 9", "NO HAND");
     }
 
     #[test]
     fn sample6() {
-        let input = b"5 5 5 5 5";
-        let mut output = Vec::new();
-
-        process(&input[..], &mut output);
-
-        let output = String::from_utf8(output).expect("Not UTF-8");
-
-        assert_eq!("NO HAND", output)
+        assert_judge!(process, "5 5 5 5 5", "NO HAND");
     }
 }
