@@ -110,3 +110,8 @@ path = "src/no228.rs"
 name = "no672"
 path = "src/no672.rs"
 
+[[bin]]
+name = "no509"
+path = "src/no509.rs"
+
+
