@@ -118,5 +118,6 @@ path = "src/no509.rs"
 name = "no482"
 path = "src/no482.rs"
 
-
-
+[[bin]]
+name = "no351"
+path = "src/no351.rs"
