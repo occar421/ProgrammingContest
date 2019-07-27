@@ -5,6 +5,7 @@ use std::io;
 use std::io::{BufRead, Write};
 use std::ops::{Rem, Div, Mul};
 
+// From https://qiita.com/tanakh/items/0ba42c7ca36cd29d0ac8
 macro_rules! input {
     (source = $s:expr, $($r:tt)*) => {
         let mut iter = $s.split_whitespace();
