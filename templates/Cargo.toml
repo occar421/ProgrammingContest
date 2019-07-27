@@ -1,0 +1,11 @@
+[package]
+name = "templates"
+version = "0.1.0"
+authors = ["MasuqaT <occar@hotmail.co.jp>"]
+edition = "2018"
+
+[dependencies]
+
+[[bin]]
+name = "standard_io"
+path = "src/standard_io.rs"
