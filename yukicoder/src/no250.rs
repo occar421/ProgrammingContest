@@ -179,24 +179,19 @@ where
 
         let k = if n - k < k { n - k } else { k };
 
-        let mut numerator = 1u128;
-        let mut denominator = 1u128;
+        let mut value = 1u128;
 
         // from small numbers
         for d in (0..k).rev() {
-            numerator *= n - d;
-            if numerator % (k - d) == 0 {
-                numerator /= k - d;
-            } else {
-                denominator *= k - d;
-            }
+            value *= n - d;
+            value /= k - d;
 
-            if numerator / denominator > max {
+            if value > max {
                 return false;
             }
         }
 
-        return numerator / denominator <= max;
+        return value <= max;
     }
 
     for (d, x, t) in dxt {
