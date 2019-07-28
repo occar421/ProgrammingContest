@@ -2,7 +2,7 @@
 name = "yukicoder"
 version = "0.1.0"
 authors = ["MasuqaT <occar@hotmail.co.jp>"]
-edition = "2015"
+edition = "2018"
 
 [dependencies]
 
@@ -129,3 +129,8 @@ path = "src/no290.rs"
 [[bin]]
 name = "no250"
 path = "src/no250.rs"
+
+[[bin]]
+name = "no45"
+path = "src/no45.rs"
+
