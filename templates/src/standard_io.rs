@@ -65,7 +65,7 @@ macro_rules! assert_judge {
 
             let output = String::from_utf8(output).expect("Not UTF-8");
 
-            assert_eq!($expected, output);
+            assert_eq!(output, $expected);
         }
     };
 }
@@ -103,7 +103,7 @@ macro_rules! assert_eq_with_error {
     });
 }
 
-trait GenericInteger: Copy + PartialEq + Rem<Output=Self> + Div<Output=Self> + Mul<Output=Self> {
+pub trait GenericInteger: Copy + PartialEq + Rem<Output=Self> + Div<Output=Self> + Mul<Output=Self> {
     fn zero() -> Self;
 }
 
@@ -122,7 +122,7 @@ macro_rules! dec_gi {
 dec_gi![u8, u16, u32, u64, u128, usize, i8, i16, i32, i64, i128, isize];
 
 #[allow(dead_code)]
-fn gcd<T>(a: T, b: T) -> T where T: GenericInteger {
+pub fn gcd<T>(a: T, b: T) -> T where T: GenericInteger {
     if b == T::zero() {
         a
     } else {
@@ -131,7 +131,8 @@ fn gcd<T>(a: T, b: T) -> T where T: GenericInteger {
 }
 
 #[allow(dead_code)]
-fn lcm<T>(a: T, b: T) -> T where T: GenericInteger {
+#[inline]
+pub fn lcm<T>(a: T, b: T) -> T where T: GenericInteger {
     a / gcd(a, b) * b
 }
 

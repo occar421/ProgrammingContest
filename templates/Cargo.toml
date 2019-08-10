@@ -4,8 +4,9 @@ version = "0.1.0"
 authors = ["MasuqaT <occar@hotmail.co.jp>"]
 edition = "2018"
 
-[dependencies]
+[dev-dependencies]
+# Waiting for the update of the original repo
+#test-case-derive = { git = "https://github.com/macisamuele/test-case-derive", branch =  "maci-allow-build-on-stable" }
 
-[[bin]]
-name = "standard_io"
-path = "src/standard_io.rs"
+[dependencies]
+paste = "0.1"
