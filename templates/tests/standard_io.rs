@@ -1,62 +1,31 @@
-//macro_rules! declare_test {
-//    ($name:ident: $actual:expr => $expected:expr) => {
-//        #[test]
-//        fn $name() {
-//            assert_eq!($actual, $expected);
-//        }
-//    }
-//}
-//
-//macro_rules! table_tests {
-//    ($target:path >>> [$($e1: expr, $e2: expr => $a: expr;)+]) => {
-//        paste::item! {
-//            $( declare_test!([<_ $e1 _ $e2>]: $target($e1, $e2) => $a); )+
-//        }
-//    };
-//}
-
-macro_rules! table_tests {
-    ($target:path >>> [$($e1: expr, $e2: expr => $a: expr;)+]) => {
-        paste::item! {
-            $(
-            #[test]
-            fn [<_ $e1 _ $e2>]() {
-                let expected = $target($e1, $e2);
-                assert_eq!(expected, $a);
-            }
-            )+
-        }
-    };
-}
-
+extern crate test_case_derive;
 
 #[cfg(test)]
 mod tests {
-    mod gcd_tests {
-        use templates::standard_io::gcd;
+    use test_case_derive::test_case;
 
-        table_tests! { gcd >>> [
-            1, 1 => 1;
-            2, 1 => 1;
-            1, 2 => 1;
-            2, 2 => 2;
-            6, 2 => 2;
-            12, 8 => 4;
-            3, 5 => 1;
-        ]}
+    #[test]
+    fn _ignite() {}
+
+    #[test_case(1, 1 => 1)]
+    #[test_case(2, 1 => 1)]
+    #[test_case(1, 2 => 1)]
+    #[test_case(2, 2 => 2)]
+    #[test_case(12, 2 => 2)]
+    #[test_case(3, 5 => 1)]
+    #[test_case(12, 8 => 4)]
+    fn gcd(a: usize, b: usize) -> usize {
+        templates::standard_io::gcd(a, b)
     }
 
-    mod lcm_tests {
-        use templates::standard_io::lcm;
-
-        table_tests! { lcm >>> [
-            1, 1 => 1;
-            1, 2 => 2;
-            2, 1 => 2;
-            2, 2 => 2;
-            6, 2 => 6;
-            12, 8 => 24;
-            3, 5 => 15;
-        ]}
+    #[test_case(1, 1 => 1)]
+    #[test_case(2, 1 => 2)]
+    #[test_case(1, 2 => 2)]
+    #[test_case(2, 2 => 2)]
+    #[test_case(12, 2 => 12)]
+    #[test_case(3, 5 => 15)]
+    #[test_case(12, 8 => 24)]
+    fn lcm(a: usize, b: usize) -> usize {
+        templates::standard_io::lcm(a, b)
     }
 }
