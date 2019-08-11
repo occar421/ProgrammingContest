@@ -137,15 +137,6 @@ pub fn lcm<T>(a: T, b: T) -> T where T: GenericInteger {
     a / gcd(a, b) * b
 }
 
-#[allow(unused_macros)]
-macro_rules! swap {
-    ($v1:expr, $v2:expr) => {
-        let buf = $v1;
-        $v1 = $v2;
-        $v2 = buf;
-    };
-}
-
 pub trait IterExt<T> where T: Display {
     fn easy_join(&mut self, separator: &str) -> String;
 }
