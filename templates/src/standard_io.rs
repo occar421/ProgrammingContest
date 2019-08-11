@@ -104,6 +104,25 @@ macro_rules! assert_eq_with_error {
     });
 }
 
+#[allow(unused_macros)]
+macro_rules! assert_judge_with_error {
+    ($method:ident, $input:expr, $expected:expr, $t:ty | $precision:expr ) => {
+        {
+            let input = $input.as_bytes();
+            let mut output = Vec::new();
+
+            $method(&input[..], &mut output);
+
+            let output = String::from_utf8(output).expect("Not UTF-8");
+
+            let actual: $t = output.parse().unwrap();
+            let expected: $t = $expected.parse().unwrap();
+
+            assert_eq_with_error!(actual, expected, $precision);
+        }
+    };
+}
+
 pub trait GenericInteger: Copy + PartialEq + Rem<Output=Self> + Div<Output=Self> + Mul<Output=Self> {
     fn zero() -> Self;
 }
@@ -195,5 +214,7 @@ mod tests {
         // }
         //
         // assert_eq_with_error!(4f64, o, 10f64.powi(-6));
+
+        // assert_judge_with_error!(process, "7", "2.52163", f64 | 10f64.powi(-2));
     }
 }
