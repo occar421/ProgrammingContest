@@ -4,6 +4,7 @@
 use std::io;
 use std::io::{BufRead, Write};
 use std::ops::{Rem, Div, Mul};
+use std::fmt::Display;
 
 // From https://qiita.com/tanakh/items/0ba42c7ca36cd29d0ac8
 macro_rules! input {
@@ -143,6 +144,17 @@ macro_rules! swap {
         $v1 = $v2;
         $v2 = buf;
     };
+}
+
+pub trait IterExt<T> where T: Display {
+    fn easy_join(&mut self, separator: &str) -> String;
+}
+
+impl<TItem, TTrait> IterExt<TItem> for TTrait where TItem: Display, TTrait: Iterator<Item=TItem> {
+    #[inline]
+    fn easy_join(&mut self, separator: &str) -> String {
+        self.map(|i| format!("{}", i)).collect::<Vec<_>>().join(separator)
+    }
 }
 
 fn main() {
