@@ -53,4 +53,14 @@ mod tests {
         use templates::standard_io::IterExt;
         vec.iter().easy_join(separator)
     }
+
+    #[test]
+    fn invert_index() {
+        use templates::invert_index;
+        let a = vec![1, 2, 0, 4, 3];
+
+        let b = invert_index!(a);
+
+        assert_eq!(a, invert_index!(b));
+    }
 }

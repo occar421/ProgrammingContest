@@ -167,6 +167,26 @@ impl<TItem, TTrait> IterExt<TItem> for TTrait where TItem: Display, TTrait: Iter
     }
 }
 
+#[allow(unused_macros)]
+macro_rules! swap {
+    ($v1:expr, $v2:expr) => {
+        let buf = $v1;
+        $v1 = $v2;
+        $v2 = buf;
+    };
+}
+
+#[macro_export]
+macro_rules! invert_index {
+    ($v:expr) => ({
+        let mut goal = vec![0usize; $v.len()];
+        for (i, v) in $v.iter().enumerate() {
+            goal[*v] = i;
+        }
+        goal
+    })
+}
+
 fn main() {
     let stdio = io::stdin();
     let input = stdio.lock();
