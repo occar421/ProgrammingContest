@@ -3,6 +3,7 @@ name = "yukicoder"
 version = "0.1.0"
 authors = ["MasuqaT <occar@hotmail.co.jp>"]
 edition = "2018"
+publish = false
 
 [dependencies]
 
@@ -11,24 +12,5 @@ members = [
     "level-1_0",
     "level-1_5",
     "level-2_0",
+    "level-2_5",
 ]
-
-[[bin]]
-name = "no807"
-path = "src/no807.rs"
-
-[[bin]]
-name = "no800"
-path = "src/no800.rs"
-
-[[bin]]
-name = "no154"
-path = "src/no154.rs"
-
-[[bin]]
-name = "no390"
-path = "src/no390.rs"
-
-[[bin]]
-name = "no326"
-path = "src/no326.rs"

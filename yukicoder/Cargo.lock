@@ -13,6 +13,10 @@ name = "level-2_0"
 version = "0.1.0"
 
 [[package]]
+name = "level-2_5"
+version = "0.1.0"
+
+[[package]]
 name = "yukicoder"
 version = "0.1.0"
 

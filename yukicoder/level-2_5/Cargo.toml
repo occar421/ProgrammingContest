@@ -1,0 +1,30 @@
+[package]
+name = "level-2_5"
+version = "0.1.0"
+authors = ["MasuqaT <occar@hotmail.co.jp>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+[[bin]]
+name = "no154"
+path = "src/no154.rs"
+
+[[bin]]
+name = "no326"
+path = "src/no326.rs"
+
+[[bin]]
+name = "no390"
+path = "src/no390.rs"
+
+[[bin]]
+name = "no800"
+path = "src/no800.rs"
+
+[[bin]]
+name = "no807"
+path = "src/no807.rs"
+
