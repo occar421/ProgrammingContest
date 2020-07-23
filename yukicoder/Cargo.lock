@@ -5,6 +5,10 @@ name = "level-1_0"
 version = "0.1.0"
 
 [[package]]
+name = "level-1_5"
+version = "0.1.0"
+
+[[package]]
 name = "yukicoder"
 version = "0.1.0"
 

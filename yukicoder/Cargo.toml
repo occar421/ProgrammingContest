@@ -8,28 +8,9 @@ edition = "2018"
 
 [workspace]
 members = [
-    "level-1_0"
+    "level-1_0",
+    "level-1_5",
 ]
-
-[[bin]]
-name = "no83"
-path = "src/no83.rs"
-
-[[bin]]
-name = "no172"
-path = "src/no172.rs"
-
-[[bin]]
-name = "no47"
-path = "src/no47.rs"
-
-[[bin]]
-name = "no311"
-path = "src/no311.rs"
-
-[[bin]]
-name = "no796"
-path = "src/no796.rs"
 
 [[bin]]
 name = "no179"
