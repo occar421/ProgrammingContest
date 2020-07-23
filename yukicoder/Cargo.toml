@@ -6,17 +6,10 @@ edition = "2018"
 
 [dependencies]
 
-[[bin]]
-name = "no227"
-path = "src/no227.rs"
-
-[[bin]]
-name = "no24"
-path = "src/no24.rs"
-
-[[bin]]
-name = "no345"
-path = "src/no345.rs"
+[workspace]
+members = [
+    "level-1_0"
+]
 
 [[bin]]
 name = "no83"
