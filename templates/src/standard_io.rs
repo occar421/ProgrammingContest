@@ -51,7 +51,7 @@ macro_rules! read_value {
     };
 
     ($iter:expr, $t:ty) => {
-        $iter.next().unwrap().parse::<$t>().expect("Parse error")
+        $iter.next().unwrap_or_default().parse::<$t>().expect("Parse error")
     };
 }
 
