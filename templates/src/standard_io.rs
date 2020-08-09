@@ -2,7 +2,7 @@
 // https://github.com/occar421/ProgrammingContest/tree/master/templates/src/standard_io.rs
 
 use std::io;
-use std::io::{BufRead, Write};
+use std::io::{BufRead, Write, Result};
 use std::ops::{Rem, Div, Mul};
 use std::fmt::Display;
 
@@ -62,7 +62,7 @@ macro_rules! assert_judge {
             let input = $input.as_bytes();
             let mut output = Vec::new();
 
-            $method(&input[..], &mut output);
+            $method(&input[..], &mut output).expect("Should not emit error");
 
             let output = String::from_utf8(output).expect("Not UTF-8");
 
@@ -78,7 +78,7 @@ macro_rules! assert_judge_with_output {
             let input = $input.as_bytes();
             let mut output = Vec::new();
 
-            $method(&input[..], &mut output);
+            $method(&input[..], &mut output).expect("Should not emit error");
 
             String::from_utf8(output).expect("Not UTF-8")
         }
@@ -111,7 +111,7 @@ macro_rules! assert_judge_with_error {
             let input = $input.as_bytes();
             let mut output = Vec::new();
 
-            $method(&input[..], &mut output);
+            $method(&input[..], &mut output).expect("Should not emit error");
 
             let output = String::from_utf8(output).expect("Not UTF-8");
 
@@ -193,10 +193,10 @@ fn main() {
 
     let output = io::stdout();
 
-    process(input, output);
+    process(input, output).expect("Should not emit error");
 }
 
-fn process<R, W>(mut reader: R, mut writer: W) -> () where
+fn process<R, W>(mut reader: R, mut writer: W) -> Result<()> where
     R: BufRead,
     W: Write {
     input! {
@@ -206,7 +206,9 @@ fn process<R, W>(mut reader: R, mut writer: W) -> () where
 
     // FIXME: logic
 
-    // write!(writer, "");
+    // write!(writer, "")?;
+
+    Ok(())
 }
 
 #[cfg(test)]
