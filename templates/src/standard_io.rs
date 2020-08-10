@@ -167,6 +167,21 @@ impl<TItem, TTrait> IterExt<TItem> for TTrait where TItem: Display, TTrait: Iter
     }
 }
 
+pub trait VecExt<T> {
+    fn add_like_string(&mut self) -> T;
+}
+
+impl<T> VecExt<T> for Vec<T> where T: GenericInteger {
+    #[inline]
+    fn add_like_string(&mut self) -> T {
+        if let Ok(value) = self.iter().easy_join("").parse::<T>() {
+            value
+        } else {
+            panic!("Invalid value")
+        }
+    }
+}
+
 #[allow(unused_macros)]
 macro_rules! swap {
     ($v1:expr, $v2:expr) => {
@@ -186,6 +201,14 @@ macro_rules! invert_index {
         goal
     })
 }
+
+trait ThenSome: Into<bool> {
+    fn then_some_<T>(self, t: T) -> Option<T> {
+        if self.into() { Some(t) } else { None }
+    }
+}
+
+impl ThenSome for bool {}
 
 fn main() {
     let stdio = io::stdin();
