@@ -243,6 +243,7 @@ fn main() {
     process(input, output).expect("Should not emit error");
 }
 
+#[allow(non_snake_case)]
 fn process<R, W>(mut reader: R, mut writer: W) -> Result<()>
 where
     R: BufRead,
