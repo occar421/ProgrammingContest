@@ -1,10 +1,11 @@
 // Macro by MasuqaT (occar421)
 // https://github.com/occar421/ProgrammingContest/tree/master/templates/src/standard_io.rs
 
-use std::io;
-use std::io::{BufRead, Write, Result};
-use std::ops::{Rem, Div, Mul};
 use std::fmt::Display;
+use std::io;
+use std::io::{BufRead, Result, Write};
+use std::ops::{Div, Mul, Rem};
+use std::str::FromStr;
 
 // From https://qiita.com/tanakh/items/0ba42c7ca36cd29d0ac8
 macro_rules! input {
@@ -57,73 +58,74 @@ macro_rules! read_value {
 
 #[allow(unused_macros)]
 macro_rules! assert_judge {
-    ($method:ident, $input:expr, $expected:expr) => {
-        {
-            let input = $input.as_bytes();
-            let mut output = Vec::new();
+    ($method:ident, $input:expr, $expected:expr) => {{
+        let input = $input.as_bytes();
+        let mut output = Vec::new();
 
-            $method(&input[..], &mut output).expect("Should not emit error");
+        $method(&input[..], &mut output).expect("Should not emit error");
 
-            let output = String::from_utf8(output).expect("Not UTF-8");
+        let output = String::from_utf8(output).expect("Not UTF-8");
 
-            assert_eq!(output, $expected);
-        }
-    };
+        assert_eq!(output, $expected);
+    }};
 }
 
 #[allow(unused_macros)]
 macro_rules! assert_judge_with_output {
-    ($method:ident, $input:expr) => {
-        {
-            let input = $input.as_bytes();
-            let mut output = Vec::new();
+    ($method:ident, $input:expr) => {{
+        let input = $input.as_bytes();
+        let mut output = Vec::new();
 
-            $method(&input[..], &mut output).expect("Should not emit error");
+        $method(&input[..], &mut output).expect("Should not emit error");
 
-            String::from_utf8(output).expect("Not UTF-8")
-        }
-    };
+        String::from_utf8(output).expect("Not UTF-8")
+    }};
 }
 
 #[allow(unused_macros)]
 macro_rules! assert_eq_with_error {
-    ($left:expr, $right:expr, $precision:expr) => ({
+    ($left:expr, $right:expr, $precision:expr) => {{
         match (&$left, &$right, &$precision) {
             (left_val, right_val, precision_val) => {
-                if !(*left_val - *precision_val < *right_val && *right_val < *left_val + *precision_val) {
+                if !(*left_val - *precision_val < *right_val
+                    && *right_val < *left_val + *precision_val)
+                {
                     // The reborrows below are intentional. Without them, the stack slot for the
                     // borrow is initialized even before the values are compared, leading to a
                     // noticeable slow down.
-                    panic!(r#"assertion failed: `(left == right) +- precision`
+                    panic!(
+                        r#"assertion failed: `(left == right) +- precision`
       left: `{:?}`,
      right: `{:?}`,
- precision: `{:?}`"#, &*left_val, &*right_val, &*precision_val)
+ precision: `{:?}`"#,
+                        &*left_val, &*right_val, &*precision_val
+                    )
                 }
             }
         }
-    });
+    }};
 }
 
 #[allow(unused_macros)]
 macro_rules! assert_judge_with_error {
-    ($method:ident, $input:expr, $expected:expr, $t:ty | $precision:expr ) => {
-        {
-            let input = $input.as_bytes();
-            let mut output = Vec::new();
+    ($method:ident, $input:expr, $expected:expr, $t:ty | $precision:expr ) => {{
+        let input = $input.as_bytes();
+        let mut output = Vec::new();
 
-            $method(&input[..], &mut output).expect("Should not emit error");
+        $method(&input[..], &mut output).expect("Should not emit error");
 
-            let output = String::from_utf8(output).expect("Not UTF-8");
+        let output = String::from_utf8(output).expect("Not UTF-8");
 
-            let actual: $t = output.parse().unwrap();
-            let expected: $t = $expected.parse().unwrap();
+        let actual: $t = output.parse().unwrap();
+        let expected: $t = $expected.parse().unwrap();
 
-            assert_eq_with_error!(actual, expected, $precision);
-        }
-    };
+        assert_eq_with_error!(actual, expected, $precision);
+    }};
 }
 
-pub trait GenericInteger: Copy + PartialEq + Rem<Output=Self> + Div<Output=Self> + Mul<Output=Self> {
+pub trait GenericInteger:
+    Copy + PartialEq + FromStr + Display + Rem<Output = Self> + Div<Output = Self> + Mul<Output = Self>
+{
     fn zero() -> Self;
 }
 
@@ -142,7 +144,10 @@ macro_rules! dec_gi {
 dec_gi![u8, u16, u32, u64, u128, usize, i8, i16, i32, i64, i128, isize];
 
 #[allow(dead_code)]
-pub fn gcd<T>(a: T, b: T) -> T where T: GenericInteger {
+pub fn gcd<T>(a: T, b: T) -> T
+where
+    T: GenericInteger,
+{
     if b == T::zero() {
         a
     } else {
@@ -152,18 +157,30 @@ pub fn gcd<T>(a: T, b: T) -> T where T: GenericInteger {
 
 #[allow(dead_code)]
 #[inline]
-pub fn lcm<T>(a: T, b: T) -> T where T: GenericInteger {
+pub fn lcm<T>(a: T, b: T) -> T
+where
+    T: GenericInteger,
+{
     a / gcd(a, b) * b
 }
 
-pub trait IterExt<T> where T: Display {
+pub trait IterExt<T>
+where
+    T: Display,
+{
     fn easy_join(&mut self, separator: &str) -> String;
 }
 
-impl<TItem, TTrait> IterExt<TItem> for TTrait where TItem: Display, TTrait: Iterator<Item=TItem> {
+impl<TItem, TTrait> IterExt<TItem> for TTrait
+where
+    TItem: Display,
+    TTrait: Iterator<Item = TItem>,
+{
     #[inline]
     fn easy_join(&mut self, separator: &str) -> String {
-        self.map(|i| format!("{}", i)).collect::<Vec<_>>().join(separator)
+        self.map(|i| format!("{}", i))
+            .collect::<Vec<_>>()
+            .join(separator)
     }
 }
 
@@ -171,7 +188,10 @@ pub trait VecExt<T> {
     fn add_like_string(&mut self) -> T;
 }
 
-impl<T> VecExt<T> for Vec<T> where T: GenericInteger {
+impl<T> VecExt<T> for Vec<T>
+where
+    T: GenericInteger,
+{
     #[inline]
     fn add_like_string(&mut self) -> T {
         if let Ok(value) = self.iter().easy_join("").parse::<T>() {
@@ -193,18 +213,22 @@ macro_rules! swap {
 
 #[macro_export]
 macro_rules! invert_index {
-    ($v:expr) => ({
+    ($v:expr) => {{
         let mut goal = vec![0usize; $v.len()];
         for (i, v) in $v.iter().enumerate() {
             goal[*v] = i;
         }
         goal
-    })
+    }};
 }
 
 trait ThenSome: Into<bool> {
     fn then_some_<T>(self, t: T) -> Option<T> {
-        if self.into() { Some(t) } else { None }
+        if self.into() {
+            Some(t)
+        } else {
+            None
+        }
     }
 }
 
@@ -219,9 +243,11 @@ fn main() {
     process(input, output).expect("Should not emit error");
 }
 
-fn process<R, W>(mut reader: R, mut writer: W) -> Result<()> where
+fn process<R, W>(mut reader: R, mut writer: W) -> Result<()>
+where
     R: BufRead,
-    W: Write {
+    W: Write,
+{
     input! {
         stdin = reader,
         // FIXME: variables
