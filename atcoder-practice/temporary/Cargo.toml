@@ -1,15 +1,13 @@
 [package]
-name = "atcoder-practice"
+name = "temporary"
 version = "0.1.0"
 authors = ["MasuqaT <occar@hotmail.co.jp>"]
 edition = "2018"
-publish = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 
-[workspace]
-members = [
-    "temporary"
-]
+[[bin]]
+name = "code_festival_2017_quala_a"
+path = "src/code_festival_2017_quala_a.rs"
