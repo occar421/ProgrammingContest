@@ -11,3 +11,7 @@ edition = "2018"
 [[bin]]
 name = "code_festival_2017_quala_a"
 path = "src/code_festival_2017_quala_a.rs"
+
+[[bin]]
+name = "arc019_1"
+path = "src/arc019_1.rs"
