@@ -15,3 +15,7 @@ path = "src/code_festival_2017_quala_a.rs"
 [[bin]]
 name = "arc019_1"
 path = "src/arc019_1.rs"
+
+[[bin]]
+name = "arc115_b"
+path = "src/arc115_b.rs"
