@@ -282,6 +282,84 @@ where
     Ok(())
 }
 
+struct MontgomeryModularMultiplication {
+    n: usize,
+    nb: usize,
+    r2: usize,
+    mask: usize,
+    nr: usize,
+}
+
+impl MontgomeryModularMultiplication {
+    fn new(n: usize) -> MontgomeryModularMultiplication {
+        let nb = bit_length(n);
+        // Rを、Nより大きい最小の2の冪乗数とする
+        // R^2 mod n : この1回だけ除算が必要になる
+        let r2 = (1 << (nb * 2)) % n;
+        // Rを2の冪乗とすることで、mod Rをビットマスクで求められるようになる
+        let mask = (1 << nb) - 1;
+
+        // N * N' = -1 mod R となるN'の導出
+        // Rを2の冪乗とすることで加算とビットシフトで求められるようになる
+        let mut nr = 0;
+        let mut t = 0;
+        let mut vi = 1;
+        for _ in 0..nb {
+            if t & 1 == 0 {
+                t += n;
+                nr += vi;
+            }
+            t >>= 1;
+            vi <<= 1;
+        }
+
+        MontgomeryModularMultiplication {
+            n,
+            nb,
+            r2,
+            mask,
+            nr,
+        }
+    }
+
+    fn reduction(&self, t: usize) -> usize {
+        // モンゴメリリダクション
+        let mut c = t * self.nr;
+        c &= self.mask;
+        c *= self.n;
+        c += t;
+        c >>= self.nb;
+        if c >= self.n {
+            c -= self.n;
+        }
+        return c;
+    }
+
+    fn mul(&self, a: usize, b: usize) -> usize {
+        // a * b mod n を計算
+        self.reduction(self.reduction(a * b) * self.r2)
+    }
+
+    fn exp(&self, a: usize, b: usize) -> usize {
+        // a ^ b mod n を計算
+        let mut p = self.reduction(a * self.r2);
+        let mut x = self.reduction(self.r2);
+        let mut y = b;
+        while y != 0 {
+            if y & 1 != 1 {
+                x = self.reduction(x * p);
+            }
+            p = self.reduction(p * p);
+            y >>= 1;
+        }
+        self.reduction(x)
+    }
+}
+
+fn bit_length(n: usize) -> usize {
+    (n as f64).log2().floor() as usize + 1
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
