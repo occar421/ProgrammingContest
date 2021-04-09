@@ -282,77 +282,84 @@ where
     Ok(())
 }
 
-struct MontgomeryModularMultiplication {
+struct MontgomeryExp2ModularMultiplication {
+    /** N */
     n: usize,
-    nb: usize,
-    r2: usize,
-    mask: usize,
-    nr: usize,
+    n_bit_length: usize,
+    /** R^2 mod N */
+    r_square: usize,
+    /** bit mask for x mod R */
+    mod_r_mask: usize,
+    n_prime: usize,
 }
 
-impl MontgomeryModularMultiplication {
-    fn new(n: usize) -> MontgomeryModularMultiplication {
-        let nb = bit_length(n);
-        // Rを、Nより大きい最小の2の冪乗数とする
-        // R^2 mod n : この1回だけ除算が必要になる
-        let r2 = (1 << (nb * 2)) % n;
-        // Rを2の冪乗とすることで、mod Rをビットマスクで求められるようになる
-        let mask = (1 << nb) - 1;
+impl MontgomeryExp2ModularMultiplication {
+    fn new(n: usize) -> Self {
+        if n % 2 == 0 {
+            panic!("Precondition not met")
+        }
+        let n_bit_length = bit_length(n);
+        let r_square = (1 << (n_bit_length * 2)) % n;
+        let mod_r_mask = (1 << n_bit_length) - 1;
 
-        // N * N' = -1 mod R となるN'の導出
-        // Rを2の冪乗とすることで加算とビットシフトで求められるようになる
-        let mut nr = 0;
+        let mut result = 0;
         let mut t = 0;
-        let mut vi = 1;
-        for _ in 0..nb {
-            if t & 1 == 0 {
+        for i in 0..n_bit_length {
+            if t & 0x1 == 0x0 {
                 t += n;
-                nr += vi;
+                result += 1 << i;
             }
             t >>= 1;
-            vi <<= 1;
         }
 
-        MontgomeryModularMultiplication {
+        Self {
             n,
-            nb,
-            r2,
-            mask,
-            nr,
+            n_bit_length,
+            r_square,
+            mod_r_mask,
+            n_prime: result,
         }
     }
 
-    fn reduction(&self, t: usize) -> usize {
-        // モンゴメリリダクション
-        let mut c = t * self.nr;
-        c &= self.mask;
-        c *= self.n;
-        c += t;
-        c >>= self.nb;
-        if c >= self.n {
-            c -= self.n;
+    fn do_reduction(&self, t: usize) -> usize {
+        // t <- (T + (TN' mod R)N)/R
+        let temp = self.div_r(t + self.mod_r(t * self.n_prime) * self.n);
+
+        // if t >= N then return t - N else return t
+        if temp >= self.n {
+            temp - self.n
+        } else {
+            temp
         }
-        return c;
     }
 
+    #[inline]
+    fn mod_r(&self, x: usize) -> usize {
+        x & self.mod_r_mask
+    }
+
+    #[inline]
+    fn div_r(&self, x: usize) -> usize {
+        x >> self.n_bit_length
+    }
+
+    /** a*b mod N */
     fn mul(&self, a: usize, b: usize) -> usize {
-        // a * b mod n を計算
-        self.reduction(self.reduction(a * b) * self.r2)
+        // MR(MR(ab)R^2)
+        self.do_reduction(self.do_reduction(a * b) * self.r_square)
     }
 
+    /** a^b mod N */
     fn exp(&self, a: usize, b: usize) -> usize {
-        // a ^ b mod n を計算
-        let mut p = self.reduction(a * self.r2);
-        let mut x = self.reduction(self.r2);
-        let mut y = b;
-        while y != 0 {
-            if y & 1 != 1 {
-                x = self.reduction(x * p);
+        let mut p = self.do_reduction(a * self.r_square);
+        let mut x = self.do_reduction(self.r_square);
+        for i in 0..bit_length(b) {
+            if (b & (0x1 << i)) != 0x0 {
+                x = self.do_reduction(x * p);
             }
-            p = self.reduction(p * p);
-            y >>= 1;
+            p = self.do_reduction(p * p);
         }
-        self.reduction(x)
+        self.do_reduction(x)
     }
 }
 
@@ -377,5 +384,30 @@ mod tests {
     #[test]
     fn sample3() {
         assert_judge!(process, "200000 200000", "835917264");
+    }
+
+    #[test]
+    fn a() {
+        let m19 = MontgomeryExp2ModularMultiplication::new(19);
+        assert_eq!(m19.mul(7, 11), 7 * 11 % 19);
+        assert_eq!(m19.exp(1, 0), 1usize.pow(0) % 19);
+        assert_eq!(m19.exp(1, 1), 1usize.pow(1) % 19);
+        assert_eq!(m19.exp(2, 2), 2usize.pow(2) % 19);
+        assert_eq!(m19.exp(3, 3), 3usize.pow(3) % 19);
+        assert_eq!(m19.exp(4, 4), 4usize.pow(4) % 19);
+        assert_eq!(m19.exp(5, 5), 5usize.pow(5) % 19);
+        assert_eq!(m19.exp(3, 5), 3usize.pow(5) % 19);
+        assert_eq!(m19.exp(5, 3), 5usize.pow(3) % 19);
+
+        let m25 = MontgomeryExp2ModularMultiplication::new(25);
+        assert_eq!(m25.mul(7, 11), 7 * 11 % 25);
+        assert_eq!(m25.exp(1, 0), 1usize.pow(0) % 25);
+        assert_eq!(m25.exp(1, 1), 1usize.pow(1) % 25);
+        assert_eq!(m25.exp(2, 2), 2usize.pow(2) % 25);
+        assert_eq!(m25.exp(3, 3), 3usize.pow(3) % 25);
+        assert_eq!(m25.exp(4, 4), 4usize.pow(4) % 25);
+        assert_eq!(m25.exp(5, 5), 5usize.pow(5) % 25);
+        assert_eq!(m25.exp(3, 5), 3usize.pow(5) % 25);
+        assert_eq!(m25.exp(5, 3), 5usize.pow(3) % 25);
     }
 }
