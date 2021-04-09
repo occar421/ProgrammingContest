@@ -282,6 +282,61 @@ where
     Ok(())
 }
 
+struct ModularCombinationGenerator {
+    montgomery: MontgomeryExp2ModularMultiplication,
+    factorials: Vec<usize>,
+    reciprocal_factorials: Vec<usize>,
+}
+
+impl ModularCombinationGenerator {
+    fn new(n_max: usize, modulo_number: usize) -> Self {
+        let montgomery = MontgomeryExp2ModularMultiplication::new(modulo_number);
+
+        let mut f = 1;
+        let mut factorials = Vec::with_capacity(n_max + 1);
+        factorials.push(1); // by 0!
+
+        // calc from 1! to n!
+        for i in 1..=n_max {
+            f = montgomery.mul(f, i);
+            factorials.push(f);
+        }
+
+        // reversed_factorial
+        let mut reversed_r_f = Vec::with_capacity(n_max + 1);
+        // calc n!^-1
+        let mut inv = montgomery.exp(f, modulo_number - 2);
+        reversed_r_f.push(inv);
+
+        // calc from (n-1)!^-1 to 0!^-1
+        for i in (1..=n_max).rev() {
+            inv = montgomery.mul(inv, i);
+            reversed_r_f.push(inv);
+        }
+        let reciprocal_factorials = {
+            reversed_r_f.reverse();
+            reversed_r_f
+        };
+
+        Self {
+            montgomery,
+            factorials,
+            reciprocal_factorials,
+        }
+    }
+
+    fn get(&self, n: usize, r: usize) -> usize {
+        // n! * r!^-1 * (n-r)!^-1
+        self.montgomery.mul(
+            self.factorials[n],
+            self.montgomery.mul(
+                self.reciprocal_factorials[r],
+                self.reciprocal_factorials[n - r],
+            ),
+        )
+    }
+}
+
 struct MontgomeryExp2ModularMultiplication {
     /** N */
     n: usize,
@@ -387,7 +442,7 @@ mod tests {
     }
 
     #[test]
-    fn a() {
+    fn montgomery() {
         let m19 = MontgomeryExp2ModularMultiplication::new(19);
         assert_eq!(m19.mul(7, 11), 7 * 11 % 19);
         assert_eq!(m19.exp(1, 0), 1usize.pow(0) % 19);
@@ -409,5 +464,13 @@ mod tests {
         assert_eq!(m25.exp(5, 5), 5usize.pow(5) % 25);
         assert_eq!(m25.exp(3, 5), 3usize.pow(5) % 25);
         assert_eq!(m25.exp(5, 3), 5usize.pow(3) % 25);
+    }
+
+    #[test]
+    fn combination() {
+        let c = ModularCombinationGenerator::new(6, 7);
+        assert_eq!(c.get(3, 1), 3 % 7);
+        assert_eq!(c.get(4, 2), 6 % 7);
+        assert_eq!(c.get(5, 3), 10 % 7);
     }
 }
