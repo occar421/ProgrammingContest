@@ -282,6 +282,33 @@ where
     Ok(())
 }
 
+fn prime_factorize(n: usize) -> HashMap<usize, usize> {
+    let mut map = HashMap::new();
+
+    let sqrt_n = (n as f64).sqrt().ceil() as usize;
+
+    let mut n = n;
+    for p in 2..=sqrt_n {
+        if n % p != 0 {
+            continue;
+        }
+
+        let mut exp_number = 0;
+        while n % p == 0 {
+            exp_number += 1;
+            n /= p;
+        }
+
+        map.insert(p, exp_number);
+    }
+
+    if n != 1 {
+        map.insert(n, 1);
+    }
+
+    map
+}
+
 struct ModularCombinationGenerator {
     montgomery: MontgomeryExp2ModularMultiplication,
     factorials: Vec<usize>,
@@ -472,5 +499,11 @@ mod tests {
         assert_eq!(c.get(3, 1), 3 % 7);
         assert_eq!(c.get(4, 2), 6 % 7);
         assert_eq!(c.get(5, 3), 10 % 7);
+    }
+
+    #[test]
+    fn prime_factorize() {
+        let a = super::prime_factorize(360);
+        println!("{:#?}", a);
     }
 }
