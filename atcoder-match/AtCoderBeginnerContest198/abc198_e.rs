@@ -1,13 +1,11 @@
 // Macro by MasuqaT (occar421)
 // https://github.com/occar421/ProgrammingContest/tree/master/templates/src/standard_io.rs
 
-use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fmt::Display;
 use std::io;
 use std::io::{BufRead, Result, Write};
 use std::ops::{Div, Mul, Rem};
-use std::rc::Rc;
 use std::str::FromStr;
 
 // From https://qiita.com/tanakh/items/0ba42c7ca36cd29d0ac8
@@ -282,63 +280,46 @@ where
         edges.entry(*dest).or_insert(vec![]).push(*src);
     }
 
-    let n_colors = Rc::new(RefCell::new(HashMap::new()));
-    let arrived_node_flags = Rc::new(RefCell::new(vec![false; n + 1]));
-    let good_nodes = Rc::new(RefCell::new(vec![false; n + 1]));
+    let mut n_colors = HashMap::new();
+    let mut arrived_node_flags = vec![false; n + 1];
+    let mut good_node_flags = vec![false; n + 1];
 
     fn visit(
         i: usize,
         c: &Vec<usize>,
         edges: &HashMap<usize, Vec<usize>>,
-        n_colors: Rc<RefCell<HashMap<usize, usize>>>,
-        arrived_node_flags: Rc<RefCell<Vec<bool>>>,
-        good_nodes: Rc<RefCell<Vec<bool>>>,
+        n_colors: &mut HashMap<usize, usize>,
+        arrived_node_flags: &mut Vec<bool>,
+        good_nodes: &mut Vec<bool>,
     ) {
-        {
-            let mut arrived_node_flags = arrived_node_flags.borrow_mut();
-            if arrived_node_flags[i] {
-                return;
-            }
-            arrived_node_flags[i] = true;
+        if arrived_node_flags[i] {
+            return;
         }
+        arrived_node_flags[i] = true;
 
-        {
-            let mut n_colors = n_colors.borrow_mut();
-            let n_color = n_colors.entry(c[i]).or_insert(0);
-            if *n_color == 0 {
-                good_nodes.borrow_mut()[i] = true;
-            }
-            *n_color += 1;
+        let n_color = n_colors.entry(c[i]).or_insert(0);
+        if *n_color == 0 {
+            good_nodes[i] = true;
         }
+        *n_color += 1;
 
         for &dest in edges.get(&i).expect("c").iter() {
-            visit(
-                dest,
-                c,
-                edges,
-                n_colors.clone(),
-                arrived_node_flags.clone(),
-                good_nodes.clone(),
-            );
+            visit(dest, c, edges, n_colors, arrived_node_flags, good_nodes);
         }
 
-        {
-            let mut n_colors = n_colors.borrow_mut();
-            *n_colors.get_mut(&c[i]).unwrap() -= 1;
-        }
+        *n_colors.get_mut(&c[i]).unwrap() -= 1;
     }
 
     visit(
         1,
         &c,
         &edges,
-        n_colors,
-        arrived_node_flags,
-        good_nodes.clone(),
+        &mut n_colors,
+        &mut arrived_node_flags,
+        &mut good_node_flags,
     );
 
-    for (i, _) in good_nodes
-        .borrow()
+    for (i, _) in good_node_flags
         .iter()
         .enumerate()
         .filter(|(_, &is_good)| is_good)
