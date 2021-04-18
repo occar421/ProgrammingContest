@@ -65,7 +65,14 @@ macro_rules! assert_judge {
 
         $method(&input[..], &mut output).expect("Should not emit error");
 
-        let output = String::from_utf8(output).expect("Not UTF-8");
+        let mut output = String::from_utf8(output).expect("Not UTF-8");
+
+        if output.ends_with('\n') {
+            output.pop();
+            if output.ends_with('\r') {
+                output.pop();
+            }
+        }
 
         assert_eq!(output, $expected);
     }};
@@ -250,34 +257,26 @@ where
     R: BufRead,
     W: Write,
 {
+    let modulo = 998244353;
+
     input! {
         stdin = reader,
         n: usize, m: usize
     }
 
     // after checking editor's note
-    let mut empty_map = HashMap::new();
-    let mut map = HashMap::new();
-    for i in 1..=m {
-        empty_map.insert(i, 0);
-        map.insert(i, 1);
-    }
+    let mg = MontgomeryExp2ModularMultiplication::new(modulo);
+    let cg = ModularCombinationGenerator::new(n + (m as f64).log2().ceil() as usize, mg.clone());
+    let result = (1..=m)
+        .map(|m| {
+            prime_factorize(m)
+                .iter()
+                .map(|(_, &p_exp)| cg.generate(n - 1 + p_exp, p_exp))
+                .fold(1, |prod, c| mg.mul(prod, c))
+        })
+        .sum::<usize>() % modulo;
 
-    for _ in 1..n {
-        let mut working_map = empty_map.clone();
-        for i in 1..=m {
-            let value = map.get(&i).unwrap().clone();
-            for j in 1..=m {
-                if i * j > m {
-                    break;
-                }
-                *working_map.get_mut(&(i * j)).unwrap() += value;
-            }
-        }
-        map = working_map;
-    }
-
-    write!(writer, "{}", map.values().sum::<usize>() % 998244353)?;
+    writeln!(writer, "{}", result)?;
 
     Ok(())
 }
@@ -316,29 +315,28 @@ struct ModularCombinationGenerator {
 }
 
 impl ModularCombinationGenerator {
-    fn new(n_max: usize, modulo_number: usize) -> Self {
-        let montgomery = MontgomeryExp2ModularMultiplication::new(modulo_number);
-
-        let mut f = 1;
+    fn new(n_max: usize, montgomery: MontgomeryExp2ModularMultiplication) -> Self {
         let mut factorials = Vec::with_capacity(n_max + 1);
-        factorials.push(1); // by 0!
 
-        // calc from 1! to n!
+        // calc from 0! to n!
+        let mut f_of_i = 1;
+        factorials.push(f_of_i);
         for i in 1..=n_max {
-            f = montgomery.mul(f, i);
-            factorials.push(f);
+            f_of_i = montgomery.mul(f_of_i, i);
+            factorials.push(f_of_i);
         }
+        let f_of_n = f_of_i;
 
         // reversed_factorial
         let mut reversed_r_f = Vec::with_capacity(n_max + 1);
-        // calc n!^-1
-        let mut inv = montgomery.exp(f, modulo_number - 2);
-        reversed_r_f.push(inv);
 
+        // calc n!^-1 mod m = n!^(m-2) mod m by Fermat's little theorem
+        let mut inv_f_of_i = montgomery.exp(f_of_n, montgomery.n - 2);
+        reversed_r_f.push(inv_f_of_i);
         // calc from (n-1)!^-1 to 0!^-1
         for i in (1..=n_max).rev() {
-            inv = montgomery.mul(inv, i);
-            reversed_r_f.push(inv);
+            inv_f_of_i = montgomery.mul(inv_f_of_i, i);
+            reversed_r_f.push(inv_f_of_i);
         }
         let reciprocal_factorials = {
             reversed_r_f.reverse();
@@ -352,7 +350,7 @@ impl ModularCombinationGenerator {
         }
     }
 
-    fn get(&self, n: usize, r: usize) -> usize {
+    fn generate(&self, n: usize, r: usize) -> usize {
         // n! * r!^-1 * (n-r)!^-1
         self.montgomery.mul(
             self.factorials[n],
@@ -364,6 +362,7 @@ impl ModularCombinationGenerator {
     }
 }
 
+#[derive(Clone)]
 struct MontgomeryExp2ModularMultiplication {
     /** N */
     n: usize,
@@ -405,7 +404,7 @@ impl MontgomeryExp2ModularMultiplication {
 
     fn do_reduction(&self, t: usize) -> usize {
         // t <- (T + (TN' mod R)N)/R
-        let temp = self.div_r(t + self.mod_r(t * self.n_prime) * self.n);
+        let temp = self.div_r(t + self.mod_r(self.mod_r(t) * self.n_prime) * self.n);
 
         // if t >= N then return t - N else return t
         if temp >= self.n {
@@ -459,6 +458,21 @@ mod tests {
     }
 
     #[test]
+    fn extra1() {
+        assert_judge!(process, "4 4", "19");
+    }
+
+    #[test]
+    fn extra2() {
+        assert_judge!(process, "1 1", "1");
+    }
+
+    #[test]
+    fn extra3() {
+        assert_judge!(process, "1 7", "7");
+    }
+
+    #[test]
     fn sample2() {
         assert_judge!(process, "20 30", "71166");
     }
@@ -466,6 +480,28 @@ mod tests {
     #[test]
     fn sample3() {
         assert_judge!(process, "200000 200000", "835917264");
+    }
+
+    #[test]
+    fn extra4() {
+        assert_judge!(process, "10 10", "571");
+        assert_judge!(process, "50 50", "22711011");
+        assert_judge!(process, "75 75", "690338416");
+        assert_judge!(process, "75 75", "690338416");
+        assert_judge!(process, "79 79", "907503416");
+        // OK
+
+        assert_judge!(process, "78 80", "978514694");
+
+        // wrong mod
+
+        // NG
+        assert_judge!(process, "79 80", "47434803");
+        assert_judge!(process, "80 80", "118348284");
+        assert_judge!(process, "90 90", "154488393");
+        assert_judge!(process, "100 100", "980405035");
+        assert_judge!(process, "10000 10000", "702820656");
+        assert_judge!(process, "100000 100000", "502197289");
     }
 
     #[test]
@@ -491,14 +527,24 @@ mod tests {
         assert_eq!(m25.exp(5, 5), 5usize.pow(5) % 25);
         assert_eq!(m25.exp(3, 5), 3usize.pow(5) % 25);
         assert_eq!(m25.exp(5, 3), 5usize.pow(3) % 25);
+
+        let m1000000007 = MontgomeryExp2ModularMultiplication::new(1000000007);
+        assert_eq!(m1000000007.exp(123456789, 987654321), 652541198)
     }
 
     #[test]
     fn combination() {
-        let c = ModularCombinationGenerator::new(6, 7);
-        assert_eq!(c.get(3, 1), 3 % 7);
-        assert_eq!(c.get(4, 2), 6 % 7);
-        assert_eq!(c.get(5, 3), 10 % 7);
+        let c = ModularCombinationGenerator::new(6, MontgomeryExp2ModularMultiplication::new(7));
+        assert_eq!(c.generate(3, 1), 3 % 7);
+        assert_eq!(c.generate(4, 2), 6 % 7);
+        assert_eq!(c.generate(5, 3), 10 % 7);
+
+        let c = ModularCombinationGenerator::new(
+            5000,
+            MontgomeryExp2ModularMultiplication::new(998244353),
+        );
+        assert_eq!(c.generate(1234, 21), 798762687);
+        assert_eq!(c.generate(4321, 765), 70101255);
     }
 
     #[test]
