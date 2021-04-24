@@ -23,3 +23,19 @@ path = "src/arc115_b.rs"
 [[bin]]
 name = "arc116_c"
 path = "src/arc116_c.rs"
+
+[[bin]]
+name = "abc199_a"
+path = "src/abc199_a.rs"
+
+[[bin]]
+name = "abc199_b"
+path = "src/abc199_b.rs"
+
+[[bin]]
+name = "abc199_c"
+path = "src/abc199_c.rs"
+
+[[bin]]
+name = "abc199_d"
+path = "src/abc199_d.rs"
