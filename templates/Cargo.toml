@@ -8,9 +8,5 @@ edition = "2018"
 # Waiting for the update of the original repo
 test-case-derive = { git = "https://github.com/macisamuele/test-case-derive", branch = "maci-allow-build-on-stable" }
 
-[[bin]]
-name = "standard_io"
-path = "src/standard_io.rs"
-
 [dependencies]
 paste = "0.1"
