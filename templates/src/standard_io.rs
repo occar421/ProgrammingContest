@@ -59,14 +59,9 @@ macro_rules! read_value {
 #[allow(unused_macros)]
 macro_rules! assert_judge {
     ($method:ident, $input:expr, $expected:expr) => {{
-        let input = $input.as_bytes();
-        let mut output = Vec::new();
+        let output = assert_judge_with_output!($method, $input);
 
-        $method(&input[..], &mut output).expect("Should not emit error");
-
-        let output = String::from_utf8(output).expect("Not UTF-8");
-
-        assert_eq!(output, $expected);
+        assert_eq!(output, $expected.trim());
     }};
 }
 
@@ -78,7 +73,10 @@ macro_rules! assert_judge_with_output {
 
         $method(&input[..], &mut output).expect("Should not emit error");
 
-        String::from_utf8(output).expect("Not UTF-8")
+        String::from_utf8(output)
+            .expect("Not UTF-8")
+            .trim()
+            .to_string()
     }};
 }
 
@@ -109,12 +107,7 @@ macro_rules! assert_eq_with_error {
 #[allow(unused_macros)]
 macro_rules! assert_judge_with_error {
     ($method:ident, $input:expr, $expected:expr, $t:ty | $precision:expr ) => {{
-        let input = $input.as_bytes();
-        let mut output = Vec::new();
-
-        $method(&input[..], &mut output).expect("Should not emit error");
-
-        let output = String::from_utf8(output).expect("Not UTF-8");
+        let output = assert_judge_with_output!($method, $input);
 
         let actual: $t = output.parse().unwrap();
         let expected: $t = $expected.parse().unwrap();
@@ -124,7 +117,14 @@ macro_rules! assert_judge_with_error {
 }
 
 pub trait GenericInteger:
-    Copy + PartialEq + FromStr + Display + Rem<Output = Self> + Div<Output = Self> + Mul<Output = Self>
+    Copy
+    + Clone
+    + PartialEq
+    + FromStr
+    + Display
+    + Rem<Output = Self>
+    + Div<Output = Self>
+    + Mul<Output = Self>
 {
     fn zero() -> Self;
 }
@@ -151,7 +151,7 @@ where
     if b == T::zero() {
         a
     } else {
-        gcd(b, a % b)
+        gcd(b, a % b.clone())
     }
 }
 
@@ -161,7 +161,7 @@ pub fn lcm<T>(a: T, b: T) -> T
 where
     T: GenericInteger,
 {
-    a / gcd(a, b) * b
+    a / gcd(a.clone(), b) * b.clone()
 }
 
 pub trait IterExt<T>
@@ -256,7 +256,7 @@ where
 
     // FIXME: logic
 
-    // write!(writer, "")?;
+    // writeln!(writer, "")?;
 
     Ok(())
 }
