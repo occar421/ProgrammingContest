@@ -11,5 +11,6 @@ publish = false
 
 [workspace]
 members = [
-    "AtCoderBeginnerContest198"
+    "AtCoderBeginnerContest198",
+    "AtCoderBeginnerContest199",
 ]

@@ -1,5 +1,5 @@
 [package]
-name = "temporary"
+name = "AtCoderBeginnerContest199"
 version = "0.1.0"
 authors = ["MasuqaT <occar@hotmail.co.jp>"]
 edition = "2018"
@@ -9,17 +9,17 @@ edition = "2018"
 [dependencies]
 
 [[bin]]
-name = "code_festival_2017_quala_a"
-path = "src/code_festival_2017_quala_a.rs"
+name = "abc199_a"
+path = "abc199_a.rs"
 
 [[bin]]
-name = "arc019_1"
-path = "src/arc019_1.rs"
+name = "abc199_b"
+path = "abc199_b.rs"
 
 [[bin]]
-name = "arc115_b"
-path = "src/arc115_b.rs"
+name = "abc199_c"
+path = "abc199_c.rs"
 
 [[bin]]
-name = "arc116_c"
-path = "src/arc116_c.rs"
+name = "abc199_d"
+path = "abc199_d.rs"
