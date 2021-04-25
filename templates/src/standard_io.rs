@@ -7,52 +7,62 @@ use std::io::{BufRead, Result, Write};
 use std::ops::{Div, Mul, Rem};
 use std::str::FromStr;
 
-// From https://qiita.com/tanakh/items/0ba42c7ca36cd29d0ac8
+// From https://github.com/tanakh/competitive-rs/blob/d5f51f01a6f85ddbebec4cfcb601746bee727181/src/lib.rs#L1-L92
 macro_rules! input {
-    (source = $s:expr, $($r:tt)*) => {
+    (source = $s:expr; $($r:tt)*) => {
         let mut iter = $s.split_whitespace();
-        input_inner!{iter, $($r)*}
+        let mut _next = || { iter.next().unwrap() };
+        input_inner!{_next, $($r)*}
     };
-    (stdin = $s:expr, $($r:tt)*) => {
-        let s = {
-            let mut s = String::new();
-            $s.read_to_string(&mut s).unwrap();
-            s
+    (stdin = $s:expr; $($r:tt)*) => {
+        let mut bytes = std::io::Read::bytes(std::io::BufReader::new($s));
+        let mut _next = move || -> String{
+            bytes
+                .by_ref()
+                .map(|r|r.unwrap() as char)
+                .skip_while(|c|c.is_whitespace())
+                .take_while(|c|!c.is_whitespace())
+                .collect()
         };
-        let mut iter = s.split_whitespace();
-        input_inner!{iter, $($r)*}
+        input_inner!{_next, $($r)*}
     };
 }
 
+#[doc(hidden)]
 macro_rules! input_inner {
-    ($iter:expr) => {};
-    ($iter:expr, ) => {};
+    ($next:expr) => {};
+    ($next:expr, ) => {};
 
-    ($iter:expr, $var:ident : $t:tt $($r:tt)*) => {
-        let $var = read_value!($iter, $t);
-        input_inner!{$iter $($r)*}
+    ($next:expr, $var:ident : $t:tt $($r:tt)*) => {
+        let $var = read_value!($next, $t);
+        input_inner!{$next $($r)*}
     };
 }
 
+#[doc(hidden)]
 macro_rules! read_value {
-    ($iter:expr, ( $($t:tt),* )) => {
-        ( $(read_value!($iter, $t)),* )
+    ($next:expr, ( $($t:tt),* )) => {
+        ( $(read_value!($next, $t)),* )
     };
 
-    ($iter:expr, [ $t:tt ; $len:expr ]) => {
-        (0..$len).map(|_| read_value!($iter, $t)).collect::<Vec<_>>()
+    ($next:expr, [ $t:tt ; $len:expr ]) => {
+        (0..$len).map(|_| read_value!($next, $t)).collect::<Vec<_>>()
     };
 
-    ($iter:expr, chars) => {
-        read_value!($iter, String).chars().collect::<Vec<char>>()
+    ($next:expr, chars) => {
+        read_value!($next, String).chars().collect::<Vec<char>>()
     };
 
-    ($iter:expr, usize1) => {
-        read_value!($iter, usize) - 1
+    ($next:expr, bytes) => {
+        read_value!($next, String).into_bytes()
     };
 
-    ($iter:expr, $t:ty) => {
-        $iter.next().unwrap_or_default().parse::<$t>().expect("Parse error")
+    ($next:expr, usize1) => {
+        read_value!($next, usize) - 1
+    };
+
+    ($next:expr, $t:ty) => {
+        $next().parse::<$t>().expect("Parse error")
     };
 }
 
@@ -250,8 +260,9 @@ where
     W: Write,
 {
     input! {
-        stdin = reader,
+        stdin = reader;
         // FIXME: variables
+        // n: usize,
     }
 
     // FIXME: logic
@@ -267,7 +278,7 @@ mod tests {
 
     #[test]
     fn sample1() {
-        // assert_judge!(process, "1", "2");
+        assert_judge!(process, "1", "2");
 
         // let output = assert_judge_with_output!(process, "3");
         //
