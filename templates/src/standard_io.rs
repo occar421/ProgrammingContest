@@ -7,6 +7,10 @@ use std::io::{BufRead, Result, Write, BufWriter};
 use std::ops::{Div, Mul, Rem};
 use std::str::FromStr;
 
+pub type NodeIndex0Based = usize;
+pub type NodeIndex1Based = usize;
+pub type Quantity = usize;
+
 // From https://github.com/tanakh/competitive-rs/blob/d5f51f01a6f85ddbebec4cfcb601746bee727181/src/lib.rs#L1-L92
 //   and modified by this file author
 macro_rules! input {
@@ -218,6 +222,7 @@ where
 }
 
 #[allow(unused_macros)]
+#[macro_export]
 macro_rules! swap {
     ($v1:expr, $v2:expr) => {
         let buf = $v1;
@@ -269,8 +274,8 @@ where
     input! {
         stdin = reader;
         // FIXME: variables
-        // n: usize,
-        // mut n: usize1,
+        // n: Quantity,
+        // mut n: NodeIndex1Based,
     }
 
     // FIXME: logic
