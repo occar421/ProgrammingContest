@@ -293,18 +293,19 @@ where
     }
 
     fn count_in_path_dfs(
-        cursor: usize,
         edges: &HashMap<NodeIndex1Based, Vec<NodeIndex1Based>>,
-        path: &Vec<NodeIndex1Based>,
+        path: &[NodeIndex1Based],
         node_colors: &mut Vec<NodeColor>,
     ) -> usize {
         fn inner(
-            cursor: usize,
             edges: &HashMap<NodeIndex1Based, Vec<NodeIndex1Based>>,
-            path: &Vec<NodeIndex1Based>,
+            path: &[NodeIndex1Based],
             node_colors: &mut Vec<NodeColor>,
         ) -> usize {
-            let current = path[cursor];
+            let (&current, remaining_path) = match path.split_first() {
+                Some(result) => result,
+                None => return 1, // reached leaf
+            };
             let mut result = 0;
 
             'color: for &color in &[NodeColor::Red, NodeColor::Green, NodeColor::Blue] {
@@ -317,13 +318,7 @@ where
                     }
                 }
 
-                if cursor == path.len() - 1 {
-                    // reached leaf
-                    result += 1;
-                    continue;
-                }
-
-                result += inner(cursor + 1, edges, path, node_colors);
+                result += inner(edges, &remaining_path, node_colors);
             }
 
             node_colors[current] = NodeColor::None;
@@ -331,15 +326,10 @@ where
             return result;
         }
 
-        let current = path[cursor];
+        let &current = path.first().unwrap();
 
         node_colors[current] = NodeColor::Red; // check only 1 possibility
-        let red_result = if cursor == path.len() - 1 {
-            1
-        } else {
-            inner(cursor + 1, edges, path, node_colors)
-        };
-
+        let red_result = inner(edges, &path[1..], node_colors);
         node_colors[current] = NodeColor::None;
 
         return red_result * 3;
@@ -355,7 +345,7 @@ where
         find_path_dfs(i, &edges, &mut arrived_node_flags, &mut path);
 
         if !path.is_empty() {
-            answer *= count_in_path_dfs(0, &edges, &path, &mut node_colors);
+            answer *= count_in_path_dfs(&edges, path.as_slice(), &mut node_colors);
         }
     }
 
