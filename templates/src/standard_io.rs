@@ -8,6 +8,7 @@ use std::ops::{Div, Mul, Rem};
 use std::str::FromStr;
 
 // From https://github.com/tanakh/competitive-rs/blob/d5f51f01a6f85ddbebec4cfcb601746bee727181/src/lib.rs#L1-L92
+//   and modified by this file author
 macro_rules! input {
     (source = $s:expr; $($r:tt)*) => {
         let mut iter = $s.split_whitespace();
@@ -35,6 +36,10 @@ macro_rules! input_inner {
 
     ($next:expr, $var:ident : $t:tt $($r:tt)*) => {
         let $var = read_value!($next, $t);
+        input_inner!{$next $($r)*}
+    };
+    ($next:expr, mut $var:ident : $t:tt $($r:tt)*) => {
+        let mut $var = read_value!($next, $t);
         input_inner!{$next $($r)*}
     };
 }
@@ -265,6 +270,7 @@ where
         stdin = reader;
         // FIXME: variables
         // n: usize,
+        // mut n: usize1,
     }
 
     // FIXME: logic
