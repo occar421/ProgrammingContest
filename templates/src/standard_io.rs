@@ -3,7 +3,7 @@
 
 use std::fmt::Display;
 use std::io;
-use std::io::{BufRead, Result, Write};
+use std::io::{BufRead, Result, Write, BufWriter};
 use std::ops::{Div, Mul, Rem};
 use std::str::FromStr;
 
@@ -248,9 +248,11 @@ fn main() {
     let stdio = io::stdin();
     let input = stdio.lock();
 
-    let output = io::stdout();
+    let mut stdout = io::stdout();
+    let output = BufWriter::new(stdout.lock());
 
     process(input, output).expect("Should not emit error");
+    stdout.flush().unwrap();
 }
 
 #[allow(non_snake_case)]
