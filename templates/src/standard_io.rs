@@ -1,9 +1,11 @@
 // Macro by MasuqaT (occar421)
 // https://github.com/occar421/ProgrammingContest/tree/master/templates/src/standard_io.rs
 
+use std::collections::HashMap;
 use std::fmt::Display;
+use std::hash::Hash;
 use std::io;
-use std::io::{BufRead, Result, Write, BufWriter};
+use std::io::{BufRead, BufWriter, Result, Write};
 use std::ops::{Div, Mul, Rem};
 use std::str::FromStr;
 
@@ -107,7 +109,7 @@ macro_rules! assert_eq_with_error {
                 if !(*left_val - *precision_val < *right_val
                     && *right_val < *left_val + *precision_val)
                 {
-                    // The reborrows below are intentional. Without them, the stack slot for the
+                    // The re-borrows below are intentional. Without them, the stack slot for the
                     // borrow is initialized even before the values are compared, leading to a
                     // noticeable slow down.
                     panic!(
@@ -138,7 +140,9 @@ macro_rules! assert_judge_with_error {
 pub trait GenericInteger:
     Copy
     + Clone
+    + Eq
     + PartialEq
+    + Hash
     + FromStr
     + Display
     + Rem<Output = Self>
@@ -146,21 +150,25 @@ pub trait GenericInteger:
     + Mul<Output = Self>
 {
     fn zero() -> Self;
+    fn one() -> Self;
 }
 
-macro_rules! dec_gi {
+macro_rules! implement_generic_integer {
     () => {};
     ($t:ty $(, $r:ty)*) => {
         impl GenericInteger for $t {
             #[inline]
             fn zero() -> Self { 0 }
+
+            #[inline]
+            fn one() -> Self { 1 }
         }
 
-        dec_gi![ $( $r ),* ];
+        implement_generic_integer![ $( $r ),* ];
     };
 }
 
-dec_gi![u8, u16, u32, u64, u128, usize, i8, i16, i32, i64, i128, isize];
+implement_generic_integer![u8, u16, u32, u64, u128, usize, i8, i16, i32, i64, i128, isize];
 
 #[allow(dead_code)]
 pub fn gcd<T>(a: T, b: T) -> T
@@ -181,6 +189,34 @@ where
     T: GenericInteger,
 {
     a / gcd(a.clone(), b) * b.clone()
+}
+
+#[allow(dead_code)]
+pub fn prime_factorize(n: usize) -> HashMap<usize, Quantity> {
+    let mut map = HashMap::new();
+
+    let sqrt_n = (n as f64).sqrt().ceil() as usize;
+
+    let mut n = n;
+    for p in 2..=sqrt_n {
+        if n % p != 0 {
+            continue;
+        }
+
+        let mut exp_number = 0;
+        while n % p == 0 {
+            exp_number += 1;
+            n /= p;
+        }
+
+        map.insert(p, exp_number);
+    }
+
+    if n != 1 {
+        map.insert(n, 1);
+    }
+
+    map
 }
 
 pub trait IterExt<T>

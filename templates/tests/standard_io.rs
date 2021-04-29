@@ -63,4 +63,16 @@ mod tests {
 
         assert_eq!(a, invert_index!(b));
     }
+
+    #[test_case(1 => Vec::<(usize, usize)>::new())]
+    #[test_case(2 => vec![(2,1)])]
+    #[test_case(3 => vec![(3,1)])]
+    #[test_case(12 => vec![(2,2),(3,1)])]
+    #[test_case(600 => vec![(2,3),(3,1),(5,2)])]
+    fn prime_factorize(n: usize) -> Vec<(usize, usize)> {
+        let result = templates::standard_io::prime_factorize(n);
+        let mut pairs: Vec<_> = result.iter().collect();
+        pairs.sort_by_key(|(key, _)| *key);
+        pairs.iter().map(|(key, value)| (**key, **value)).collect()
+    }
 }
