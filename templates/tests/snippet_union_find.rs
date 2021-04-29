@@ -3,6 +3,7 @@ extern crate test_case_derive;
 #[cfg(test)]
 mod tests {
     use test_case_derive::test_case;
+    use templates::snippet_union_find::union_find::UnionFind;
 
     #[test]
     fn _ignite() {}
@@ -11,13 +12,13 @@ mod tests {
     #[test_case(2 => vec![0, 1])]
     #[test_case(5 => vec![0, 1, 2, 3, 4])]
     fn check_initial(size: usize) -> Vec<usize> {
-        let uf = templates::snippet_union_find::UnionFind::new(size);
+        let uf = UnionFind::new(size);
         uf.get_roots()
     }
 
     #[test]
     fn connect() {
-        let mut uf = templates::snippet_union_find::UnionFind::new(5);
+        let mut uf = UnionFind::new(5);
         uf.connect_between(0, 1);
         uf.connect_between(2, 3);
         uf.connect_between(0, 4);
