@@ -1,11 +1,6 @@
-extern crate test_case_derive;
-
 #[cfg(test)]
 mod tests {
-    use test_case_derive::test_case;
-
-    #[test]
-    fn _ignite() {}
+    use test_case::test_case;
 
     #[test_case(1, 1 => 1)]
     #[test_case(2, 1 => 1)]

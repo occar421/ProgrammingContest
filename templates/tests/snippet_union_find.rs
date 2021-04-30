@@ -1,12 +1,7 @@
-extern crate test_case_derive;
-
 #[cfg(test)]
 mod tests {
-    use test_case_derive::test_case;
+    use test_case::test_case;
     use templates::snippet_union_find::union_find::UnionFind;
-
-    #[test]
-    fn _ignite() {}
 
     #[test_case(1 => vec![0])]
     #[test_case(2 => vec![0, 1])]
