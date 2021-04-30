@@ -6,38 +6,64 @@ pub mod modular {
     use super::ThenSome;
     use std::fmt::{Display, Formatter, Result};
     use std::iter::{Product, Sum};
+    use std::marker::PhantomData;
     use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
-    #[derive(Debug, Clone, Copy, Default, PartialOrd, Ord, PartialEq, Eq)]
-    pub struct PrimeModularUsize {
-        value: usize,
-        modulo: usize,
+    pub trait ModuloExt: Clone + Copy {
+        fn modulo() -> usize;
     }
 
-    impl Display for PrimeModularUsize {
+    #[macro_export]
+    macro_rules! modulo {
+        ($num: literal) => {
+            modulo!($num by modular::ModuloExt);
+        };
+        ($num: literal by $trait: path) => {
+            #[derive(Debug, Clone, Copy, Default, PartialOrd, Ord, PartialEq, Eq)]
+            pub struct Modulo;
+
+            impl $trait for Modulo {
+                #[inline]
+                fn modulo() -> usize {
+                    $num
+                }
+            }
+        };
+    }
+
+    #[derive(Debug, Clone, Copy, Default, PartialOrd, Ord, PartialEq, Eq)]
+    pub struct PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        value: usize,
+        modulo: PhantomData<M>,
+    }
+
+    impl<M> Display for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
         fn fmt(&self, f: &mut Formatter<'_>) -> Result {
             write!(f, "{}", self.value)
         }
     }
 
     // Rust in AtCoder does not support const generics due to its version
-    impl PrimeModularUsize {
+    impl<M> PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
         /// Return the modular value
         ///
         /// # Arguments
         ///
         /// * `n` - Raw value
-        /// * `modulo` - Modulo, must be a prime number
-        pub fn new(n: usize, modulo: usize) -> Self {
+        pub fn new(n: usize) -> Self {
             Self {
-                value: n % modulo,
-                modulo,
+                value: n % M::modulo(),
+                modulo: PhantomData,
             }
-        }
-
-        #[inline]
-        fn new_value(&self, value: usize) -> Self {
-            Self::new(value, self.modulo)
         }
 
         #[inline]
@@ -45,45 +71,39 @@ pub mod modular {
             self.value
         }
 
-        // remove after const generics
-        #[inline]
-        fn check_two(first: &Self, second: &Self) {
-            debug_assert_eq!(first.modulo, second.modulo);
-        }
-
         pub fn pow<T>(&self, exp: T) -> Self
         where
-            T: Into<PrimeModularUsize>,
+            T: Into<Self>,
+            M: ModuloExt,
         {
             let exp = exp.into();
-            Self::check_two(self, &exp);
 
             let mut n = exp.value;
             let mut value = self.value;
             let mut result = 1;
             while n > 0 {
                 if n & 0x1 == 0x1 {
-                    result = (result * value) % self.modulo;
+                    result = (result * value) % M::modulo();
                 }
-                value = (value * value) % self.modulo;
+                value = (value * value) % M::modulo();
                 n >>= 1;
             }
 
-            self.new_value(result)
+            Self::new(result)
         }
 
         #[inline]
         pub fn reciprocal(&self) -> Option<Self> {
             (self.value != 0).then_some_(
                 // Fermat's little theorem
-                self.pow(self.new_value(self.modulo - 2)),
+                self.pow(Self::new(M::modulo() - 2)),
             )
         }
 
         #[inline]
         pub fn checked_div<T>(self, rhs: T) -> Option<Self>
         where
-            T: Into<PrimeModularUsize>,
+            T: Into<Self>,
         {
             rhs.into()
                 .reciprocal()
@@ -91,24 +111,25 @@ pub mod modular {
         }
     }
 
-    impl<T> Add<T> for PrimeModularUsize
+    impl<T, M> Add<T> for PrimeModularUsize<M>
     where
-        T: Into<PrimeModularUsize>,
+        T: Into<Self>,
+        M: ModuloExt,
     {
         type Output = Self;
 
         #[inline]
         fn add(self, rhs: T) -> Self::Output {
             let rhs = rhs.into();
-            Self::check_two(&self, &rhs);
 
-            self.new_value(self.value + rhs.value)
+            Self::new(self.value + rhs.value)
         }
     }
 
-    impl<T> AddAssign<T> for PrimeModularUsize
+    impl<T, M> AddAssign<T> for PrimeModularUsize<M>
     where
-        T: Into<PrimeModularUsize>,
+        T: Into<Self>,
+        M: ModuloExt,
     {
         #[inline]
         fn add_assign(&mut self, rhs: T) {
@@ -116,24 +137,25 @@ pub mod modular {
         }
     }
 
-    impl<T> Sub<T> for PrimeModularUsize
+    impl<T, M> Sub<T> for PrimeModularUsize<M>
     where
-        T: Into<PrimeModularUsize>,
+        T: Into<Self>,
+        M: ModuloExt,
     {
-        type Output = PrimeModularUsize;
+        type Output = Self;
 
         #[inline]
         fn sub(self, rhs: T) -> Self::Output {
             let rhs = rhs.into();
-            Self::check_two(&self, &rhs);
 
-            self.new_value(self.modulo + self.value - rhs.value)
+            Self::new(M::modulo() + self.value - rhs.value)
         }
     }
 
-    impl<T> SubAssign<T> for PrimeModularUsize
+    impl<T, M> SubAssign<T> for PrimeModularUsize<M>
     where
-        T: Into<PrimeModularUsize>,
+        T: Into<Self>,
+        M: ModuloExt,
     {
         #[inline]
         fn sub_assign(&mut self, rhs: T) {
@@ -141,24 +163,25 @@ pub mod modular {
         }
     }
 
-    impl<T> Mul<T> for PrimeModularUsize
+    impl<T, M> Mul<T> for PrimeModularUsize<M>
     where
-        T: Into<PrimeModularUsize>,
+        T: Into<Self>,
+        M: ModuloExt,
     {
-        type Output = PrimeModularUsize;
+        type Output = Self;
 
         #[inline]
         fn mul(self, rhs: T) -> Self::Output {
             let rhs = rhs.into();
-            Self::check_two(&self, &rhs);
 
-            self.new_value(self.value * rhs.value)
+            Self::new(self.value * rhs.value)
         }
     }
 
-    impl<T> MulAssign<T> for PrimeModularUsize
+    impl<T, M> MulAssign<T> for PrimeModularUsize<M>
     where
-        T: Into<PrimeModularUsize>,
+        T: Into<Self>,
+        M: ModuloExt,
     {
         #[inline]
         fn mul_assign(&mut self, rhs: T) {
@@ -166,11 +189,12 @@ pub mod modular {
         }
     }
 
-    impl<T> Div<T> for PrimeModularUsize
+    impl<T, M> Div<T> for PrimeModularUsize<M>
     where
-        T: Into<PrimeModularUsize>,
+        T: Into<Self>,
+        M: ModuloExt,
     {
-        type Output = PrimeModularUsize;
+        type Output = Self;
 
         #[inline]
         fn div(self, rhs: T) -> Self::Output {
@@ -178,9 +202,10 @@ pub mod modular {
         }
     }
 
-    impl<T> DivAssign<T> for PrimeModularUsize
+    impl<T, M> DivAssign<T> for PrimeModularUsize<M>
     where
-        T: Into<PrimeModularUsize>,
+        T: Into<Self>,
+        M: ModuloExt,
     {
         #[inline]
         fn div_assign(&mut self, rhs: T) {
@@ -188,96 +213,81 @@ pub mod modular {
         }
     }
 
-    impl Neg for PrimeModularUsize {
-        type Output = PrimeModularUsize;
+    impl<M> Neg for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        type Output = Self;
 
         #[inline]
         fn neg(self) -> Self::Output {
-            self.new_value(0) - self
+            Self::new(0) - self
         }
     }
 
-    // after const generics, Option is not required
-    // currently cannot define module from an empty iter
-    impl Sum<PrimeModularUsize> for Option<PrimeModularUsize> {
+    impl<M> Sum for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
         fn sum<I>(iter: I) -> Self
         where
-            I: Iterator<Item = PrimeModularUsize>,
+            I: Iterator<Item = Self>,
         {
-            let mut iter = iter;
-            iter.next().map(|first| {
-                let mut result = first;
-                for x in iter {
-                    result += x;
-                }
-                result
-            })
+            let mut result = Self::new(0);
+            for x in iter {
+                result += x;
+            }
+            result
         }
     }
 
-    impl Sum<PrimeModularUsize> for usize {
-        fn sum<I>(iter: I) -> Self
-        where
-            I: Iterator<Item = PrimeModularUsize>,
-        {
-            let sum: Option<PrimeModularUsize> = iter.sum();
-            sum.map_or(0, |x| x.value())
-        }
-    }
-
-    // after const generics, Option is not required
-    // currently cannot define module from an empty iter
-    impl Product<PrimeModularUsize> for Option<PrimeModularUsize> {
+    impl<M> Product for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
         fn product<I>(iter: I) -> Self
         where
-            I: Iterator<Item = PrimeModularUsize>,
+            I: Iterator<Item = Self>,
         {
-            let mut iter = iter;
-            iter.next().map(|first| {
-                let mut result = first;
-                for x in iter {
-                    result *= x;
-                }
-                result
-            })
+            let mut result = Self::new(1);
+            for x in iter {
+                result *= x;
+            }
+            result
         }
     }
 
-    impl Product<PrimeModularUsize> for usize {
-        fn product<I>(iter: I) -> Self
-        where
-            I: Iterator<Item = PrimeModularUsize>,
-        {
-            let product: Option<PrimeModularUsize> = iter.product();
-            product.map_or(1, |x| x.value())
+    impl<T, M> From<T> for PrimeModularUsize<M>
+    where
+        T: Into<usize>,
+        M: ModuloExt,
+    {
+        #[inline]
+        fn from(value: T) -> Self {
+            Self::new(value.into())
         }
     }
 
-    // after const generics
-    // impl<T, const M: usize> From<T> for ModularUsize<M>
-    // where
-    //     T: Into<usize>,
-    // {
-    //     #[inline]
-    //     fn from(value: T) -> Self {
-    //         Self::new(value.into(), M)
-    //     }
-    // }
-
-    pub struct PrimeModularCombinationGenerator {
-        factorials: Vec<PrimeModularUsize>,
-        reciprocals_of_factorial: Vec<PrimeModularUsize>,
+    pub struct PrimeModularCombinationGenerator<M>
+    where
+        M: ModuloExt,
+    {
+        factorials: Vec<PrimeModularUsize<M>>,
+        reciprocals_of_factorial: Vec<PrimeModularUsize<M>>,
     }
 
-    impl PrimeModularCombinationGenerator {
-        pub fn new(n_max: usize, modulo: usize) -> Self {
+    impl<M> PrimeModularCombinationGenerator<M>
+    where
+        M: ModuloExt,
+    {
+        pub fn new(n_max: usize) -> Self {
             let mut factorials = Vec::with_capacity(n_max + 1);
 
             // calc from 0! to n!
-            let mut f_of_i = PrimeModularUsize::new(1, modulo);
+            let mut f_of_i = PrimeModularUsize::new(1);
             factorials.push(f_of_i);
             for i in 1..=n_max {
-                let i = PrimeModularUsize::new(i, modulo);
+                let i = PrimeModularUsize::new(i);
                 f_of_i *= i;
                 factorials.push(f_of_i);
             }
@@ -291,7 +301,7 @@ pub mod modular {
             reversed_rof.push(f_of_i_reciprocal);
             // calc from (n-1)!^-1 to 0!^-1
             for i in (1..=n_max).rev() {
-                let i = PrimeModularUsize::new(i, modulo);
+                let i = PrimeModularUsize::new(i);
                 f_of_i_reciprocal *= i;
                 reversed_rof.push(f_of_i_reciprocal);
             }
@@ -306,7 +316,7 @@ pub mod modular {
             }
         }
 
-        pub fn generate(&self, n: usize, r: usize) -> PrimeModularUsize {
+        pub fn generate(&self, n: usize, r: usize) -> PrimeModularUsize<M> {
             // n! * r!^-1 * (n-r)!^-1
             self.factorials[n]
                 * self.reciprocals_of_factorial[r]
