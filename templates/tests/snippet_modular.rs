@@ -75,7 +75,7 @@ mod tests {
     }
 
     #[test]
-    fn r#mut() {
+    fn mul() {
         let mut a = PrimeModularUsize::new(3, 7);
         a *= PrimeModularUsize::new(5, 7);
         assert_eq!(a.value(), 1)
@@ -94,12 +94,24 @@ mod tests {
         assert_eq!((-a).value(), 4)
     }
 
-    #[test_case(vec![] => 0)]
+    #[test_case(Vec::<usize>::new() => 0)]
     #[test_case(vec![1] => 1)]
     #[test_case(vec![10, 20] => 2)]
     #[test_case(vec![1, 2, 3, 4, 5] => 1)]
     fn sum_mod7(values: Vec<usize>) -> usize {
         values.iter().map(|&x| PrimeModularUsize::new(x, 7)).sum()
+    }
+
+    #[test_case(Vec::<usize>::new() => 1)]
+    #[test_case(vec![0] => 0)]
+    #[test_case(vec![2] => 2)]
+    #[test_case(vec![10, 20] => 200 % 7)]
+    #[test_case(vec![1, 2, 3, 4, 5] => 120 % 7)]
+    fn product_mod7(values: Vec<usize>) -> usize {
+        values
+            .iter()
+            .map(|&x| PrimeModularUsize::new(x, 7))
+            .product()
     }
 
     #[test_case(3, 1 => 3 % 7)]

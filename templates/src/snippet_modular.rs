@@ -5,7 +5,7 @@ pub mod modular {
 
     use super::ThenSome;
     use std::fmt::{Display, Formatter, Result};
-    use std::iter::Sum;
+    use std::iter::{Product, Sum};
     use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
     #[derive(Debug, Clone, Copy, Default, PartialOrd, Ord, PartialEq, Eq)]
@@ -222,6 +222,34 @@ pub mod modular {
         {
             let sum: Option<PrimeModularUsize> = iter.sum();
             sum.map_or(0, |x| x.value())
+        }
+    }
+
+    // after const generics, Option is not required
+    // currently cannot define module from an empty iter
+    impl Product<PrimeModularUsize> for Option<PrimeModularUsize> {
+        fn product<I>(iter: I) -> Self
+        where
+            I: Iterator<Item = PrimeModularUsize>,
+        {
+            let mut iter = iter;
+            iter.next().map(|first| {
+                let mut result = first;
+                for x in iter {
+                    result *= x;
+                }
+                result
+            })
+        }
+    }
+
+    impl Product<PrimeModularUsize> for usize {
+        fn product<I>(iter: I) -> Self
+        where
+            I: Iterator<Item = PrimeModularUsize>,
+        {
+            let product: Option<PrimeModularUsize> = iter.product();
+            product.map_or(1, |x| x.value())
         }
     }
 
