@@ -302,7 +302,7 @@ fn main() {
 }
 
 #[allow(non_snake_case)]
-fn process<R, W>(mut reader: R, mut writer: W) -> Result<()>
+fn process<R, W>(reader: R, mut writer: W) -> Result<()>
 where
     R: BufRead,
     W: Write,
