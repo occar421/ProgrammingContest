@@ -1,6 +1,8 @@
 #[cfg(test)]
 mod tests {
-    use templates::snippet_modular::modular::PrimeModularUsize;
+    use templates::snippet_modular::modular::{
+        PrimeModularCombinationGenerator, PrimeModularUsize,
+    };
     use test_case::test_case;
 
     #[test_case(0 => 0)]
@@ -90,5 +92,22 @@ mod tests {
     fn neg() {
         let a = PrimeModularUsize::new(3, 7);
         assert_eq!((-a).value(), 4)
+    }
+
+    #[test_case(3, 1 => 3 % 7)]
+    #[test_case(4, 2 => 6 % 7)]
+    #[test_case(5, 3 => 10 % 7)]
+    fn combination_mod7(n: usize, r: usize) -> usize {
+        PrimeModularCombinationGenerator::new(6, 7)
+            .generate(n, r)
+            .value()
+    }
+
+    #[test_case(1234, 21 => 798762687)]
+    #[test_case(4321, 765 => 70101255)]
+    fn combination_mod998244353(n: usize, r: usize) -> usize {
+        PrimeModularCombinationGenerator::new(5000, 998244353)
+            .generate(n, r)
+            .value()
     }
 }

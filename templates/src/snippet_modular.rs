@@ -206,4 +206,52 @@ pub mod modular {
     //         Self::new(value.into(), M)
     //     }
     // }
+
+    pub struct PrimeModularCombinationGenerator {
+        factorials: Vec<PrimeModularUsize>,
+        reciprocals_of_factorial: Vec<PrimeModularUsize>,
+    }
+
+    impl PrimeModularCombinationGenerator {
+        pub fn new(n_max: usize, modulo: usize) -> Self {
+            let mut factorials = Vec::with_capacity(n_max + 1);
+
+            // calc from 0! to n!
+            let mut f_of_i = PrimeModularUsize::new(1, modulo);
+            factorials.push(f_of_i);
+            for i in 1..=n_max {
+                let i = PrimeModularUsize::new(i, modulo);
+                f_of_i *= i;
+                factorials.push(f_of_i);
+            }
+            let f_of_n = f_of_i;
+
+            // reversed (reciprocals of factorial)
+            let mut reversed_rof = Vec::with_capacity(n_max + 1);
+
+            // calc n!^-1
+            let mut f_of_i_reciprocal = f_of_n.reciprocal().expect("Should be non-0");
+            reversed_rof.push(f_of_i_reciprocal);
+            // calc from (n-1)!^-1 to 0!^-1
+            for i in (1..=n_max).rev() {
+                let i = PrimeModularUsize::new(i, modulo);
+                f_of_i_reciprocal *= i;
+                reversed_rof.push(f_of_i_reciprocal);
+            }
+            let reciprocals_of_factorial = {
+                reversed_rof.reverse();
+                reversed_rof
+            };
+
+            Self {
+                factorials,
+                reciprocals_of_factorial,
+            }
+        }
+
+        pub fn generate(&self, n: usize, r: usize) -> PrimeModularUsize {
+            // n! * r!^-1 * (n-r)!^-1
+            self.factorials[n] * self.reciprocals_of_factorial[r] * self.reciprocals_of_factorial[n - r]
+        }
+    }
 }
