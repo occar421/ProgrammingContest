@@ -16,20 +16,22 @@ pub mod modular {
     #[macro_export]
     macro_rules! modulo {
         ($num: literal as $alias: ident) => {
-            modulo!($num by modular::ModuloExt as $alias);
+            modulo!($num in modular as $alias);
         };
-        ($num: literal by $trait: path as $alias: ident) => {
+        ($num: literal in $module_base: path as $alias: ident) => {
             #[derive(Debug, Clone, Copy, Default, PartialOrd, Ord, PartialEq, Eq)]
             pub struct Modulo;
 
-            impl $trait for Modulo {
+            use $module_base as base;
+
+            impl base::ModuloExt for Modulo {
                 #[inline]
                 fn modulo() -> usize {
                     $num
                 }
             }
 
-            type $alias = PrimeModularUsize<Modulo>;
+            type $alias = base::PrimeModularUsize<Modulo>;
         };
     }
 
@@ -58,7 +60,7 @@ pub mod modular {
         M: ModuloExt,
     {
         fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-            write!(f, "{}", self.value)
+            write!(f, "{}", self.value())
         }
     }
 
