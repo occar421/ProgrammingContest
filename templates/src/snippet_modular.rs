@@ -5,6 +5,7 @@ pub mod modular {
 
     use super::ThenSome;
     use std::fmt::{Display, Formatter, Result};
+    use std::iter::Sum;
     use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
     #[derive(Debug, Clone, Copy, Default, PartialOrd, Ord, PartialEq, Eq)]
@@ -196,6 +197,34 @@ pub mod modular {
         }
     }
 
+    // after const generics, Option is not required
+    // currently cannot define module from an empty iter
+    impl Sum<PrimeModularUsize> for Option<PrimeModularUsize> {
+        fn sum<I>(iter: I) -> Self
+        where
+            I: Iterator<Item = PrimeModularUsize>,
+        {
+            let mut iter = iter;
+            iter.next().map(|first| {
+                let mut result = first;
+                for x in iter {
+                    result += x;
+                }
+                result
+            })
+        }
+    }
+
+    impl Sum<PrimeModularUsize> for usize {
+        fn sum<I>(iter: I) -> Self
+        where
+            I: Iterator<Item = PrimeModularUsize>,
+        {
+            let sum: Option<PrimeModularUsize> = iter.sum();
+            sum.map_or(0, |x| x.value())
+        }
+    }
+
     // after const generics
     // impl<T, const M: usize> From<T> for ModularUsize<M>
     // where
@@ -251,7 +280,9 @@ pub mod modular {
 
         pub fn generate(&self, n: usize, r: usize) -> PrimeModularUsize {
             // n! * r!^-1 * (n-r)!^-1
-            self.factorials[n] * self.reciprocals_of_factorial[r] * self.reciprocals_of_factorial[n - r]
+            self.factorials[n]
+                * self.reciprocals_of_factorial[r]
+                * self.reciprocals_of_factorial[n - r]
         }
     }
 }

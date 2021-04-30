@@ -94,6 +94,14 @@ mod tests {
         assert_eq!((-a).value(), 4)
     }
 
+    #[test_case(vec![] => 0)]
+    #[test_case(vec![1] => 1)]
+    #[test_case(vec![10, 20] => 2)]
+    #[test_case(vec![1, 2, 3, 4, 5] => 1)]
+    fn sum_mod7(values: Vec<usize>) -> usize {
+        values.iter().map(|&x| PrimeModularUsize::new(x, 7)).sum()
+    }
+
     #[test_case(3, 1 => 3 % 7)]
     #[test_case(4, 2 => 6 % 7)]
     #[test_case(5, 3 => 10 % 7)]
