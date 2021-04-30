@@ -3,5 +3,6 @@
 #![allow(unused_mut)]
 #![allow(dead_code)]
 
-pub mod standard_io;
+pub mod snippet_modular;
 pub mod snippet_union_find;
+pub mod standard_io;

@@ -278,7 +278,7 @@ macro_rules! invert_index {
     }};
 }
 
-trait ThenSome: Into<bool> {
+pub trait ThenSome: Into<bool> {
     fn then_some_<T>(self, t: T) -> Option<T> {
         if self.into() {
             Some(t)
