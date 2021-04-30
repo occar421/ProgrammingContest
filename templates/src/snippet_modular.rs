@@ -15,10 +15,10 @@ pub mod modular {
 
     #[macro_export]
     macro_rules! modulo {
-        ($num: literal) => {
-            modulo!($num by modular::ModuloExt);
+        ($num: literal as $alias: ident) => {
+            modulo!($num by modular::ModuloExt as $alias);
         };
-        ($num: literal by $trait: path) => {
+        ($num: literal by $trait: path as $alias: ident) => {
             #[derive(Debug, Clone, Copy, Default, PartialOrd, Ord, PartialEq, Eq)]
             pub struct Modulo;
 
@@ -28,7 +28,13 @@ pub mod modular {
                     $num
                 }
             }
+
+            type $alias = PrimeModularUsize<Modulo>;
         };
+    }
+
+    pub trait ModularUsize {
+        type Modulo: ModuloExt;
     }
 
     #[derive(Debug, Clone, Copy, Default, PartialOrd, Ord, PartialEq, Eq)]
@@ -38,6 +44,13 @@ pub mod modular {
     {
         value: usize,
         modulo: PhantomData<M>,
+    }
+
+    impl<M> ModularUsize for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        type Modulo = M;
     }
 
     impl<M> Display for PrimeModularUsize<M>
@@ -280,7 +293,7 @@ pub mod modular {
     where
         M: ModuloExt,
     {
-        pub fn new(n_max: usize) -> Self {
+        fn new(n_max: usize) -> Self {
             let mut factorials = Vec::with_capacity(n_max + 1);
 
             // calc from 0! to n!
@@ -321,6 +334,20 @@ pub mod modular {
             self.factorials[n]
                 * self.reciprocals_of_factorial[r]
                 * self.reciprocals_of_factorial[n - r]
+        }
+    }
+
+    pub struct CombinationGenerator<U>(PhantomData<U>)
+    where
+        U: ModularUsize;
+
+    impl<M> CombinationGenerator<PrimeModularUsize<M>>
+    where
+        M: ModuloExt,
+    {
+        #[inline]
+        pub fn new(n_max: usize) -> PrimeModularCombinationGenerator<M> {
+            PrimeModularCombinationGenerator::new(n_max)
         }
     }
 }
