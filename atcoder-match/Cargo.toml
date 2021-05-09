@@ -9,6 +9,10 @@ publish = false
 
 [dependencies]
 
+[[bin]]
+name = "_"
+path = "_.rs"
+
 [workspace]
 members = [
     "AtCoderBeginnerContest198",

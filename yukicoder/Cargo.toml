@@ -7,6 +7,10 @@ publish = false
 
 [dependencies]
 
+[[bin]]
+name = "_"
+path = "_.rs"
+
 [workspace]
 members = [
     "level-1_0",
