@@ -23,3 +23,7 @@ path = "abc081_a.rs"
 [[bin]]
 name = "abc081_b"
 path = "abc081_b.rs"
+
+[[bin]]
+name = "abc087_b"
+path = "abc087_b.rs"
