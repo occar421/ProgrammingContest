@@ -332,7 +332,7 @@ mod tests {
         // let output = assert_judge_with_output!(process, "3");
         //
         // input! {
-        //     source = output,
+        //     source = output;
         //     o: [u32; 3],
         // }
         //
@@ -341,7 +341,7 @@ mod tests {
         // let output = assert_judge_with_output!(process, "10 1.00000");
         //
         // input! {
-        //      source = output,
+        //      source = output;
         //      o: f64,
         // }
         //
