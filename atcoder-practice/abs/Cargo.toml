@@ -11,3 +11,7 @@ edition = "2018"
 [[bin]]
 name = "practice_1"
 path = "practice_1.rs"
+
+[[bin]]
+name = "abc086_a"
+path = "abc086_a.rs"
