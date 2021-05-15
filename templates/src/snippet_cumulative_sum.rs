@@ -16,16 +16,73 @@ pub mod cumulative_sum {
     use super::{GenericInteger, Length};
     use std::ops::RangeBounds;
 
-    pub struct CumulativeSum2d<T>
+    pub struct CumulativeSum1dGenerator<T>
     where
         T: GenericInteger,
     {
-        transformed_data: Vec<Vec<T>>,
+        cum_sum: Vec<T>,
+        data_length: Length,
+    }
+
+    impl<GI> CumulativeSum1dGenerator<GI>
+    where
+        GI: GenericInteger,
+    {
+        #[inline]
+        pub fn new(length: Length, source: &Vec<GI>) -> Self {
+            Self::new_with_evaluator(length, |i| source[i])
+        }
+
+        pub fn new_with_evaluator<F>(length: Length, evaluator: F) -> Self
+        where
+            F: Fn(usize) -> GI,
+        {
+            let mut cum_sum = nested_vec![GI::zero(); length + 1];
+
+            for i in 0..length {
+                cum_sum[i + 1] = cum_sum[i] + evaluator(i);
+            }
+
+            Self {
+                cum_sum: cum_sum,
+                data_length: length,
+            }
+        }
+
+        pub fn sum_in(&self, range: impl RangeBounds<usize>) -> GI {
+            use std::ops::Bound::*;
+
+            let range = {
+                let start = match range.start_bound() {
+                    Unbounded => 0,
+                    Included(&n) => n,
+                    Excluded(&n) => n + 1,
+                };
+                let end = match range.end_bound() {
+                    Unbounded => self.data_length,
+                    Included(&n) => n + 1,
+                    Excluded(&n) => n,
+                };
+
+                start..end
+            };
+
+            debug_assert!(range.start <= range.end);
+
+            self.cum_sum[range.end] - self.cum_sum[range.start]
+        }
+    }
+
+    pub struct CumulativeSum2dGenerator<T>
+    where
+        T: GenericInteger,
+    {
+        cum_sum: Vec<Vec<T>>,
         data_height: Length,
         data_width: Length,
     }
 
-    impl<GI> CumulativeSum2d<GI>
+    impl<GI> CumulativeSum2dGenerator<GI>
     where
         GI: GenericInteger,
     {
@@ -48,7 +105,7 @@ pub mod cumulative_sum {
             }
 
             Self {
-                transformed_data: cum_sum,
+                cum_sum: cum_sum,
                 data_height: height,
                 data_width: width,
             }
@@ -94,10 +151,10 @@ pub mod cumulative_sum {
             debug_assert!(vertical_range.start <= vertical_range.end);
             debug_assert!(horizontal_range.start <= horizontal_range.end);
 
-            self.transformed_data[vertical_range.end][horizontal_range.end]
-                + self.transformed_data[vertical_range.start][horizontal_range.start]
-                - self.transformed_data[vertical_range.end][horizontal_range.start]
-                - self.transformed_data[vertical_range.start][horizontal_range.end]
+            self.cum_sum[vertical_range.end][horizontal_range.end]
+                + self.cum_sum[vertical_range.start][horizontal_range.start]
+                - self.cum_sum[vertical_range.end][horizontal_range.start]
+                - self.cum_sum[vertical_range.start][horizontal_range.end]
         }
     }
 }
