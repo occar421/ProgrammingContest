@@ -54,20 +54,20 @@ pub mod cumulative_sum {
             }
         }
 
-        pub fn value_in(
+        pub fn sum_in(
             &self,
-            vertical: impl RangeBounds<usize>,
-            horizontal: impl RangeBounds<usize>,
+            vertical_range: impl RangeBounds<usize>,
+            horizontal_range: impl RangeBounds<usize>,
         ) -> GI {
             use std::ops::Bound::*;
 
-            let vertical = {
-                let vertical_start = match vertical.start_bound() {
+            let vertical_range = {
+                let vertical_start = match vertical_range.start_bound() {
                     Unbounded => 0,
                     Included(&n) => n,
                     Excluded(&n) => n + 1,
                 };
-                let vertical_end = match vertical.end_bound() {
+                let vertical_end = match vertical_range.end_bound() {
                     Unbounded => self.data_height,
                     Included(&n) => n + 1,
                     Excluded(&n) => n,
@@ -76,13 +76,13 @@ pub mod cumulative_sum {
                 vertical_start..vertical_end
             };
 
-            let horizontal = {
-                let horizontal_start = match horizontal.start_bound() {
+            let horizontal_range = {
+                let horizontal_start = match horizontal_range.start_bound() {
                     Unbounded => 0,
                     Included(&n) => n,
                     Excluded(&n) => n + 1,
                 };
-                let horizontal_end = match horizontal.end_bound() {
+                let horizontal_end = match horizontal_range.end_bound() {
                     Unbounded => self.data_width,
                     Included(&n) => n + 1,
                     Excluded(&n) => n,
@@ -91,13 +91,13 @@ pub mod cumulative_sum {
                 horizontal_start..horizontal_end
             };
 
-            debug_assert!(vertical.start <= vertical.end);
-            debug_assert!(horizontal.start <= horizontal.end);
+            debug_assert!(vertical_range.start <= vertical_range.end);
+            debug_assert!(horizontal_range.start <= horizontal_range.end);
 
-            self.transformed_data[vertical.end][horizontal.end]
-                + self.transformed_data[vertical.start][horizontal.start]
-                - self.transformed_data[vertical.end][horizontal.start]
-                - self.transformed_data[vertical.start][horizontal.end]
+            self.transformed_data[vertical_range.end][horizontal_range.end]
+                + self.transformed_data[vertical_range.start][horizontal_range.start]
+                - self.transformed_data[vertical_range.end][horizontal_range.start]
+                - self.transformed_data[vertical_range.start][horizontal_range.end]
         }
     }
 }

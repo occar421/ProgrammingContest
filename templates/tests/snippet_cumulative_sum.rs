@@ -8,10 +8,10 @@ mod tests {
         let data = vec![vec![1, 2, 3]];
         let cum_sum = CumulativeSum2d::new(data.len(), data[0].len(), &data);
 
-        assert_eq!(cum_sum.value_in(0..1, 0..1), 1);
-        assert_eq!(cum_sum.value_in(0..1, 0..2), 3);
-        assert_eq!(cum_sum.value_in(0..1, 0..3), 6);
-        assert_eq!(cum_sum.value_in(0..1, 1..3), 5);
+        assert_eq!(cum_sum.sum_in(0..1, 0..1), 1);
+        assert_eq!(cum_sum.sum_in(0..1, 0..2), 3);
+        assert_eq!(cum_sum.sum_in(0..1, 0..3), 6);
+        assert_eq!(cum_sum.sum_in(0..1, 1..3), 5);
     }
 
     #[test]
@@ -21,22 +21,22 @@ mod tests {
         let data = vec![vec![1, 2], vec![4, 8]];
         let cum_sum = CumulativeSum2d::new(data.len(), data[0].len(), &data);
 
-        assert_eq!(cum_sum.value_in(0..0, 0..0), 0);
-        assert_eq!(cum_sum.value_in(0..0, 0..1), 0);
-        assert_eq!(cum_sum.value_in(0..1, 0..0), 0);
+        assert_eq!(cum_sum.sum_in(0..0, 0..0), 0);
+        assert_eq!(cum_sum.sum_in(0..0, 0..1), 0);
+        assert_eq!(cum_sum.sum_in(0..1, 0..0), 0);
 
-        assert_eq!(cum_sum.value_in(0..1, 0..1), 1);
-        assert_eq!(cum_sum.value_in(0..1, 0..2), 3);
-        assert_eq!(cum_sum.value_in(0..2, 0..1), 5);
-        assert_eq!(cum_sum.value_in(1..2, 1..2), 8);
+        assert_eq!(cum_sum.sum_in(0..1, 0..1), 1);
+        assert_eq!(cum_sum.sum_in(0..1, 0..2), 3);
+        assert_eq!(cum_sum.sum_in(0..2, 0..1), 5);
+        assert_eq!(cum_sum.sum_in(1..2, 1..2), 8);
 
-        assert_eq!(cum_sum.value_in(0..2, 0..2), 15);
-        assert_eq!(cum_sum.value_in(.., ..), 15);
-        assert_eq!(cum_sum.value_in(0.., 0..), 15);
-        assert_eq!(cum_sum.value_in(..2, ..2), 15);
-        assert_eq!(cum_sum.value_in(..=1, ..=1), 15);
-        assert_eq!(cum_sum.value_in(0..=0, 0..=0), 1);
-        assert_eq!(cum_sum.value_in(1..=1, 1..=1), 8);
+        assert_eq!(cum_sum.sum_in(0..2, 0..2), 15);
+        assert_eq!(cum_sum.sum_in(.., ..), 15);
+        assert_eq!(cum_sum.sum_in(0.., 0..), 15);
+        assert_eq!(cum_sum.sum_in(..2, ..2), 15);
+        assert_eq!(cum_sum.sum_in(..=1, ..=1), 15);
+        assert_eq!(cum_sum.sum_in(0..=0, 0..=0), 1);
+        assert_eq!(cum_sum.sum_in(1..=1, 1..=1), 8);
     }
 
     #[test]
@@ -48,6 +48,6 @@ mod tests {
             data[i][j].pow(2)
         });
 
-        assert_eq!(cum_sum.value_in(.., ..), 85);
+        assert_eq!(cum_sum.sum_in(.., ..), 85);
     }
 }
