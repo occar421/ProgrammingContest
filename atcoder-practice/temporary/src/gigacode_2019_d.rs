@@ -306,6 +306,99 @@ macro_rules! nested_vec {
 
 // -- end of helpers
 
+pub mod cumulative_sum {
+    //! CumulativeSum
+    //! https://github.com/occar421/ProgrammingContest/tree/master/templates/src/snippet_cumulative_sum.rs
+
+    use super::{GenericInteger, Length};
+    use std::ops::RangeBounds;
+
+    pub struct CumulativeSum2d<T>
+    where
+        T: GenericInteger,
+    {
+        transformed_data: Vec<Vec<T>>,
+        data_height: Length,
+        data_width: Length,
+    }
+
+    impl<GI> CumulativeSum2d<GI>
+    where
+        GI: GenericInteger,
+    {
+        #[inline]
+        pub fn new(height: Length, width: Length, source: &Vec<Vec<GI>>) -> Self {
+            Self::new_with_evaluator(height, width, |i, j| source[i][j])
+        }
+
+        pub fn new_with_evaluator<F>(height: Length, width: Length, evaluator: F) -> Self
+        where
+            F: Fn(usize, usize) -> GI,
+        {
+            let mut cum_sum = nested_vec![GI::zero(); height + 1; width + 1];
+
+            for i in 0..height {
+                for j in 0..width {
+                    cum_sum[i + 1][j + 1] =
+                        cum_sum[i + 1][j] + cum_sum[i][j + 1] - cum_sum[i][j] + evaluator(i, j);
+                }
+            }
+
+            Self {
+                transformed_data: cum_sum,
+                data_height: height,
+                data_width: width,
+            }
+        }
+
+        pub fn value_of(
+            &self,
+            vertical: impl RangeBounds<usize>,
+            horizontal: impl RangeBounds<usize>,
+        ) -> GI {
+            use std::ops::Bound::*;
+
+            let vertical = {
+                let vertical_start = match vertical.start_bound() {
+                    Unbounded => 0,
+                    Included(&n) => n,
+                    Excluded(&n) => n + 1,
+                };
+                let vertical_end = match vertical.end_bound() {
+                    Unbounded => self.data_height,
+                    Included(&n) => n + 1,
+                    Excluded(&n) => n,
+                };
+
+                vertical_start..vertical_end
+            };
+
+            let horizontal = {
+                let horizontal_start = match horizontal.start_bound() {
+                    Unbounded => 0,
+                    Included(&n) => n,
+                    Excluded(&n) => n + 1,
+                };
+                let horizontal_end = match horizontal.end_bound() {
+                    Unbounded => self.data_width,
+                    Included(&n) => n + 1,
+                    Excluded(&n) => n,
+                };
+
+                horizontal_start..horizontal_end
+            };
+
+            debug_assert!(vertical.start <= vertical.end);
+            debug_assert!(horizontal.start <= horizontal.end);
+
+            self.transformed_data[vertical.end][horizontal.end]
+                + self.transformed_data[vertical.start][horizontal.start]
+                - self.transformed_data[vertical.end][horizontal.start]
+                - self.transformed_data[vertical.start][horizontal.end]
+        }
+    }
+}
+
 fn main() {
     let stdio = io::stdin();
     let input = stdio.lock();
@@ -325,14 +418,32 @@ where
 {
     input! {
         stdin = reader;
-        // FIXME: variables
-        // n: Quantity,
-        // mut n: NodeIndex1Based,
+        h: Length, w: Length, k: usize, v: usize,
+        a: [[usize; w]; h],
     }
 
-    // FIXME: logic
+    let grid_cost = k;
+    let budget = v;
 
-    // writeln!(writer, "")?;
+    let cum_sum =
+        cumulative_sum::CumulativeSum2d::new_with_evaluator(h, w, |i, j| a[i][j] + grid_cost);
+
+    let mut max_area = 0;
+    for i_start in 0..h {
+        for i_end in i_start + 1..=h {
+            for j_start in 0..w {
+                for j_end in j_start + 1..=w {
+                    let area_cost = cum_sum.value_of(i_start..i_end, j_start..j_end);
+                    if area_cost <= budget {
+                        let area = (i_end - i_start) * (j_end - j_start);
+                        max_area = max_area.max(area);
+                    }
+                }
+            }
+        }
+    }
+
+    writeln!(writer, "{}", max_area)?;
 
     Ok(())
 }
@@ -343,26 +454,56 @@ mod tests {
 
     #[test]
     fn sample1() {
-        assert_judge!(process, "1", "2");
+        assert_judge!(
+            process,
+            "
+1 1 200 500
+300
+",
+            "1"
+        );
+    }
 
-        // let output = assert_judge_with_output!(process, "3");
-        //
-        // input! {
-        //     source = output;
-        //     o: [u32; 3],
-        // }
-        //
-        // assert_eq!(1, o[0]);
+    #[test]
+    fn sample2() {
+        assert_judge!(
+            process,
+            "
+1 8 10 200
+30 40 10 20 30 40 10 20
+",
+            "6"
+        );
+    }
 
-        // let output = assert_judge_with_output!(process, "10 1.00000");
-        //
-        // input! {
-        //      source = output;
-        //      o: f64,
-        // }
-        //
-        // assert_eq_with_error!(4f64, o, 10f64.powi(-6));
+    #[test]
+    fn sample3() {
+        assert_judge!(
+            process,
+            "
+5 5 10 17
+12 19 25 13 25
+14 16 18 11 10
+19 17 24 26 12
+23 11 16 19 14
+18 23 27 11 16
+",
+            "0"
+        );
+    }
 
-        // assert_judge_with_error!(process, "7", "2.52163", f64 | 10f64.powi(-2));
+    #[test]
+    fn sample4() {
+        assert_judge!(
+            process,
+            "
+4 7 10 240
+17 12 15 18 19 15 23
+22 12 41 16 27 10 10
+15 69 18 11 10 23 15
+12 20 13 12 17 18 15
+",
+            "9"
+        );
     }
 }

@@ -36,3 +36,7 @@ path = "src/codefestival_2016_final_a.rs"
 [[bin]]
 name = "arc118_c"
 path = "src/arc118_c.rs"
+
+[[bin]]
+name = "gigacode_2019_d"
+path = "src/gigacode_2019_d.rs"
