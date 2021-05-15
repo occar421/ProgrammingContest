@@ -10,5 +10,5 @@ publish = false
 [dependencies]
 
 [[bin]]
-name = "placeholder"
-path = "../_.rs"
+name = "80_gigacode_2019_d"
+path = "src/80_gigacode_2019_d.rs"
