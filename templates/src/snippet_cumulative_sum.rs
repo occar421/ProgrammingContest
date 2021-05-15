@@ -16,36 +16,36 @@ pub mod cumulative_sum {
     use super::{GenericInteger, Length};
     use std::ops::RangeBounds;
 
-    pub struct CumulativeSum1dGenerator<T>
+    pub struct CumulativeSum1d<T>
     where
         T: GenericInteger,
     {
         cum_sum: Vec<T>,
-        data_length: Length,
+        source_length: Length,
     }
 
-    impl<GI> CumulativeSum1dGenerator<GI>
+    impl<GI> CumulativeSum1d<GI>
     where
         GI: GenericInteger,
     {
         #[inline]
-        pub fn new(length: Length, source: &Vec<GI>) -> Self {
-            Self::new_with_evaluator(length, |i| source[i])
+        pub fn new(source_length: Length, source: &Vec<GI>) -> Self {
+            Self::new_with_evaluator(source_length, |i| source[i])
         }
 
-        pub fn new_with_evaluator<F>(length: Length, evaluator: F) -> Self
+        pub fn new_with_evaluator<F>(source_length: Length, evaluator: F) -> Self
         where
             F: Fn(usize) -> GI,
         {
-            let mut cum_sum = nested_vec![GI::zero(); length + 1];
+            let mut cum_sum = nested_vec![GI::zero(); source_length + 1];
 
-            for i in 0..length {
+            for i in 0..source_length {
                 cum_sum[i + 1] = cum_sum[i] + evaluator(i);
             }
 
             Self {
-                cum_sum: cum_sum,
-                data_length: length,
+                cum_sum,
+                source_length,
             }
         }
 
@@ -59,7 +59,7 @@ pub mod cumulative_sum {
                     Excluded(&n) => n + 1,
                 };
                 let end = match range.end_bound() {
-                    Unbounded => self.data_length,
+                    Unbounded => self.source_length,
                     Included(&n) => n + 1,
                     Excluded(&n) => n,
                 };
@@ -73,41 +73,45 @@ pub mod cumulative_sum {
         }
     }
 
-    pub struct CumulativeSum2dGenerator<T>
+    pub struct CumulativeSum2d<T>
     where
         T: GenericInteger,
     {
         cum_sum: Vec<Vec<T>>,
-        data_height: Length,
-        data_width: Length,
+        source_height: Length,
+        source_width: Length,
     }
 
-    impl<GI> CumulativeSum2dGenerator<GI>
+    impl<GI> CumulativeSum2d<GI>
     where
         GI: GenericInteger,
     {
         #[inline]
-        pub fn new(height: Length, width: Length, source: &Vec<Vec<GI>>) -> Self {
-            Self::new_with_evaluator(height, width, |i, j| source[i][j])
+        pub fn new(source_height: Length, source_width: Length, source: &Vec<Vec<GI>>) -> Self {
+            Self::new_with_evaluator(source_height, source_width, |i, j| source[i][j])
         }
 
-        pub fn new_with_evaluator<F>(height: Length, width: Length, evaluator: F) -> Self
+        pub fn new_with_evaluator<F>(
+            source_height: Length,
+            source_width: Length,
+            evaluator: F,
+        ) -> Self
         where
             F: Fn(usize, usize) -> GI,
         {
-            let mut cum_sum = nested_vec![GI::zero(); height + 1; width + 1];
+            let mut cum_sum = nested_vec![GI::zero(); source_height + 1; source_width + 1];
 
-            for i in 0..height {
-                for j in 0..width {
+            for i in 0..source_height {
+                for j in 0..source_width {
                     cum_sum[i + 1][j + 1] =
                         cum_sum[i + 1][j] + cum_sum[i][j + 1] - cum_sum[i][j] + evaluator(i, j);
                 }
             }
 
             Self {
-                cum_sum: cum_sum,
-                data_height: height,
-                data_width: width,
+                cum_sum,
+                source_height,
+                source_width,
             }
         }
 
@@ -125,7 +129,7 @@ pub mod cumulative_sum {
                     Excluded(&n) => n + 1,
                 };
                 let vertical_end = match vertical_range.end_bound() {
-                    Unbounded => self.data_height,
+                    Unbounded => self.source_height,
                     Included(&n) => n + 1,
                     Excluded(&n) => n,
                 };
@@ -140,7 +144,7 @@ pub mod cumulative_sum {
                     Excluded(&n) => n + 1,
                 };
                 let horizontal_end = match horizontal_range.end_bound() {
-                    Unbounded => self.data_width,
+                    Unbounded => self.source_width,
                     Included(&n) => n + 1,
                     Excluded(&n) => n,
                 };
