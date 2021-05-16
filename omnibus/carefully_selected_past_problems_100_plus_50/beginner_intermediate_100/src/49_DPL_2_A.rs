@@ -358,10 +358,9 @@ where
                 return None;
             }
 
-            if let Some(ret) = dp[nodes][current_node] {
-                if ret != 0 {
-                    return Some(ret);
-                }
+            let result = dp[nodes][current_node];
+            if result.is_some() {
+                return result;
             }
 
             let mut results = vec![];
