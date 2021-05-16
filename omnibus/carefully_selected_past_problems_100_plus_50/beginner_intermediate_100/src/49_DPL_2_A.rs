@@ -13,6 +13,7 @@ pub type NodeIndex0Based = usize;
 pub type NodeIndex1Based = usize;
 pub type Quantity = usize;
 pub type Length = usize;
+pub type BitSet = usize;
 
 // From https://github.com/tanakh/competitive-rs/blob/d5f51f01a6f85ddbebec4cfcb601746bee727181/src/lib.rs#L1-L92
 //   and modified by this file author
@@ -334,53 +335,50 @@ where
         edges.entry(src).or_insert(vec![]).push((dest, length));
     }
 
-    fn search_dfs(
+    // after checking https://algo-logic.info/bit-dp/#toc_id_2_5
+    fn search_dp(
         v: Quantity,
         edges: &HashMap<NodeIndex0Based, Vec<(NodeIndex0Based, usize)>>,
     ) -> Option<usize> {
+        let all_nodes = (1 << v) - 1;
+
+        let mut dp = nested_vec![None; all_nodes + 1; v];
+
         fn inner(
-            v: Quantity,
             edges: &HashMap<NodeIndex0Based, Vec<(NodeIndex0Based, usize)>>,
-            arrived_node_flags: &mut Vec<bool>,
+            dp: &mut Vec<Vec<Option<usize>>>,
+            nodes: BitSet,
             current_node: NodeIndex0Based,
-            current_moves: Quantity,
-            current_length: Length,
         ) -> Option<usize> {
-            if arrived_node_flags[current_node] {
-                if current_node == 0 && v == current_moves {
-                    return Some(current_length);
-                }
+            if nodes == 0b0 {
+                return (current_node == 0).then_some_(0);
+            }
+
+            if (nodes & 0b1 << current_node) == 0b0 {
                 return None;
             }
 
-            arrived_node_flags[current_node] = true;
-
-            let mut results = vec![];
-            for &(dest, length) in edges.get(&current_node).unwrap_or(&vec![]).iter() {
-                let result = inner(
-                    v,
-                    edges,
-                    arrived_node_flags,
-                    dest,
-                    current_moves + 1,
-                    current_length + length,
-                );
-                if let Some(result) = result {
-                    results.push(result);
+            if let Some(ret) = dp[nodes][current_node] {
+                if ret != 0 {
+                    return Some(ret);
                 }
             }
 
-            arrived_node_flags[current_node] = false;
+            let mut results = vec![];
+            for &(dest, length) in edges.get(&current_node).unwrap_or(&vec![]).iter() {
+                let v = inner(edges, dp, nodes & !(1 << current_node), dest).map(|r| r + length);
+                results.push(v);
+            }
 
-            results.iter().min().map(|&r| r)
+            let result = results.iter().filter_map(|&r| r).min();
+            dp[nodes][current_node] = result;
+            result
         }
 
-        let mut arrived_node_flags = vec![false; v];
-
-        inner(v, edges, &mut arrived_node_flags, 0, 0, 0)
+        inner(edges, &mut dp, all_nodes, 0)
     }
 
-    let result = search_dfs(v, &edges); // TODO bit DP
+    let result = search_dp(v, &edges);
 
     if let Some(result) = result {
         writeln!(writer, "{}", result)?;
