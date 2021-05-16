@@ -10,9 +10,13 @@ publish = false
 [dependencies]
 
 [[bin]]
-name = "80_gigacode_2019_d"
-path = "src/80_gigacode_2019_d.rs"
+name = "17_ALDS1_13_A"
+path = "src/17_ALDS1_13_A.rs"
 
 [[bin]]
-name = "ALDS1_13_A"
-path = "src/17_ALDS1_13_A.rs"
+name = "49_DPL_2_A"
+path = "src/49_DPL_2_A.rs"
+
+[[bin]]
+name = "80_gigacode_2019_d"
+path = "src/80_gigacode_2019_d.rs"
