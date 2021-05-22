@@ -13,7 +13,7 @@ pub mod bit {
     }
 
     #[macro_export]
-    macro_rules! bit_size {
+    macro_rules! bit_set {
         ($num: literal as $alias: ident) => {
             bit_size!($num in bit as $alias);
         };
@@ -302,68 +302,88 @@ pub mod bit {
         }
     }
 
-    #[derive(Clone)]
-    pub struct BitBasedSet<S: BitSizeExt>(BitSet<S>);
+    #[derive(Copy, Clone)]
+    pub struct BitBasedSet {
+        size: usize,
+        value: usize,
+    }
 
-    impl<S> BitBasedSet<S>
-    where
-        S: BitSizeExt,
-    {
-        #[inline]
-        pub fn universal_set() -> Self {
-            Self(!Self::empty_set().0)
+    impl BitBasedSet {
+        fn new(size: usize, value: usize) -> Self {
+            Self { size, value }
+        }
+
+        pub fn generator_of(size: usize) -> BitBasedSetGenerator {
+            BitBasedSetGenerator::new(size)
         }
 
         #[inline]
-        pub fn empty_set() -> Self {
-            Self(BitSet::zero())
-        }
-
-        #[inline]
-        pub fn combination() -> Quantity {
-            S::size()
-        }
-
-        pub fn from_nodes_iter<I>(iter: I) -> Self
-        where
-            I: Iterator<Item = NodeIndex0Based>,
-        {
-            let mut v = BitSet::zero();
-            for i in iter {
-                v.set(i, true);
-            }
-            Self(v)
+        pub fn dump(&self) -> usize {
+            self.value
         }
 
         #[inline]
         pub fn includes(&self, index: NodeIndex0Based) -> bool {
-            self.0[index]
+            self.value & (0b1 << index) > 0
         }
 
         #[inline]
         pub fn is_empty(&self) -> bool {
-            self.0.count_ones() == 0
+            self.value.count_ones() == 0
         }
 
         #[inline]
         pub fn complement(&self) -> Self {
-            Self(!self.0.clone())
+            Self::new(
+                self.size,
+                self.value ^ BitBasedSetGenerator::new(self.size).universal_set().value,
+            )
         }
 
+        #[inline]
         pub fn excluded_set(&self, index: NodeIndex0Based) -> Self {
-            if self.0[index] {
-                let mut v = BitSet::zero();
-                v.set(index, true);
-                Self(self.0.clone() ^ v)
-            } else {
-                self.clone()
-            }
+            Self::new(self.size, self.value & !(0b1 << index))
         }
 
+        #[inline]
         pub fn appended_set(&self, index: NodeIndex0Based) -> Self {
-            let mut v = BitSet::zero();
-            v.set(index, true);
-            Self(self.0.clone() & v)
+            Self::new(self.size, self.value | (0b1 << index))
+        }
+    }
+
+    pub struct BitBasedSetGenerator {
+        size: usize,
+    }
+
+    impl BitBasedSetGenerator {
+        fn new(size: usize) -> Self {
+            Self { size }
+        }
+
+        #[inline]
+        pub fn universal_set(&self) -> BitBasedSet {
+            BitBasedSet::new(self.size, (0b1 << self.size) - 1)
+        }
+
+        #[inline]
+        pub fn empty_set(&self) -> BitBasedSet {
+            BitBasedSet::new(self.size, 0)
+        }
+
+        #[inline]
+        pub fn combination(&self) -> Quantity {
+            0b1 << self.size as u32
+        }
+
+        pub fn from_indices_iter<I>(&self, iter: I) -> BitBasedSet
+        where
+            I: Iterator<Item = NodeIndex0Based>,
+        {
+            let mut v = 0;
+            for i in iter {
+                v |= 0b1 << i;
+            }
+            BitBasedSet::new(self.size, v)
         }
     }
 }
