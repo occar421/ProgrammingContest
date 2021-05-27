@@ -44,3 +44,7 @@ path = "src/gigacode_2019_d.rs"
 [[bin]]
 name = "arc120_a"
 path = "src/arc120_a.rs"
+
+[[bin]]
+name = "arc118_a"
+path = "src/arc118_a.rs"
