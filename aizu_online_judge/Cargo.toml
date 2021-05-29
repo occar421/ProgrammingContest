@@ -11,3 +11,7 @@ edition = "2018"
 [[bin]]
 name = "DPL_2_A"
 path = "src/DPL_2_A.rs"
+
+[[bin]]
+name = "DPL_1_A"
+path = "src/DPL_1_A.rs"
