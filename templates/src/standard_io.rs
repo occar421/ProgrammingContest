@@ -16,7 +16,7 @@ pub type Length = usize;
 
 // From https://github.com/tanakh/competitive-rs/blob/d5f51f01a6f85ddbebec4cfcb601746bee727181/src/lib.rs#L1-L92
 //   and modified by this file author
-macro_rules! input {
+macro_rules! input_original {
     (source = $s:expr; $($r:tt)*) => {
         let mut iter = $s.split_whitespace();
         let mut _next = || { iter.next().unwrap() };
@@ -323,16 +323,40 @@ where
     R: BufRead,
     W: Write,
 {
-    input! {
-        stdin = reader;
-        // FIXME: variables
-        // n: Quantity,
-        // mut n: NodeIndex1Based,
+    #[allow(unused_macros)]
+    macro_rules! input {
+        ($($r:tt)*) => {
+            input_original! { stdin = reader; $($r)* }
+        };
+    }
+    #[allow(unused_macros)]
+    macro_rules! print {
+        ($($arg:tt)*) => {
+            write!(writer, $($arg)*)?;
+        }
+    }
+    #[allow(unused_macros)]
+    macro_rules! println {
+        () => {
+            writeln!(writer)?;
+        };
+        ($($arg:tt)*) => {
+            writeln!(writer, $($arg)*)?;
+        }
     }
 
-    // FIXME: logic
+    {
+        input! {
+            // FIXME: arguments
+            // n: Quantity,
+            // mut n: NodeIndex1Based,
+        }
 
-    // writeln!(writer, "")?;
+        // FIXME: logic
+
+        // FIXME: print
+        println!();
+    }
 
     Ok(())
 }
@@ -347,7 +371,7 @@ mod tests {
 
         // let output = assert_judge_with_output!(process, "3");
         //
-        // input! {
+        // input_original! {
         //     source = output;
         //     o: [u32; 3],
         // }
@@ -356,7 +380,7 @@ mod tests {
 
         // let output = assert_judge_with_output!(process, "10 1.00000");
         //
-        // input! {
+        // input_original! {
         //      source = output;
         //      o: f64,
         // }
