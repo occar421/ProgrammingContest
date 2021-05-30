@@ -36,3 +36,7 @@ path = "src/80_gigacode_2019_d.rs"
 [[bin]]
 name = "83_joi2015ho_a"
 path = "src/83_joi2015ho_a.rs"
+
+[[bin]]
+name = "99_ddcc2020_qual_d"
+path = "src/99_ddcc2020_qual_d.rs"
