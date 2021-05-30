@@ -24,3 +24,7 @@ path = "src/49_DPL_2_A.rs"
 [[bin]]
 name = "80_gigacode_2019_d"
 path = "src/80_gigacode_2019_d.rs"
+
+[[bin]]
+name = "83_joi2015ho_a"
+path = "src/83_joi2015ho_a.rs"
