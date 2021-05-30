@@ -17,4 +17,5 @@ path = "_.rs"
 members = [
     "AtCoderBeginnerContest198",
     "AtCoderBeginnerContest199",
+    "AtCoderBeginnerContest203",
 ]
