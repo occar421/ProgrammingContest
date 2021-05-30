@@ -48,3 +48,7 @@ path = "src/arc120_a.rs"
 [[bin]]
 name = "arc118_a"
 path = "src/arc118_a.rs"
+
+[[bin]]
+name = "joi2009ho_b"
+path = "src/joi2009ho_b.rs"
