@@ -26,6 +26,10 @@ name = "49_DPL_2_A"
 path = "src/49_DPL_2_A.rs"
 
 [[bin]]
+name = "72_abc034_c"
+path = "src/72_abc034_c.rs"
+
+[[bin]]
 name = "80_gigacode_2019_d"
 path = "src/80_gigacode_2019_d.rs"
 
