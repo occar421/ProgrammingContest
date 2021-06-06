@@ -28,11 +28,13 @@ pub mod cumulative_sum {
     where
         GI: GenericInteger,
     {
+        /// O( N )
         #[inline]
         pub fn new(source_length: Length, source: &Vec<GI>) -> Self {
             Self::new_with_evaluator(source_length, |i| source[i])
         }
 
+        /// O( N )
         pub fn new_with_evaluator<F>(source_length: Length, evaluator: F) -> Self
         where
             F: Fn(usize) -> GI,
@@ -49,6 +51,15 @@ pub mod cumulative_sum {
             }
         }
 
+        /// O(1)
+        ///
+        /// # Examples
+        ///
+        ///     source: a b c
+        ///     range: 0 1 2 3
+        ///
+        /// `0..2` => `a + b`
+        ///
         pub fn sum_in(&self, range: impl RangeBounds<usize>) -> GI {
             use std::ops::Bound::*;
 
@@ -66,8 +77,6 @@ pub mod cumulative_sum {
 
                 start..end
             };
-
-            debug_assert!(range.start <= range.end);
 
             self.cum_sum[range.end] - self.cum_sum[range.start]
         }
@@ -87,10 +96,12 @@ pub mod cumulative_sum {
         GI: GenericInteger,
     {
         #[inline]
+        /// O(N^2)
         pub fn new(source_height: Length, source_width: Length, source: &Vec<Vec<GI>>) -> Self {
             Self::new_with_evaluator(source_height, source_width, |i, j| source[i][j])
         }
 
+        /// O(N^2)
         pub fn new_with_evaluator<F>(
             source_height: Length,
             source_width: Length,
@@ -115,6 +126,16 @@ pub mod cumulative_sum {
             }
         }
 
+        /// O(1)
+        ///
+        /// # Examples
+        ///     source:   a b c
+        ///               d e f
+        ///               g h i
+        ///     h_range: 0 1 2 3
+        ///
+        /// `0..2, 0..2` => `a + b + d + e`
+        ///
         pub fn sum_in(
             &self,
             vertical_range: impl RangeBounds<usize>,
@@ -151,9 +172,6 @@ pub mod cumulative_sum {
 
                 horizontal_start..horizontal_end
             };
-
-            debug_assert!(vertical_range.start <= vertical_range.end);
-            debug_assert!(horizontal_range.start <= horizontal_range.end);
 
             self.cum_sum[vertical_range.end][horizontal_range.end]
                 + self.cum_sum[vertical_range.start][horizontal_range.start]
