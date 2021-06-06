@@ -13,7 +13,6 @@ mod tests {
         assert_eq!(cum_sum.sum_in(1..2), 2);
 
         assert_eq!(cum_sum.sum_in(0..3), 6);
-        assert_eq!(cum_sum.sum_in(0..=2), 6);
         assert_eq!(cum_sum.sum_in(..), 6);
     }
 
@@ -58,9 +57,6 @@ mod tests {
         assert_eq!(cum_sum.sum_in(.., ..), 15);
         assert_eq!(cum_sum.sum_in(0.., 0..), 15);
         assert_eq!(cum_sum.sum_in(..2, ..2), 15);
-        assert_eq!(cum_sum.sum_in(..=1, ..=1), 15);
-        assert_eq!(cum_sum.sum_in(0..=0, 0..=0), 1);
-        assert_eq!(cum_sum.sum_in(1..=1, 1..=1), 8);
     }
 
     #[test]

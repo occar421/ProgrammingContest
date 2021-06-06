@@ -13,8 +13,38 @@ pub mod cumulative_sum {
     //! CumulativeSum
     //! https://github.com/occar421/ProgrammingContest/tree/master/templates/src/snippet_cumulative_sum.rs
 
+    mod range {
+        use std::ops::{Bound, Range, RangeBounds, RangeFrom, RangeFull, RangeTo};
+
+        /// The range that inclusive bounds are prohibited.
+        pub trait CumulativeSumRange: RangeBounds<usize> {
+            fn to_range(&self, unbounded_end: usize) -> Range<usize> {
+                let start = match self.start_bound() {
+                    Bound::Unbounded => 0,
+                    Bound::Included(&n) => n,
+                    Bound::Excluded(&n) => n + 1,
+                };
+                let end = match self.end_bound() {
+                    Bound::Unbounded => unbounded_end,
+                    Bound::Included(&n) => n + 1,
+                    Bound::Excluded(&n) => n,
+                };
+
+                start..end
+            }
+        }
+        impl CumulativeSumRange for RangeFull {}
+        impl CumulativeSumRange for RangeFrom<usize> {}
+        impl CumulativeSumRange for RangeTo<usize> {}
+        impl CumulativeSumRange for Range<usize> {}
+        impl CumulativeSumRange for (Bound<usize>, Bound<usize>) {}
+        impl CumulativeSumRange for RangeFrom<&usize> {}
+        impl CumulativeSumRange for RangeTo<&usize> {}
+        impl CumulativeSumRange for Range<&usize> {}
+        impl<'a> CumulativeSumRange for (Bound<&'a usize>, Bound<&'a usize>) {}
+    }
+
     use super::{GenericInteger, Length};
-    use std::ops::RangeBounds;
 
     pub struct CumulativeSum1d<T>
     where
@@ -60,23 +90,8 @@ pub mod cumulative_sum {
         ///
         /// `0..2` => `a + b`
         ///
-        pub fn sum_in(&self, range: impl RangeBounds<usize>) -> GI {
-            use std::ops::Bound::*;
-
-            let range = {
-                let start = match range.start_bound() {
-                    Unbounded => 0,
-                    Included(&n) => n,
-                    Excluded(&n) => n + 1,
-                };
-                let end = match range.end_bound() {
-                    Unbounded => self.source_length,
-                    Included(&n) => n + 1,
-                    Excluded(&n) => n,
-                };
-
-                start..end
-            };
+        pub fn sum_in(&self, range: impl range::CumulativeSumRange) -> GI {
+            let range = range.to_range(self.source_length);
 
             self.cum_sum[range.end] - self.cum_sum[range.start]
         }
@@ -138,40 +153,11 @@ pub mod cumulative_sum {
         ///
         pub fn sum_in(
             &self,
-            vertical_range: impl RangeBounds<usize>,
-            horizontal_range: impl RangeBounds<usize>,
+            vertical_range: impl range::CumulativeSumRange,
+            horizontal_range: impl range::CumulativeSumRange,
         ) -> GI {
-            use std::ops::Bound::*;
-
-            let vertical_range = {
-                let vertical_start = match vertical_range.start_bound() {
-                    Unbounded => 0,
-                    Included(&n) => n,
-                    Excluded(&n) => n + 1,
-                };
-                let vertical_end = match vertical_range.end_bound() {
-                    Unbounded => self.source_height,
-                    Included(&n) => n + 1,
-                    Excluded(&n) => n,
-                };
-
-                vertical_start..vertical_end
-            };
-
-            let horizontal_range = {
-                let horizontal_start = match horizontal_range.start_bound() {
-                    Unbounded => 0,
-                    Included(&n) => n,
-                    Excluded(&n) => n + 1,
-                };
-                let horizontal_end = match horizontal_range.end_bound() {
-                    Unbounded => self.source_width,
-                    Included(&n) => n + 1,
-                    Excluded(&n) => n,
-                };
-
-                horizontal_start..horizontal_end
-            };
+            let vertical_range = vertical_range.to_range(self.source_height);
+            let horizontal_range = horizontal_range.to_range(self.source_width);
 
             self.cum_sum[vertical_range.end][horizontal_range.end]
                 + self.cum_sum[vertical_range.start][horizontal_range.start]
