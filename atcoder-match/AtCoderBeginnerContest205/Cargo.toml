@@ -1,5 +1,5 @@
 [package]
-name = "atcoder-match"
+name = "AtCoderBeginnerContest205"
 version = "0.1.0"
 authors = ["MasuqaT <occar@hotmail.co.jp>"]
 edition = "2018"
@@ -10,13 +10,17 @@ publish = false
 [dependencies]
 
 [[bin]]
-name = "_"
-path = "_.rs"
+name = "abc205_a"
+path = "abc205_a.rs"
 
-[workspace]
-members = [
-    "AtCoderBeginnerContest198",
-    "AtCoderBeginnerContest199",
-    "AtCoderBeginnerContest203",
-    "AtCoderBeginnerContest205",
-]
+[[bin]]
+name = "abc205_b"
+path = "abc205_b.rs"
+
+[[bin]]
+name = "abc205_c"
+path = "abc205_c.rs"
+
+[[bin]]
+name = "abc205_d"
+path = "abc205_d.rs"
