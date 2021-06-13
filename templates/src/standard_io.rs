@@ -13,6 +13,9 @@ pub type NodeIndex0Based = usize;
 pub type NodeIndex1Based = usize;
 pub type Quantity = usize;
 pub type Length = usize;
+pub type ArrayIndex0Based = usize;
+pub type ArrayIndex1Based = usize;
+pub type Weight = usize;
 
 // From https://github.com/tanakh/competitive-rs/blob/d5f51f01a6f85ddbebec4cfcb601746bee727181/src/lib.rs#L1-L92
 //   and modified by this file author
