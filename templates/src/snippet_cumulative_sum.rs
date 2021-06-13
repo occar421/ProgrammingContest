@@ -46,11 +46,11 @@ pub mod cumulative_sum {
 
     use super::{GenericInteger, Length};
 
-    pub struct CumulativeSum1d<T>
+    pub struct CumulativeSum1d<GI>
     where
-        T: GenericInteger,
+        GI: GenericInteger,
     {
-        cum_sum: Vec<T>,
+        cum_sum: Vec<GI>,
         source_length: Length,
     }
 
@@ -95,13 +95,17 @@ pub mod cumulative_sum {
 
             self.cum_sum[range.end] - self.cum_sum[range.start]
         }
+
+        pub fn dump(&self) -> &[GI] {
+            &self.cum_sum
+        }
     }
 
-    pub struct CumulativeSum2d<T>
+    pub struct CumulativeSum2d<GI>
     where
-        T: GenericInteger,
+        GI: GenericInteger,
     {
-        cum_sum: Vec<Vec<T>>,
+        cum_sum: Vec<Vec<GI>>,
         source_height: Length,
         source_width: Length,
     }
