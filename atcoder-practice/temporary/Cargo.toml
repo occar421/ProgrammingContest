@@ -59,7 +59,7 @@ path = "src/arc048_a.rs"
 
 [[bin]]
 name = "arc119_b"
-path = "src/arc119_b.rs"
+path = "src/arc119_b-.rs"
 
 [[bin]]
 name = "abc203_d"
