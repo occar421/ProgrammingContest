@@ -299,12 +299,25 @@ impl ThenSome for bool {}
 // From https://kuretchi.hateblo.jp/entry/rust_nested_vec
 #[allow(unused_macros)]
 macro_rules! nested_vec {
-  ($e:expr; $n:expr) => {
-    vec![$e; $n]
-  };
-  ($e:expr; $n:expr $(; $m:expr)+) => {
-    vec![nested_vec!($e $(; $m)+); $n]
-  };
+    ($e:expr; $n:expr) => {
+        vec![$e; $n]
+    };
+    ($e:expr; $n:expr $(; $m:expr)+) => {
+        vec![nested_vec!($e $(; $m)+); $n]
+    };
+}
+
+// From https://maguro.dev/debug-macro/ with some modification
+#[allow(unused_macros)]
+macro_rules! dbg {
+    () => {
+        #[cfg(debug_assertions)]
+        eprintln!();
+    };
+    ($($a:expr),* $(,)*) => {
+        #[cfg(debug_assertions)]
+        eprintln!(concat!($("| ", stringify!($a), "={:?} "),*, "|"), $(&$a),*);
+    };
 }
 
 // -- end of helpers
