@@ -1,13 +1,18 @@
-use crate::standard_io::ThenSome;
+use crate::standard_io::{GenericInteger, ThenSome};
 
 pub mod modular {
     //! ref: https://github.com/occar421/ProgrammingContest/tree/master/templates/src/snippet_modular.rs
 
-    use super::ThenSome;
-    use std::fmt::{Display, Formatter, Result};
+    use super::{GenericInteger, ThenSome};
+    use std::cmp::Ordering;
+    use std::fmt::{Debug, Display, Formatter};
+    use std::hash::{Hash, Hasher};
     use std::iter::{Product, Sum};
     use std::marker::PhantomData;
-    use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+    use std::ops::{
+        Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, RemAssign, Sub, SubAssign,
+    };
+    use std::str::FromStr;
 
     pub trait ModuloExt: Clone + Copy {
         fn modulo() -> usize;
@@ -39,7 +44,7 @@ pub mod modular {
         type Modulo: ModuloExt;
     }
 
-    #[derive(Debug, Clone, Copy, Default, PartialOrd, Ord, PartialEq, Eq)]
+    #[derive(Clone, Copy, Default)]
     pub struct PrimeModularUsize<M>
     where
         M: ModuloExt,
@@ -59,8 +64,73 @@ pub mod modular {
     where
         M: ModuloExt,
     {
-        fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        #[inline]
+        fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
             write!(f, "{}", self.value())
+        }
+    }
+
+    impl<M> Debug for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        #[inline]
+        fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+            write!(f, "{}", self.value())
+        }
+    }
+
+    impl<M> PartialEq for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        #[inline]
+        fn eq(&self, other: &Self) -> bool {
+            self.value.eq(&other.value)
+        }
+    }
+
+    impl<M> Eq for PrimeModularUsize<M> where M: ModuloExt {}
+
+    impl<M> PartialOrd for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        #[inline]
+        fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+            self.value.partial_cmp(&other.value)
+        }
+    }
+
+    impl<M> Ord for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        #[inline]
+        fn cmp(&self, other: &Self) -> Ordering {
+            self.value.cmp(&other.value)
+        }
+    }
+
+    impl<M> Hash for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        #[inline]
+        fn hash<H: Hasher>(&self, state: &mut H) {
+            self.value.hash(state)
+        }
+    }
+
+    impl<M> FromStr for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        type Err = std::num::ParseIntError;
+
+        #[inline]
+        fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+            usize::from_str(s).map(|x| Self::new(x))
         }
     }
 
@@ -228,6 +298,30 @@ pub mod modular {
         }
     }
 
+    impl<T, M> Rem<T> for PrimeModularUsize<M>
+    where
+        T: Into<Self>,
+        M: ModuloExt,
+    {
+        type Output = Self;
+
+        #[inline]
+        fn rem(self, rhs: T) -> Self::Output {
+            Self::new(self.value % rhs.into().value)
+        }
+    }
+
+    impl<T, M> RemAssign<T> for PrimeModularUsize<M>
+    where
+        T: Into<Self>,
+        M: ModuloExt,
+    {
+        #[inline]
+        fn rem_assign(&mut self, rhs: T) {
+            *self = *self % rhs
+        }
+    }
+
     impl<M> Neg for PrimeModularUsize<M>
     where
         M: ModuloExt,
@@ -280,6 +374,19 @@ pub mod modular {
         #[inline]
         fn from(value: T) -> Self {
             Self::new(value.into())
+        }
+    }
+
+    impl<M> GenericInteger for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        fn zero() -> Self {
+            Self::new(0)
+        }
+
+        fn one() -> Self {
+            Self::new(1)
         }
     }
 
