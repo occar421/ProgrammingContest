@@ -2,7 +2,7 @@
 // https://github.com/occar421/ProgrammingContest/tree/master/templates/src/standard_io.rs
 
 use std::collections::HashMap;
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
 use std::hash::Hash;
 use std::io;
 use std::io::{BufRead, BufWriter, Result, Write};
@@ -146,9 +146,12 @@ pub trait GenericInteger:
     + Clone
     + Eq
     + PartialEq
+    + Ord
+    + PartialOrd
     + Hash
     + FromStr
     + Display
+    + Debug
     + Add<Output = Self>
     + Sub<Output = Self>
     + Mul<Output = Self>

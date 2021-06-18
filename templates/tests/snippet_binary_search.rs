@@ -1,5 +1,6 @@
 #[cfg(test)]
 mod tests {
+    use std::ops::{Range, RangeInclusive};
     use templates::snippet_binary_search::binary_search::BinaryBorderSearch;
     use test_case::test_case;
 
@@ -77,5 +78,25 @@ mod tests {
     fn ftb_three_values_slice(value: Vec<bool>) -> (Option<usize>, Option<usize>) {
         let result = value.search_false_true_border(|&x| x);
         (result.max_false, result.min_true)
+    }
+
+    #[test_case(1..1 => (None, None))]
+    #[test_case(1..-2 => (None, None))]
+    #[test_case(-2..2 => (Some(-1), Some(0)))]
+    #[test_case(-3..-1 => (Some(-2), None))]
+    #[test_case(1..3 => (None, Some(1)))]
+    fn tfb_range(range: Range<isize>) -> (Option<isize>, Option<isize>) {
+        let result = range.search_true_false_border(|&x| x < 0);
+        (result.max_true, result.min_false)
+    }
+
+    #[test_case(1..=1 => (None, Some(1)))]
+    #[test_case(1..=-2 => (None, None))]
+    #[test_case(-2..=2 => (Some(-1), Some(0)))]
+    #[test_case(-3..=-1 => (Some(-1), None))]
+    #[test_case(1..=3 => (None, Some(1)))]
+    fn tfb_range_inclusive(range: RangeInclusive<isize>) -> (Option<isize>, Option<isize>) {
+        let result = range.search_true_false_border(|&x| x < 0);
+        (result.max_true, result.min_false)
     }
 }
