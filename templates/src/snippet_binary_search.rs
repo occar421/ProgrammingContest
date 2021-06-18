@@ -4,11 +4,13 @@ pub mod binary_search {
     use super::GenericInteger;
     use std::ops::{Range, RangeInclusive};
 
+    #[derive(Copy, Clone, Debug)]
     pub struct TFBorderResult<GI: GenericInteger> {
         pub max_true: Option<GI>,
         pub min_false: Option<GI>,
     }
 
+    #[derive(Copy, Clone, Debug)]
     pub struct FTBorderResult<GI: GenericInteger> {
         pub max_false: Option<GI>,
         pub min_true: Option<GI>,
