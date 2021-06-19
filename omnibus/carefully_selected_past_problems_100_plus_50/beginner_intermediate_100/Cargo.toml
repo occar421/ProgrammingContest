@@ -10,6 +10,10 @@ publish = false
 [dependencies]
 
 [[bin]]
+name = "06_sumitb2019_d"
+path = "src/06_sumitb2019_d.rs"
+
+[[bin]]
 name = "17_ALDS1_13_A"
 path = "src/17_ALDS1_13_A.rs"
 
