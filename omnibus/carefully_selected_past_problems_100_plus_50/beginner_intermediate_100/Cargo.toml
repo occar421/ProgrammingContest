@@ -26,6 +26,10 @@ name = "34_ALDS1_10_A"
 path = "src/34_ALDS1_10_A.rs"
 
 [[bin]]
+name = "38_ALDS1_10_C"
+path = "src/38_ALDS1_10_C.rs"
+
+[[bin]]
 name = "39_DPL_1_A"
 path = "src/39_DPL_1_A.rs"
 
