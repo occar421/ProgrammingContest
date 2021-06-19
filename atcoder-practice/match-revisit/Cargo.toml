@@ -1,5 +1,5 @@
 [package]
-name = "atcoder-practice"
+name = "match-revisit"
 version = "0.1.0"
 authors = ["MasuqaT <occar@hotmail.co.jp>"]
 edition = "2018"
@@ -10,12 +10,13 @@ publish = false
 [dependencies]
 
 [[bin]]
-name = "_"
-path = "_.rs"
+name = "abc203_d"
+path = "src/abc203_d.rs"
 
-[workspace]
-members = [
-    "temporary",
-    "abs",
-    "match-revisit",
-]
+[[bin]]
+name = "abc203_d2"
+path = "src/abc203_d2.rs"
+
+[[bin]]
+name = "abc205_d"
+path = "src/abc205_d.rs"
