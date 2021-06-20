@@ -16,17 +16,17 @@ pub mod union_find {
     use std::fmt::Debug;
 
     pub trait UnionFind<T>: Debug {
-        fn get_root_of(&self, node: T) -> T;
-        fn get_size_of(&self, node: T) -> Quantity;
-        fn connect_between(&mut self, a: T, b: T) -> bool;
+        fn get_root_of(&self, node: T) -> Option<T>;
+        fn get_size_of(&self, node: T) -> Option<Quantity>;
+        fn connect_between(&mut self, a: T, b: T) -> Option<bool>;
         fn get_roots(&self) -> Vec<T>;
 
         #[inline]
-        fn union(&mut self, a: T, b: T) -> bool {
+        fn union(&mut self, a: T, b: T) -> Option<bool> {
             self.connect_between(a, b)
         }
         #[inline]
-        fn find(&self, node: T) -> T {
+        fn find(&self, node: T) -> Option<T> {
             self.get_root_of(node)
         }
     }
@@ -61,40 +61,44 @@ pub mod union_find {
         impl UnionFind<NodeIndex0Based> for UnionFindPlain {
             /// O( log(N) )
             /// Due to its immutability, it can't be O( α(N) ) by path compression
-            fn get_root_of(&self, i: NodeIndex0Based) -> NodeIndex0Based {
-                match self.nodes[i] {
-                    Node::RootWithSize(_) => i,
-                    Node::ChildrenWithParent(parent) => self.get_root_of(parent),
+            fn get_root_of(&self, i: NodeIndex0Based) -> Option<NodeIndex0Based> {
+                match self.nodes.get(i)? {
+                    Node::RootWithSize(_) => i.into(),
+                    Node::ChildrenWithParent(parent) => self.get_root_of(*parent),
                 }
             }
 
-            fn get_size_of(&self, i: NodeIndex0Based) -> Quantity {
-                match self.nodes[self.get_root_of(i)] {
-                    Node::RootWithSize(size) => size,
+            fn get_size_of(&self, i: NodeIndex0Based) -> Option<Quantity> {
+                match self.nodes[self.get_root_of(i)?] {
+                    Node::RootWithSize(size) => size.into(),
                     _ => panic!("Illegal condition"),
                 }
             }
 
             /// O( log(N) )
-            fn connect_between(&mut self, a: NodeIndex0Based, b: NodeIndex0Based) -> bool {
-                let mut a = self.get_root_of(a);
-                let mut b = self.get_root_of(b);
+            fn connect_between(&mut self, a: NodeIndex0Based, b: NodeIndex0Based) -> Option<bool> {
+                let mut a = self.get_root_of(a)?;
+                let mut b = self.get_root_of(b)?;
                 if a == b {
                     // already in the same union
-                    return false;
+                    return Some(false);
                 }
+
+                // Nodes with `a` and `b` must exist assured by ? op
 
                 if self.get_size_of(a) < self.get_size_of(b) {
                     swap!(a, b);
                 }
 
                 self.nodes[a] = match self.nodes[a] {
-                    Node::RootWithSize(size) => Node::RootWithSize(size + self.get_size_of(b)),
+                    Node::RootWithSize(size) => {
+                        Node::RootWithSize(size + self.get_size_of(b).unwrap())
+                    }
                     _ => panic!("Illegal condition"),
                 };
                 self.nodes[b] = Node::ChildrenWithParent(a);
 
-                return true;
+                return Some(true);
             }
 
             fn get_roots(&self) -> Vec<NodeIndex0Based> {
