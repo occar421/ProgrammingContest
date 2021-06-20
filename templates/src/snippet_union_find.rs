@@ -208,10 +208,12 @@ pub mod union_find {
             }
 
             #[inline]
+            #[allow(dead_code)]
             fn union(&mut self, a: impl Borrow<N>, b: impl Borrow<N>) -> Option<bool> {
                 self.connect_between(a, b)
             }
             #[inline]
+            #[allow(dead_code)]
             fn find(&self, node: impl Borrow<N>) -> Option<&N> {
                 self.get_root_of(node)
             }
