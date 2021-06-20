@@ -6,9 +6,9 @@ mod tests {
     use templates::snippet_union_find::union_find::UnionFind;
     use test_case::test_case;
 
-    #[test_case(1 => vec![0])]
-    #[test_case(2 => vec![0, 1])]
-    #[test_case(5 => vec![0, 1, 2, 3, 4])]
+    #[test_case(1 => vec ! [0])]
+    #[test_case(2 => vec ! [0, 1])]
+    #[test_case(5 => vec ! [0, 1, 2, 3, 4])]
     fn plain_check_initial(size: usize) -> Vec<usize> {
         let uf = union_find::new_with_indices(size);
         uf.get_roots().copied().collect()
@@ -30,9 +30,9 @@ mod tests {
         assert_ne!(uf.get_root_of(&3), uf.get_root_of(&4));
     }
 
-    #[test_case(vec![0])]
-    #[test_case(vec![0, 1])]
-    #[test_case(vec![0, 1, 2, 3, 4])]
+    #[test_case(vec ! [0])]
+    #[test_case(vec ! [0, 1])]
+    #[test_case(vec ! [0, 1, 2, 3, 4])]
     fn mapped_check_initial(values: Vec<usize>) {
         let set = HashSet::from_iter(values);
         let uf = union_find::new_from_set(&set);
@@ -45,20 +45,41 @@ mod tests {
     fn mapped_connect() {
         let data = HashSet::from_iter(vec![-4, -2, 0, 1, 3]);
         let mut uf = union_find::new_from_set(&data);
-        uf.connect_between(&-4, &-2);
-        uf.connect_between(&0, &1);
+        uf.connect_between(-4, -2);
+        uf.connect_between(0, &1);
         uf.connect_between(&-4, &3);
 
-        assert_eq!(uf.get_root_of(&-4), uf.get_root_of(&-2));
-        assert_eq!(uf.get_root_of(&0), uf.get_root_of(&1));
+        assert_eq!(uf.get_root_of(-4), uf.get_root_of(-2));
+        assert_eq!(uf.get_root_of(0), uf.get_root_of(1));
         assert_eq!(uf.get_root_of(&-4), uf.get_root_of(&3));
         assert_eq!(uf.get_root_of(&-2), uf.get_root_of(&3));
 
-        assert_ne!(uf.get_root_of(&-4), uf.get_root_of(&0));
+        assert_ne!(uf.get_root_of(-4), uf.get_root_of(0));
         assert_ne!(uf.get_root_of(&1), uf.get_root_of(&3));
     }
 
-    // TODO mapped + &str
+    #[test]
+    fn mapped_connect_string() {
+        // let data = HashSet::from_iter(
+        //     vec!["foo", "bar", "baz", "qux", "quux"]
+        //         .iter()
+        //         .map(|s| s.to_string()),
+        // );
+        let data = HashSet::from_iter(vec!["foo", "bar", "baz", "qux", "quux"]);
+
+        let mut uf = union_find::new_from_set(&data);
+        uf.connect_between("foo", "bar");
+        uf.connect_between("baz", &"qux");
+        uf.connect_between(&"foo", &"quux");
+
+        assert_eq!(uf.get_root_of("foo"), uf.get_root_of("bar"));
+        assert_eq!(uf.get_root_of("baz"), uf.get_root_of("qux"));
+        assert_eq!(uf.get_root_of(&"foo"), uf.get_root_of(&"quux"));
+        assert_eq!(uf.get_root_of(&"bar"), uf.get_root_of(&"quux"));
+
+        assert_ne!(uf.get_root_of("foo"), uf.get_root_of("baz"));
+        assert_ne!(uf.get_root_of(&"qux"), uf.get_root_of(&"quux"));
+    }
 
     #[allow(dead_code)]
     fn compiles_with_debug() {

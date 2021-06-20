@@ -13,27 +13,28 @@ pub mod union_find {
     //! https://github.com/occar421/ProgrammingContest/tree/master/templates/src/snippet_union_find.rs
 
     use super::{NodeIndex0Based, Quantity};
+    use std::borrow::Borrow;
     use std::collections::HashSet;
     use std::fmt::Debug;
     use std::hash::Hash;
 
-    pub trait UnionFind<'i, N: 'i + Hash + Eq>: Debug {
-        fn get_root_of(&self, node: impl Into<&'i N>) -> Option<&N>;
-        fn get_size_of(&self, node: impl Into<&'i N>) -> Option<Quantity>;
-        fn connect_between(&mut self, a: impl Into<&'i N>, b: impl Into<&'i N>) -> Option<bool>;
+    pub trait UnionFind<N: Hash + Eq>: Debug {
+        fn get_root_of(&self, node: impl Borrow<N>) -> Option<&N>;
+        fn get_size_of(&self, node: impl Borrow<N>) -> Option<Quantity>;
+        fn connect_between(&mut self, a: impl Borrow<N>, b: impl Borrow<N>) -> Option<bool>;
         fn get_roots<'a>(&'a self) -> Box<dyn Iterator<Item = &N> + 'a>;
 
         #[inline]
-        fn union(&mut self, a: impl Into<&'i N>, b: impl Into<&'i N>) -> Option<bool> {
+        fn union(&mut self, a: impl Borrow<N>, b: impl Borrow<N>) -> Option<bool> {
             self.connect_between(a, b)
         }
         #[inline]
-        fn find(&self, node: impl Into<&'i N>) -> Option<&N> {
+        fn find(&self, node: impl Borrow<N>) -> Option<&N> {
             self.get_root_of(node)
         }
     }
 
-    pub fn new_with_indices<'a>(n: Quantity) -> impl UnionFind<'a, NodeIndex0Based> {
+    pub fn new_with_indices<'a>(n: Quantity) -> impl UnionFind<NodeIndex0Based> {
         plain::UnionFindPlain::new(n)
     }
 
@@ -44,6 +45,7 @@ pub mod union_find {
     mod plain {
         use super::super::{NodeIndex0Based, Quantity};
         use super::UnionFind;
+        use std::borrow::Borrow;
 
         #[derive(Debug)]
         enum Node {
@@ -69,17 +71,17 @@ pub mod union_find {
             }
         }
 
-        impl<'i> UnionFind<'i, NodeIndex0Based> for UnionFindPlain {
+        impl UnionFind<NodeIndex0Based> for UnionFindPlain {
             /// O( log(N) )
             /// Due to its immutability, it can't be O( α(N) ) by path compression
-            fn get_root_of(&self, i: impl Into<&'i NodeIndex0Based>) -> Option<&NodeIndex0Based> {
-                match self.nodes.get(*i.into())? {
+            fn get_root_of(&self, i: impl Borrow<NodeIndex0Based>) -> Option<&NodeIndex0Based> {
+                match self.nodes.get(*i.borrow())? {
                     Node::Root { index, .. } => Some(index),
                     Node::Children { parent } => self.get_root_of(parent),
                 }
             }
 
-            fn get_size_of(&self, i: impl Into<&'i NodeIndex0Based>) -> Option<Quantity> {
+            fn get_size_of(&self, i: impl Borrow<NodeIndex0Based>) -> Option<Quantity> {
                 match self.nodes[*self.get_root_of(i)?] {
                     Node::Root { size, .. } => size.into(),
                     _ => panic!("Illegal condition"),
@@ -89,8 +91,8 @@ pub mod union_find {
             /// O( log(N) )
             fn connect_between(
                 &mut self,
-                a: impl Into<&'i NodeIndex0Based>,
-                b: impl Into<&'i NodeIndex0Based>,
+                a: impl Borrow<NodeIndex0Based>,
+                b: impl Borrow<NodeIndex0Based>,
             ) -> Option<bool> {
                 let mut a = *self.get_root_of(a)?;
                 let mut b = *self.get_root_of(b)?;
@@ -130,6 +132,7 @@ pub mod union_find {
         use super::super::{NodeIndex0Based, Quantity};
         use super::plain::UnionFindPlain;
         use super::UnionFind;
+        use std::borrow::Borrow;
         use std::collections::{HashMap, HashSet};
         use std::fmt::{Debug, Formatter};
         use std::hash::Hash;
@@ -163,25 +166,21 @@ pub mod union_find {
             }
         }
 
-        impl<'i, N: 'i + Hash + Eq + Debug> UnionFind<'i, N> for UnionFindMapped<'_, N> {
-            fn get_root_of(&self, node: impl Into<&'i N>) -> Option<&N> {
-                let core_node = *self.map.get(node.into())?;
+        impl<N: Hash + Eq + Debug> UnionFind<N> for UnionFindMapped<'_, N> {
+            fn get_root_of(&self, node: impl Borrow<N>) -> Option<&N> {
+                let core_node = *self.map.get(node.borrow())?;
                 let core_root = self.core.get_root_of(&core_node)?;
                 Some(&self.r_map[core_root])
             }
 
-            fn get_size_of(&self, node: impl Into<&'i N>) -> Option<Quantity> {
-                let core_node = *self.map.get(node.into())?;
+            fn get_size_of(&self, node: impl Borrow<N>) -> Option<Quantity> {
+                let core_node = *self.map.get(node.borrow())?;
                 self.core.get_size_of(&core_node)
             }
 
-            fn connect_between(
-                &mut self,
-                a: impl Into<&'i N>,
-                b: impl Into<&'i N>,
-            ) -> Option<bool> {
-                let core_a = *self.map.get(a.into())?;
-                let core_b = *self.map.get(b.into())?;
+            fn connect_between(&mut self, a: impl Borrow<N>, b: impl Borrow<N>) -> Option<bool> {
+                let core_a = *self.map.get(a.borrow())?;
+                let core_b = *self.map.get(b.borrow())?;
                 self.core.connect_between(&core_a, &core_b)
             }
 
