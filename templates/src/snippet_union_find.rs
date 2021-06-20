@@ -17,23 +17,23 @@ pub mod union_find {
     use std::fmt::Debug;
     use std::hash::Hash;
 
-    pub trait UnionFind<N: Hash + Eq>: Debug {
-        fn get_root_of(&self, node: &N) -> Option<&N>;
-        fn get_size_of(&self, node: &N) -> Option<Quantity>;
-        fn connect_between(&mut self, a: &N, b: &N) -> Option<bool>;
+    pub trait UnionFind<'i, N: 'i + Hash + Eq>: Debug {
+        fn get_root_of(&self, node: impl Into<&'i N>) -> Option<&N>;
+        fn get_size_of(&self, node: impl Into<&'i N>) -> Option<Quantity>;
+        fn connect_between(&mut self, a: impl Into<&'i N>, b: impl Into<&'i N>) -> Option<bool>;
         fn get_roots<'a>(&'a self) -> Box<dyn Iterator<Item = &N> + 'a>;
 
         #[inline]
-        fn union(&mut self, a: &N, b: &N) -> Option<bool> {
+        fn union(&mut self, a: impl Into<&'i N>, b: impl Into<&'i N>) -> Option<bool> {
             self.connect_between(a, b)
         }
         #[inline]
-        fn find(&self, node: &N) -> Option<&N> {
+        fn find(&self, node: impl Into<&'i N>) -> Option<&N> {
             self.get_root_of(node)
         }
     }
 
-    pub fn new_with_indices(n: Quantity) -> impl UnionFind<NodeIndex0Based> {
+    pub fn new_with_indices<'a>(n: Quantity) -> impl UnionFind<'a, NodeIndex0Based> {
         plain::UnionFindPlain::new(n)
     }
 
@@ -69,17 +69,17 @@ pub mod union_find {
             }
         }
 
-        impl UnionFind<NodeIndex0Based> for UnionFindPlain {
+        impl<'i> UnionFind<'i, NodeIndex0Based> for UnionFindPlain {
             /// O( log(N) )
             /// Due to its immutability, it can't be O( α(N) ) by path compression
-            fn get_root_of(&self, i: &NodeIndex0Based) -> Option<&NodeIndex0Based> {
-                match self.nodes.get(*i)? {
+            fn get_root_of(&self, i: impl Into<&'i NodeIndex0Based>) -> Option<&NodeIndex0Based> {
+                match self.nodes.get(*i.into())? {
                     Node::Root { index, .. } => Some(index),
                     Node::Children { parent } => self.get_root_of(parent),
                 }
             }
 
-            fn get_size_of(&self, i: &NodeIndex0Based) -> Option<Quantity> {
+            fn get_size_of(&self, i: impl Into<&'i NodeIndex0Based>) -> Option<Quantity> {
                 match self.nodes[*self.get_root_of(i)?] {
                     Node::Root { size, .. } => size.into(),
                     _ => panic!("Illegal condition"),
@@ -89,8 +89,8 @@ pub mod union_find {
             /// O( log(N) )
             fn connect_between(
                 &mut self,
-                a: &NodeIndex0Based,
-                b: &NodeIndex0Based,
+                a: impl Into<&'i NodeIndex0Based>,
+                b: impl Into<&'i NodeIndex0Based>,
             ) -> Option<bool> {
                 let mut a = *self.get_root_of(a)?;
                 let mut b = *self.get_root_of(b)?;
@@ -163,21 +163,25 @@ pub mod union_find {
             }
         }
 
-        impl<N: Hash + Eq + Debug> UnionFind<N> for UnionFindMapped<'_, N> {
-            fn get_root_of(&self, node: &N) -> Option<&N> {
-                let core_node = *self.map.get(&node)?;
+        impl<'i, N: 'i + Hash + Eq + Debug> UnionFind<'i, N> for UnionFindMapped<'_, N> {
+            fn get_root_of(&self, node: impl Into<&'i N>) -> Option<&N> {
+                let core_node = *self.map.get(node.into())?;
                 let core_root = self.core.get_root_of(&core_node)?;
                 Some(&self.r_map[core_root])
             }
 
-            fn get_size_of(&self, node: &N) -> Option<Quantity> {
-                let core_node = *self.map.get(node)?;
+            fn get_size_of(&self, node: impl Into<&'i N>) -> Option<Quantity> {
+                let core_node = *self.map.get(node.into())?;
                 self.core.get_size_of(&core_node)
             }
 
-            fn connect_between(&mut self, a: &N, b: &N) -> Option<bool> {
-                let core_a = *self.map.get(&a)?;
-                let core_b = *self.map.get(&b)?;
+            fn connect_between(
+                &mut self,
+                a: impl Into<&'i N>,
+                b: impl Into<&'i N>,
+            ) -> Option<bool> {
+                let core_a = *self.map.get(a.into())?;
+                let core_b = *self.map.get(b.into())?;
                 self.core.connect_between(&core_a, &core_b)
             }
 
