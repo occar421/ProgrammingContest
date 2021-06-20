@@ -11,7 +11,7 @@ mod tests {
     #[test_case(5 => vec![0, 1, 2, 3, 4])]
     fn plain_check_initial(size: usize) -> Vec<usize> {
         let uf = union_find::new_with_indices(size);
-        uf.get_roots().iter().copied().copied().collect()
+        uf.get_roots().copied().collect()
     }
 
     #[test]
@@ -36,7 +36,7 @@ mod tests {
     fn mapped_check_initial(values: Vec<usize>) {
         let set = HashSet::from_iter(values);
         let uf = union_find::new_from_set(&set);
-        let ac_set = HashSet::from_iter(uf.get_roots().iter().copied().copied());
+        let ac_set = HashSet::from_iter(uf.get_roots().copied());
 
         assert_eq!(set, ac_set);
     }

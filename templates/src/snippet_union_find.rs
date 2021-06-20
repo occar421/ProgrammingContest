@@ -21,7 +21,7 @@ pub mod union_find {
         fn get_root_of(&self, node: &N) -> Option<&N>;
         fn get_size_of(&self, node: &N) -> Option<Quantity>;
         fn connect_between(&mut self, a: &N, b: &N) -> Option<bool>;
-        fn get_roots(&self) -> Vec<&N>; // FIXME Iter
+        fn get_roots<'a>(&'a self) -> Box<dyn Iterator<Item = &N> + 'a>;
 
         #[inline]
         fn union(&mut self, a: &N, b: &N) -> Option<bool> {
@@ -117,14 +117,11 @@ pub mod union_find {
                 return Some(true);
             }
 
-            fn get_roots(&self) -> Vec<&NodeIndex0Based> {
-                self.nodes
-                    .iter()
-                    .filter_map(|node| match node {
-                        Node::Root { index, .. } => Some(index),
-                        Node::Children { .. } => None,
-                    })
-                    .collect()
+            fn get_roots<'a>(&'a self) -> Box<dyn Iterator<Item = &NodeIndex0Based> + 'a> {
+                Box::new(self.nodes.iter().filter_map(|node| match node {
+                    Node::Root { index, .. } => Some(index),
+                    Node::Children { .. } => None,
+                }))
             }
         }
     }
@@ -184,12 +181,12 @@ pub mod union_find {
                 self.core.connect_between(&core_a, &core_b)
             }
 
-            fn get_roots(&self) -> Vec<&N> {
-                self.core
-                    .get_roots()
-                    .iter()
-                    .map(|&core_root| self.r_map[core_root])
-                    .collect()
+            fn get_roots<'a>(&'a self) -> Box<dyn Iterator<Item = &N> + 'a> {
+                Box::new(
+                    self.core
+                        .get_roots()
+                        .map(move |core_root| self.r_map[core_root]),
+                )
             }
         }
     }
