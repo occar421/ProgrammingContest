@@ -13,45 +13,27 @@ pub mod union_find {
     //! https://github.com/occar421/ProgrammingContest/tree/master/templates/src/snippet_union_find.rs
 
     use super::{NodeIndex0Based, Quantity};
-    use std::borrow::Borrow;
-    // use std::collections::HashSet;
     use std::fmt::Debug;
     use std::hash::Hash;
 
-    pub trait UnionFind<T>: Debug {
-        fn get_root_of<N>(&self, node: &N) -> Option<&T>
-        where
-            T: Borrow<N>,
-            N: Hash + Eq;
-        fn get_size_of<N>(&self, node: &N) -> Option<Quantity>
-        where
-            T: Borrow<N>,
-            N: Hash + Eq;
-        fn connect_between<N>(&mut self, a: &N, b: &N) -> Option<bool>
-        where
-            T: Borrow<N>,
-            N: Hash + Eq;
-        fn get_roots(&self) -> Vec<&T>; // FIXME Iter
+    pub trait UnionFind<N: Hash + Eq>: Debug {
+        type T;
+        fn get_root_of(&self, node: &N) -> Option<&Self::T>;
+        fn get_size_of(&self, node: &N) -> Option<Quantity>;
+        fn connect_between(&mut self, a: &N, b: &N) -> Option<bool>;
+        fn get_roots(&self) -> Vec<&Self::T>; // FIXME Iter
 
         #[inline]
-        fn union<N>(&mut self, a: &N, b: &N) -> Option<bool>
-        where
-            T: Borrow<N>,
-            N: Hash + Eq,
-        {
+        fn union(&mut self, a: &N, b: &N) -> Option<bool> {
             self.connect_between(a, b)
         }
         #[inline]
-        fn find<N>(&self, node: &N) -> Option<&T>
-        where
-            T: Borrow<N>,
-            N: Hash + Eq,
-        {
+        fn find(&self, node: &N) -> Option<&Self::T> {
             self.get_root_of(node)
         }
     }
 
-    pub fn new_with_indices(n: Quantity) -> impl UnionFind<NodeIndex0Based> {
+    pub fn new_with_indices(n: Quantity) -> impl UnionFind<NodeIndex0Based, T = NodeIndex0Based> {
         plain::UnionFindPlain::new(n)
     }
 
@@ -64,12 +46,16 @@ pub mod union_find {
     mod plain {
         use super::super::{NodeIndex0Based, Quantity};
         use super::UnionFind;
-        use std::borrow::Borrow;
 
-        #[derive(Copy, Clone, Debug)]
+        #[derive(Debug)]
         enum Node {
-            RootWithSize(Quantity),
-            ChildrenWithParent(NodeIndex0Based),
+            Root {
+                size: Quantity,
+                index: NodeIndex0Based,
+            },
+            Children {
+                parent: NodeIndex0Based,
+            },
         }
 
         #[derive(Debug)]
@@ -80,42 +66,38 @@ pub mod union_find {
         impl UnionFindPlain {
             pub fn new(n: Quantity) -> Self {
                 UnionFindPlain {
-                    nodes: vec![Node::RootWithSize(1); n],
+                    nodes: (0..n).map(|i| Node::Root { size: 1, index: i }).collect(),
                 }
             }
         }
 
         impl UnionFind<NodeIndex0Based> for UnionFindPlain {
+            type T = NodeIndex0Based;
+
             /// O( log(N) )
             /// Due to its immutability, it can't be O( α(N) ) by path compression
-            fn get_root_of<N>(&self, i: &N) -> Option<&NodeIndex0Based>
-            where
-                NodeIndex0Based: Borrow<N>,
-            {
-                let b = i.borrow().clone();
-                match self.nodes.get(i)? {
-                    Node::RootWithSize(_) => i.into(),
-                    Node::ChildrenWithParent(parent) => self.get_root_of(*parent),
+            fn get_root_of(&self, i: &NodeIndex0Based) -> Option<&NodeIndex0Based> {
+                match self.nodes.get(*i)? {
+                    Node::Root { index, .. } => Some(index),
+                    Node::Children { parent } => self.get_root_of(parent),
                 }
             }
 
-            fn get_size_of<N>(&self, i: &N) -> Option<Quantity>
-            where
-                NodeIndex0Based: Borrow<N>,
-            {
-                match self.nodes[self.get_root_of(i)?] {
-                    Node::RootWithSize(size) => size.into(),
+            fn get_size_of(&self, i: &NodeIndex0Based) -> Option<Quantity> {
+                match self.nodes[*self.get_root_of(i)?] {
+                    Node::Root { size, .. } => size.into(),
                     _ => panic!("Illegal condition"),
                 }
             }
 
             /// O( log(N) )
-            fn connect_between<N>(&mut self, a: &N, b: &N) -> Option<bool>
-            where
-                NodeIndex0Based: Borrow<N>,
-            {
-                let mut a = self.get_root_of(a)?;
-                let mut b = self.get_root_of(b)?;
+            fn connect_between(
+                &mut self,
+                a: &NodeIndex0Based,
+                b: &NodeIndex0Based,
+            ) -> Option<bool> {
+                let mut a = *self.get_root_of(a)?;
+                let mut b = *self.get_root_of(b)?;
                 if a == b {
                     // already in the same union
                     return Some(false);
@@ -123,17 +105,18 @@ pub mod union_find {
 
                 // Nodes with `a` and `b` must exist assured by ? op
 
-                if self.get_size_of(a) < self.get_size_of(b) {
+                if self.get_size_of(&a) < self.get_size_of(&b) {
                     swap!(a, b);
                 }
 
                 self.nodes[a] = match self.nodes[a] {
-                    Node::RootWithSize(size) => {
-                        Node::RootWithSize(size + self.get_size_of(b).unwrap())
-                    }
+                    Node::Root { size, index } => Node::Root {
+                        size: size + self.get_size_of(&b).unwrap(),
+                        index,
+                    },
                     _ => panic!("Illegal condition"),
                 };
-                self.nodes[b] = Node::ChildrenWithParent(a);
+                self.nodes[b] = Node::Children { parent: a };
 
                 return Some(true);
             }
@@ -141,10 +124,9 @@ pub mod union_find {
             fn get_roots(&self) -> Vec<&NodeIndex0Based> {
                 self.nodes
                     .iter()
-                    .enumerate()
-                    .filter_map(|(i, node)| match *node {
-                        Node::RootWithSize(_) => Some(i),
-                        Node::ChildrenWithParent(_) => None,
+                    .filter_map(|node| match node {
+                        Node::Root { index, .. } => Some(index),
+                        Node::Children { .. } => None,
                     })
                     .collect()
             }

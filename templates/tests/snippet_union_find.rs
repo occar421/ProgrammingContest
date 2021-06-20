@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use std::collections::HashSet;
-    use std::iter::FromIterator;
+    // use std::collections::HashSet;
+    // use std::iter::FromIterator;
     use templates::snippet_union_find::union_find;
     use templates::snippet_union_find::union_find::UnionFind;
     use test_case::test_case;
@@ -11,7 +11,7 @@ mod tests {
     #[test_case(5 => vec![0, 1, 2, 3, 4])]
     fn plain_check_initial(size: usize) -> Vec<usize> {
         let uf = union_find::new_with_indices(size);
-        uf.get_roots().copied()
+        uf.get_roots().iter().copied().copied().collect()
     }
 
     #[test]
