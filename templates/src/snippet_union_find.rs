@@ -41,9 +41,9 @@ pub mod union_find {
         plain::UnionFindPlain::new(n)
     }
 
-    pub fn new_from_set<N: Hash + Eq + Debug + Copy /* FIXME */>(
-        set: &HashSet<N>,
-    ) -> impl UnionFind<N, NOutput = N> {
+    pub fn new_from_set<'a, N: Hash + Eq + Debug>(
+        set: &'a HashSet<N>,
+    ) -> impl UnionFind<N, NOutput = N> + 'a {
         mapped::UnionFindMapped::new(set)
     }
 
@@ -146,24 +146,25 @@ pub mod union_find {
         use std::hash::Hash;
         use std::iter::FromIterator;
 
-        pub struct UnionFindMapped<N> {
+        pub struct UnionFindMapped<'a, N> {
             core: UnionFindPlain,
-            map: HashMap<N, NodeIndex0Based>,
-            r_map: HashMap<NodeIndex0Based, N>,
+            map: HashMap<&'a N, NodeIndex0Based>,
+            r_map: HashMap<NodeIndex0Based, &'a N>,
         }
 
-        impl<N: Hash + Eq + Debug + Copy /* FIXME */> UnionFindMapped<N> {
-            pub fn new(set: &HashSet<N>) -> Self {
+        impl<'a, N: Hash + Eq + Debug> UnionFindMapped<'a, N> {
+            pub fn new(set: &'a HashSet<N>) -> Self {
                 let labelled_values = set.iter().enumerate();
+
                 UnionFindMapped {
                     core: UnionFindPlain::new(set.len()),
-                    map: HashMap::from_iter(labelled_values.clone().map(|(i, &x)| (x, i))),
-                    r_map: HashMap::from_iter(labelled_values.map(|(i, &x)| (i, x))),
+                    map: HashMap::from_iter(labelled_values.clone().map(|(i, x)| (x, i))),
+                    r_map: HashMap::from_iter(labelled_values),
                 }
             }
         }
 
-        impl<N: Hash + Eq + Debug> Debug for UnionFindMapped<N> {
+        impl<N: Hash + Eq + Debug> Debug for UnionFindMapped<'_, N> {
             fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
                 writeln!(f, "UnionFindMapped {{")?;
                 writeln!(f, "  map: {:?}", self.map)?;
@@ -173,7 +174,7 @@ pub mod union_find {
             }
         }
 
-        impl<N: Hash + Eq + Debug + Copy /* FIXME*/> UnionFind<N> for UnionFindMapped<N> {
+        impl<N: Hash + Eq + Debug> UnionFind<N> for UnionFindMapped<'_, N> {
             type NOutput = N;
 
             fn get_root_of(&self, node: &N) -> Option<&Self::NOutput> {
@@ -197,7 +198,7 @@ pub mod union_find {
                 self.core
                     .get_roots()
                     .iter()
-                    .map(|&core_root| &self.r_map[core_root])
+                    .map(|&core_root| self.r_map[core_root])
                     .collect()
             }
         }
