@@ -122,6 +122,7 @@ pub mod union_find {
                 }
             }
 
+            /// O( log(N) )
             pub fn get_root_of(&self, node: impl Borrow<N>) -> Option<&N> {
                 let core_node = *self.map.get(node.borrow())?;
                 let core_root = self.core.get_root_of(core_node)?;
@@ -133,6 +134,7 @@ pub mod union_find {
                 self.core.get_size_of(core_node)
             }
 
+            /// O( log(N) )
             pub fn connect_between(
                 &mut self,
                 a: impl Borrow<N>,
@@ -149,6 +151,15 @@ pub mod union_find {
                         .get_roots()
                         .map(move |core_root| self.r_map[core_root]),
                 )
+            }
+
+            #[inline]
+            fn union(&mut self, a: impl Borrow<N>, b: impl Borrow<N>) -> Option<bool> {
+                self.connect_between(a, b)
+            }
+            #[inline]
+            fn find(&self, node: impl Borrow<N>) -> Option<&N> {
+                self.get_root_of(node)
             }
         }
 
