@@ -102,35 +102,89 @@ pub mod union_find {
         use std::borrow::Borrow;
         use std::collections::{HashMap, HashSet};
         use std::fmt::{Debug, Formatter};
-        use std::hash::Hash;
+        use std::hash::{Hash, Hasher};
         use std::iter::FromIterator;
 
-        pub struct UnionFindMapped<'a, N> {
+        enum ReferenceKind<'s, N> {
+            Ref(&'s N),
+            Box(Box<N>),
+        }
+
+        impl<N> ReferenceKind<'_, N> {
+            #[inline]
+            fn unwrap(&self) -> &N {
+                match self {
+                    &ReferenceKind::Ref(r) => r,
+                    ReferenceKind::Box(b) => b,
+                }
+            }
+        }
+
+        impl<'s, N: PartialEq> Eq for ReferenceKind<'s, N> {}
+        impl<'s, N: PartialEq> PartialEq for ReferenceKind<'s, N> {
+            #[inline]
+            fn eq(&self, other: &Self) -> bool {
+                self.unwrap() == other.unwrap()
+            }
+        }
+
+        impl<'s, N: Hash> Hash for ReferenceKind<'s, N> {
+            #[inline]
+            fn hash<H: Hasher>(&self, state: &mut H) {
+                self.unwrap().hash(state)
+            }
+        }
+
+        impl<'s, N: Debug> Debug for ReferenceKind<'s, N> {
+            fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+                writeln!(f, "{:?}", self.unwrap())
+            }
+        }
+
+        pub struct UnionFindMapped<'s, N: PartialEq + Hash + Debug> {
             core: UnionFindCore,
-            map: HashMap<&'a N, NodeIndex0Based>,
-            r_map: HashMap<NodeIndex0Based, &'a N>,
+            map: HashMap<ReferenceKind<'s, N>, NodeIndex0Based>,
+            r_map: HashMap<NodeIndex0Based, ReferenceKind<'s, N>>,
+        }
+
+        impl UnionFindMapped<'_, NodeIndex0Based> {
+            pub fn new(n: Quantity) -> Self {
+                Self {
+                    core: UnionFindCore::new(n),
+                    map: HashMap::from_iter((0..n).map(|i| (ReferenceKind::Box(i.into()), i))),
+                    r_map: HashMap::from_iter((0..n).map(|i| (i, ReferenceKind::Box(i.into())))),
+                }
+            }
         }
 
         impl<'s, N: Hash + Eq + Debug> UnionFindMapped<'s, N> {
             pub fn from_set(set: &'s HashSet<N>) -> Self {
                 let labelled_values = set.iter().enumerate();
 
-                UnionFindMapped {
+                Self {
                     core: UnionFindCore::new(set.len()),
-                    map: HashMap::from_iter(labelled_values.clone().map(|(i, x)| (x, i))),
-                    r_map: HashMap::from_iter(labelled_values),
+                    map: HashMap::from_iter(
+                        labelled_values
+                            .clone()
+                            .map(|(i, x)| (ReferenceKind::Ref(x), i)),
+                    ),
+                    r_map: HashMap::from_iter(
+                        labelled_values
+                            .clone()
+                            .map(|(i, x)| (i, ReferenceKind::Ref(x))),
+                    ),
                 }
             }
 
             /// O( log(N) )
             pub fn get_root_of(&self, node: impl Borrow<N>) -> Option<&N> {
-                let core_node = *self.map.get(node.borrow())?;
+                let core_node = *self.map.get(&ReferenceKind::Ref(node.borrow()))?;
                 let core_root = self.core.get_root_of(core_node)?;
-                Some(&self.r_map[&core_root])
+                Some(&self.r_map[&core_root].unwrap())
             }
 
             pub fn get_size_of(&self, node: impl Borrow<N>) -> Option<Quantity> {
-                let core_node = *self.map.get(node.borrow())?;
+                let core_node = *self.map.get(&ReferenceKind::Ref(node.borrow()))?;
                 self.core.get_size_of(core_node)
             }
 
@@ -140,8 +194,8 @@ pub mod union_find {
                 a: impl Borrow<N>,
                 b: impl Borrow<N>,
             ) -> Option<bool> {
-                let core_a = *self.map.get(a.borrow())?;
-                let core_b = *self.map.get(b.borrow())?;
+                let core_a = *self.map.get(&ReferenceKind::Ref(a.borrow()))?;
+                let core_b = *self.map.get(&ReferenceKind::Ref(b.borrow()))?;
                 self.core.connect_between(core_a, core_b)
             }
 
@@ -149,7 +203,7 @@ pub mod union_find {
                 Box::new(
                     self.core
                         .get_roots()
-                        .map(move |core_root| self.r_map[core_root]),
+                        .map(move |core_root| self.r_map[core_root].unwrap()),
                 )
             }
 
