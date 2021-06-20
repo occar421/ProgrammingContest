@@ -33,14 +33,14 @@ pub mod union_find {
         }
     }
 
-    pub fn new(n: Quantity) -> Box<dyn UnionFind<NodeIndex0Based>> {
-        Box::new(plain::UnionFindPlain::new(n))
+    pub fn new_with_indices(n: Quantity) -> impl UnionFind<NodeIndex0Based> {
+        plain::UnionFindPlain::new(n)
     }
 
-    pub fn new_from_set<'s, T: 'static + Hash + Eq + Debug + Copy /* FIXME */>(
-        set: &'s HashSet<T>,
-    ) -> Box<dyn UnionFind<T>> {
-        Box::new(mapped::UnionFindMapped::new_from_set(set))
+    pub fn new_from_set<T: Hash + Eq + Debug + Copy /* FIXME */>(
+        set: &HashSet<T>,
+    ) -> impl UnionFind<T> {
+        mapped::UnionFindMapped::new(set)
     }
 
     mod plain {
@@ -139,7 +139,7 @@ pub mod union_find {
         }
 
         impl<T: Hash + Eq + Debug + Copy /* FIXME */> UnionFindMapped<T> {
-            pub fn new_from_set(set: &HashSet<T>) -> Self {
+            pub fn new(set: &HashSet<T>) -> Self {
                 let labelled_values = set.iter().enumerate();
                 UnionFindMapped {
                     core: UnionFindPlain::new(set.len()),
