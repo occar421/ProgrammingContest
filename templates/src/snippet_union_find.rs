@@ -18,32 +18,26 @@ pub mod union_find {
     use std::hash::Hash;
 
     pub trait UnionFind<N: Hash + Eq>: Debug {
-        type NOutput;
-        // type NOutput = N; associated type defaults are unstable
-        fn get_root_of(&self, node: &N) -> Option<&Self::NOutput>;
+        fn get_root_of(&self, node: &N) -> Option<&N>;
         fn get_size_of(&self, node: &N) -> Option<Quantity>;
         fn connect_between(&mut self, a: &N, b: &N) -> Option<bool>;
-        fn get_roots(&self) -> Vec<&Self::NOutput>; // FIXME Iter
+        fn get_roots(&self) -> Vec<&N>; // FIXME Iter
 
         #[inline]
         fn union(&mut self, a: &N, b: &N) -> Option<bool> {
             self.connect_between(a, b)
         }
         #[inline]
-        fn find(&self, node: &N) -> Option<&Self::NOutput> {
+        fn find(&self, node: &N) -> Option<&N> {
             self.get_root_of(node)
         }
     }
 
-    pub fn new_with_indices(
-        n: Quantity,
-    ) -> impl UnionFind<NodeIndex0Based, NOutput = NodeIndex0Based> {
+    pub fn new_with_indices(n: Quantity) -> impl UnionFind<NodeIndex0Based> {
         plain::UnionFindPlain::new(n)
     }
 
-    pub fn new_from_set<'a, N: Hash + Eq + Debug>(
-        set: &'a HashSet<N>,
-    ) -> impl UnionFind<N, NOutput = N> + 'a {
+    pub fn new_from_set<'a, N: Hash + Eq + Debug>(set: &'a HashSet<N>) -> impl UnionFind<N> + 'a {
         mapped::UnionFindMapped::new(set)
     }
 
@@ -76,8 +70,6 @@ pub mod union_find {
         }
 
         impl UnionFind<NodeIndex0Based> for UnionFindPlain {
-            type NOutput = NodeIndex0Based;
-
             /// O( log(N) )
             /// Due to its immutability, it can't be O( α(N) ) by path compression
             fn get_root_of(&self, i: &NodeIndex0Based) -> Option<&NodeIndex0Based> {
@@ -175,9 +167,7 @@ pub mod union_find {
         }
 
         impl<N: Hash + Eq + Debug> UnionFind<N> for UnionFindMapped<'_, N> {
-            type NOutput = N;
-
-            fn get_root_of(&self, node: &N) -> Option<&Self::NOutput> {
+            fn get_root_of(&self, node: &N) -> Option<&N> {
                 let core_node = *self.map.get(&node)?;
                 let core_root = self.core.get_root_of(&core_node)?;
                 Some(&self.r_map[core_root])
@@ -194,7 +184,7 @@ pub mod union_find {
                 self.core.connect_between(&core_a, &core_b)
             }
 
-            fn get_roots(&self) -> Vec<&Self::NOutput> {
+            fn get_roots(&self) -> Vec<&N> {
                 self.core
                     .get_roots()
                     .iter()
