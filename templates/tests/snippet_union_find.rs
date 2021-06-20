@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
-    // use std::collections::HashSet;
-    // use std::iter::FromIterator;
+    use std::collections::HashSet;
+    use std::iter::FromIterator;
     use templates::snippet_union_find::union_find;
     use templates::snippet_union_find::union_find::UnionFind;
     use test_case::test_case;
@@ -30,34 +30,33 @@ mod tests {
         assert_ne!(uf.get_root_of(&3), uf.get_root_of(&4));
     }
 
-    // #[test_case(vec![0])]
-    // #[test_case(vec![0, 1])]
-    // #[test_case(vec![0, 1, 2, 3, 4])]
-    // fn mapped_check_initial(values: Vec<usize>) {
-    //     let set = HashSet::from_iter(values);
-    //     let uf = union_find::new_from_set(&set);
-    //     dbg!(&set, &uf);
-    //     let ac_set = HashSet::from_iter(uf.get_roots());
-    //
-    //     assert_eq!(set, ac_set);
-    // }
-    //
-    // #[test]
-    // fn mapped_connect() {
-    //     let data = HashSet::from_iter(vec![-4, -2, 0, 1, 3]);
-    //     let mut uf = union_find::new_from_set(&data);
-    //     uf.connect_between(-4, -2);
-    //     uf.connect_between(0, 1);
-    //     uf.connect_between(-4, 3);
-    //
-    //     assert_eq!(uf.get_root_of(-4), uf.get_root_of(-2));
-    //     assert_eq!(uf.get_root_of(0), uf.get_root_of(1));
-    //     assert_eq!(uf.get_root_of(-4), uf.get_root_of(3));
-    //     assert_eq!(uf.get_root_of(-2), uf.get_root_of(3));
-    //
-    //     assert_ne!(uf.get_root_of(-4), uf.get_root_of(0));
-    //     assert_ne!(uf.get_root_of(1), uf.get_root_of(3));
-    // }
+    #[test_case(vec![0])]
+    #[test_case(vec![0, 1])]
+    #[test_case(vec![0, 1, 2, 3, 4])]
+    fn mapped_check_initial(values: Vec<usize>) {
+        let set = HashSet::from_iter(values);
+        let uf = union_find::new_from_set(&set);
+        let ac_set = HashSet::from_iter(uf.get_roots().iter().copied().copied());
+
+        assert_eq!(set, ac_set);
+    }
+
+    #[test]
+    fn mapped_connect() {
+        let data = HashSet::from_iter(vec![-4, -2, 0, 1, 3]);
+        let mut uf = union_find::new_from_set(&data);
+        uf.connect_between(&-4, &-2);
+        uf.connect_between(&0, &1);
+        uf.connect_between(&-4, &3);
+
+        assert_eq!(uf.get_root_of(&-4), uf.get_root_of(&-2));
+        assert_eq!(uf.get_root_of(&0), uf.get_root_of(&1));
+        assert_eq!(uf.get_root_of(&-4), uf.get_root_of(&3));
+        assert_eq!(uf.get_root_of(&-2), uf.get_root_of(&3));
+
+        assert_ne!(uf.get_root_of(&-4), uf.get_root_of(&0));
+        assert_ne!(uf.get_root_of(&1), uf.get_root_of(&3));
+    }
 
     // TODO mapped + &str
 
@@ -66,8 +65,8 @@ mod tests {
         let uf = union_find::new_with_indices(5);
         dbg!(uf);
 
-        // let set = HashSet::from_iter(vec!["a"]);
-        // let uf = union_find::new_from_set(&set);
-        // dbg!(uf);
+        let set = HashSet::from_iter(vec!["a"]);
+        let uf = union_find::new_from_set(&set);
+        dbg!(uf);
     }
 }

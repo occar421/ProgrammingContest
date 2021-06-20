@@ -13,35 +13,39 @@ pub mod union_find {
     //! https://github.com/occar421/ProgrammingContest/tree/master/templates/src/snippet_union_find.rs
 
     use super::{NodeIndex0Based, Quantity};
+    use std::collections::HashSet;
     use std::fmt::Debug;
     use std::hash::Hash;
 
     pub trait UnionFind<N: Hash + Eq>: Debug {
-        type T;
-        fn get_root_of(&self, node: &N) -> Option<&Self::T>;
+        type NOutput;
+        // type NOutput = N; associated type defaults are unstable
+        fn get_root_of(&self, node: &N) -> Option<&Self::NOutput>;
         fn get_size_of(&self, node: &N) -> Option<Quantity>;
         fn connect_between(&mut self, a: &N, b: &N) -> Option<bool>;
-        fn get_roots(&self) -> Vec<&Self::T>; // FIXME Iter
+        fn get_roots(&self) -> Vec<&Self::NOutput>; // FIXME Iter
 
         #[inline]
         fn union(&mut self, a: &N, b: &N) -> Option<bool> {
             self.connect_between(a, b)
         }
         #[inline]
-        fn find(&self, node: &N) -> Option<&Self::T> {
+        fn find(&self, node: &N) -> Option<&Self::NOutput> {
             self.get_root_of(node)
         }
     }
 
-    pub fn new_with_indices(n: Quantity) -> impl UnionFind<NodeIndex0Based, T = NodeIndex0Based> {
+    pub fn new_with_indices(
+        n: Quantity,
+    ) -> impl UnionFind<NodeIndex0Based, NOutput = NodeIndex0Based> {
         plain::UnionFindPlain::new(n)
     }
 
-    // pub fn new_from_set<T: Hash + Eq + Debug + Copy /* FIXME */>(
-    //     set: &HashSet<T>,
-    // ) -> impl UnionFind<T> {
-    //     mapped::UnionFindMapped::new(set)
-    // }
+    pub fn new_from_set<N: Hash + Eq + Debug + Copy /* FIXME */>(
+        set: &HashSet<N>,
+    ) -> impl UnionFind<N, NOutput = N> {
+        mapped::UnionFindMapped::new(set)
+    }
 
     mod plain {
         use super::super::{NodeIndex0Based, Quantity};
@@ -72,7 +76,7 @@ pub mod union_find {
         }
 
         impl UnionFind<NodeIndex0Based> for UnionFindPlain {
-            type T = NodeIndex0Based;
+            type NOutput = NodeIndex0Based;
 
             /// O( log(N) )
             /// Due to its immutability, it can't be O( α(N) ) by path compression
@@ -133,69 +137,69 @@ pub mod union_find {
         }
     }
 
-    /*    mod mapped {
-            use super::super::NodeIndex0Based;
-            use super::plain::UnionFindPlain;
-            use super::UnionFind;
-            use crate::standard_io::Quantity;
-            use std::collections::{HashMap, HashSet};
-            use std::fmt::{Debug, Formatter};
-            use std::hash::Hash;
-            use std::iter::FromIterator;
+    mod mapped {
+        use super::super::{NodeIndex0Based, Quantity};
+        use super::plain::UnionFindPlain;
+        use super::UnionFind;
+        use std::collections::{HashMap, HashSet};
+        use std::fmt::{Debug, Formatter};
+        use std::hash::Hash;
+        use std::iter::FromIterator;
 
-            pub struct UnionFindMapped<T> {
-                core: UnionFindPlain,
-                map: HashMap<T, NodeIndex0Based>,
-                r_map: HashMap<NodeIndex0Based, T>,
-            }
+        pub struct UnionFindMapped<N> {
+            core: UnionFindPlain,
+            map: HashMap<N, NodeIndex0Based>,
+            r_map: HashMap<NodeIndex0Based, N>,
+        }
 
-            impl<T: Hash + Eq + Debug + Copy /* FIXME */> UnionFindMapped<T> {
-                pub fn new(set: &HashSet<T>) -> Self {
-                    let labelled_values = set.iter().enumerate();
-                    UnionFindMapped {
-                        core: UnionFindPlain::new(set.len()),
-                        map: HashMap::from_iter(labelled_values.clone().map(|(i, &x)| (x, i))),
-                        r_map: HashMap::from_iter(labelled_values.map(|(i, &x)| (i, x))),
-                    }
-                }
-            }
-
-            impl<T: Hash + Eq + Debug> Debug for UnionFindMapped<T> {
-                fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-                    writeln!(f, "UnionFindMapped {{")?;
-                    writeln!(f, "  map: {:?}", self.map)?;
-                    writeln!(f, "  r_map: {:?}", self.r_map)?;
-                    writeln!(f, "  core: {:?}", self.core)?;
-                    writeln!(f, "}}")
-                }
-            }
-
-            impl<T: Hash + Eq + Debug + Copy /* FIXME*/> UnionFind<T> for UnionFindMapped<T> {
-                fn get_root_of(&self, node: T) -> Option<T> {
-                    let core_node = *self.map.get(&node)?;
-                    let core_root = self.core.get_root_of(core_node)?;
-                    Some(self.r_map[&core_root])
-                }
-
-                fn get_size_of(&self, node: T) -> Option<Quantity> {
-                    let core_node = *self.map.get(&node)?;
-                    self.core.get_size_of(core_node)
-                }
-
-                fn connect_between(&mut self, a: T, b: T) -> Option<bool> {
-                    let core_a = *self.map.get(&a)?;
-                    let core_b = *self.map.get(&b)?;
-                    self.core.connect_between(core_a, core_b)
-                }
-
-                fn get_roots(&self) -> Vec<T> {
-                    self.core
-                        .get_roots()
-                        .iter()
-                        .map(|core_root| self.r_map[core_root])
-                        .collect()
+        impl<N: Hash + Eq + Debug + Copy /* FIXME */> UnionFindMapped<N> {
+            pub fn new(set: &HashSet<N>) -> Self {
+                let labelled_values = set.iter().enumerate();
+                UnionFindMapped {
+                    core: UnionFindPlain::new(set.len()),
+                    map: HashMap::from_iter(labelled_values.clone().map(|(i, &x)| (x, i))),
+                    r_map: HashMap::from_iter(labelled_values.map(|(i, &x)| (i, x))),
                 }
             }
         }
-    */
+
+        impl<N: Hash + Eq + Debug> Debug for UnionFindMapped<N> {
+            fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+                writeln!(f, "UnionFindMapped {{")?;
+                writeln!(f, "  map: {:?}", self.map)?;
+                writeln!(f, "  r_map: {:?}", self.r_map)?;
+                writeln!(f, "  core: {:?}", self.core)?;
+                writeln!(f, "}}")
+            }
+        }
+
+        impl<N: Hash + Eq + Debug + Copy /* FIXME*/> UnionFind<N> for UnionFindMapped<N> {
+            type NOutput = N;
+
+            fn get_root_of(&self, node: &N) -> Option<&Self::NOutput> {
+                let core_node = *self.map.get(&node)?;
+                let core_root = self.core.get_root_of(&core_node)?;
+                Some(&self.r_map[core_root])
+            }
+
+            fn get_size_of(&self, node: &N) -> Option<Quantity> {
+                let core_node = *self.map.get(node)?;
+                self.core.get_size_of(&core_node)
+            }
+
+            fn connect_between(&mut self, a: &N, b: &N) -> Option<bool> {
+                let core_a = *self.map.get(&a)?;
+                let core_b = *self.map.get(&b)?;
+                self.core.connect_between(&core_a, &core_b)
+            }
+
+            fn get_roots(&self) -> Vec<&Self::NOutput> {
+                self.core
+                    .get_roots()
+                    .iter()
+                    .map(|&core_root| &self.r_map[core_root])
+                    .collect()
+            }
+        }
+    }
 }
