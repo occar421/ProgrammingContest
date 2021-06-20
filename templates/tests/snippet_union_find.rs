@@ -2,7 +2,6 @@
 mod tests {
     use std::collections::HashSet;
     use std::iter::FromIterator;
-    use templates::snippet_union_find::union_find;
     use templates::snippet_union_find::union_find::UnionFind;
     use test_case::test_case;
 
@@ -10,13 +9,17 @@ mod tests {
     #[test_case(2 => vec ! [0, 1])]
     #[test_case(5 => vec ! [0, 1, 2, 3, 4])]
     fn plain_check_initial(size: usize) -> Vec<usize> {
-        let uf = union_find::new_with_indices(size);
-        uf.get_roots().copied().collect()
+        let set = HashSet::from_iter(0..size);
+        let uf = UnionFind::from_set(&set);
+        let mut r: Vec<_> = uf.get_roots().copied().collect();
+        r.sort();
+        r
     }
 
     #[test]
     fn plain_connect() {
-        let mut uf = union_find::new_with_indices(5);
+        let set = HashSet::from_iter(0..5);
+        let mut uf = UnionFind::from_set(&set);
         uf.connect_between(&0, &1);
         uf.connect_between(&2, &3);
         uf.connect_between(&0, &4);
@@ -35,7 +38,7 @@ mod tests {
     #[test_case(vec ! [0, 1, 2, 3, 4])]
     fn mapped_check_initial(values: Vec<usize>) {
         let set = HashSet::from_iter(values);
-        let uf = union_find::new_from_set(&set);
+        let uf = UnionFind::from_set(&set);
         let ac_set = HashSet::from_iter(uf.get_roots().copied());
 
         assert_eq!(set, ac_set);
@@ -44,7 +47,7 @@ mod tests {
     #[test]
     fn mapped_connect() {
         let data = HashSet::from_iter(vec![-4, -2, 0, 1, 3]);
-        let mut uf = union_find::new_from_set(&data);
+        let mut uf = UnionFind::from_set(&data);
         uf.connect_between(-4, -2);
         uf.connect_between(0, &1);
         uf.connect_between(&-4, &3);
@@ -67,7 +70,7 @@ mod tests {
         // );
         let data = HashSet::from_iter(vec!["foo", "bar", "baz", "qux", "quux"]);
 
-        let mut uf = union_find::new_from_set(&data);
+        let mut uf = UnionFind::from_set(&data);
         uf.connect_between("foo", "bar");
         uf.connect_between("baz", &"qux");
         uf.connect_between(&"foo", &"quux");
@@ -83,11 +86,12 @@ mod tests {
 
     #[allow(dead_code)]
     fn compiles_with_debug() {
-        let uf = union_find::new_with_indices(5);
+        let set = HashSet::from_iter(0..5);
+        let uf = UnionFind::from_set(&set);
         dbg!(uf);
 
         let set = HashSet::from_iter(vec!["a"]);
-        let uf = union_find::new_from_set(&set);
+        let uf = UnionFind::from_set(&set);
         dbg!(uf);
     }
 }
