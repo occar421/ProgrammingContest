@@ -323,6 +323,18 @@ macro_rules! dbg {
     };
 }
 
+// From https://qiita.com/hatoo@github/items/fa14ad36a1b568d14f3e
+#[derive(PartialEq, PartialOrd)]
+struct Total<T>(T);
+
+impl<T: PartialEq> Eq for Total<T> {}
+
+impl<T: PartialOrd> Ord for Total<T> {
+    fn cmp(&self, other: &Total<T>) -> std::cmp::Ordering {
+        self.0.partial_cmp(&other.0).unwrap()
+    }
+}
+
 // -- end of helpers
 
 fn main() {
