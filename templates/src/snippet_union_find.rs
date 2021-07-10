@@ -123,8 +123,12 @@ pub mod union_find {
             }
 
             /// O( log(N) )
-            pub fn get_root_of(&self, node: impl Borrow<N>) -> Option<&N> {
-                let core_node = *self.map.get(node.borrow())?;
+            pub fn get_root_of<Q>(&self, node: &Q) -> Option<&N>
+            where
+                N: Borrow<N>,
+                Q: Hash + Eq,
+            {
+                let core_node = *self.map.get(node)?;
                 let core_root = self.core.get_root_of(core_node)?;
                 Some(self.r_map[&core_root])
             }
