@@ -4,6 +4,7 @@ mod tests {
     use std::iter::FromIterator;
     use templates::snippet_union_find::union_find::UnionFind;
     use test_case::test_case;
+    
     #[test_case(vec ! [0])]
     #[test_case(vec ! [0, 1])]
     #[test_case(vec ! [0, 1, 2, 3, 4])]

@@ -12,7 +12,7 @@ pub mod union_find {
     //! UnionFind
     //! https://github.com/occar421/ProgrammingContest/tree/master/templates/src/snippet_union_find.rs
 
-    pub use mapped::UnionFindMapped as UnionFind;
+    pub use self::mapped::UnionFindMapped as UnionFind;
 
     mod core {
         use super::super::{NodeIndex0Based, Quantity};
