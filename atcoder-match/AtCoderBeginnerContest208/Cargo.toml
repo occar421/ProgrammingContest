@@ -1,5 +1,5 @@
 [package]
-name = "match-revisit"
+name = "AtCoderBeginnerContest208"
 version = "0.1.0"
 authors = ["MasuqaT <occar@hotmail.co.jp>"]
 edition = "2018"
@@ -10,21 +10,17 @@ publish = false
 [dependencies]
 
 [[bin]]
-name = "abc203_d"
-path = "src/abc203_d.rs"
+name = "abc208_a"
+path = "abc208_a.rs"
 
 [[bin]]
-name = "abc203_d2"
-path = "src/abc203_d2.rs"
+name = "abc208_b"
+path = "abc208_b.rs"
 
 [[bin]]
-name = "abc205_d"
-path = "src/abc205_d.rs"
+name = "abc208_c"
+path = "abc208_c.rs"
 
 [[bin]]
-name = "abc206_d"
-path = "src/abc206_d.rs"
-
-[[bin]]
-name = "abc207_d"
-path = "src/abc207_d.rs"
+name = "abc208_d"
+path = "abc208_d.rs"

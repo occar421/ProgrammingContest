@@ -378,15 +378,47 @@ where
 
     {
         input! {
-            // FIXME: arguments
-            // n: Quantity,
-            // mut n: NodeIndex1Based,
+            n: Quantity, m: Length,
+            abc: [(NodeIndex1Based, NodeIndex1Based, usize); m],
         }
 
-        // FIXME: logic
+        // f(s,t,_)
+        // Using Floyd–Warshall Algorithm
+        let mut d = nested_vec![Option::<usize>::None; n; n];
+        for i in 0..n {
+            d[i][i] = 0.into();
+        }
 
-        // FIXME: print
-        println!();
+        for &(a, b, c) in abc.iter() {
+            let a = a - 1;
+            let b = b - 1;
+            d[a][b] = c.into();
+        }
+
+        let mut total_count = 0;
+        for k in 0..n {
+            let mut inner_count = 0;
+            for s in 0..n {
+                for t in 0..n {
+                    if let Some(d_sk) = d[s][k] {
+                        if let Some(d_kt) = d[k][t] {
+                            if let Some(d_st) = d[s][t] {
+                                d[s][t] = d_st.min(d_sk + d_kt).into();
+                            } else {
+                                d[s][t] = (d_sk + d_kt).into();
+                            }
+                        }
+                    }
+
+                    if let Some(cost) = d[s][t] {
+                        inner_count += cost;
+                    }
+                }
+            }
+            total_count += inner_count;
+        }
+
+        println!("{}", total_count);
     }
 
     Ok(())
@@ -398,26 +430,54 @@ mod tests {
 
     #[test]
     fn sample1() {
-        assert_judge!(process, "1", "2");
+        assert_judge!(
+            process,
+            "
+3 2
+1 2 3
+2 3 2
+",
+            "25"
+        );
+    }
 
-        // let output = assert_judge_with_output!(process, "3");
-        //
-        // input_original! {
-        //     source = output;
-        //     o: [u32; 3],
-        // }
-        //
-        // assert_eq!(1, o[0]);
+    #[test]
+    fn sample2() {
+        assert_judge!(
+            process, "
+3 0
+", "0"
+        );
+    }
 
-        // let output = assert_judge_with_output!(process, "10 1.00000");
-        //
-        // input_original! {
-        //      source = output;
-        //      o: f64,
-        // }
-        //
-        // assert_eq_with_error!(4f64, o, 10f64.powi(-6));
-
-        // assert_judge_with_error!(process, "7", "2.52163", f64 | 10f64.powi(-2));
+    #[test]
+    fn sample3() {
+        assert_judge!(
+            process,
+            "
+5 20
+1 2 6
+1 3 10
+1 4 4
+1 5 1
+2 1 5
+2 3 9
+2 4 8
+2 5 6
+3 1 5
+3 2 1
+3 4 7
+3 5 9
+4 1 4
+4 2 6
+4 3 4
+4 5 8
+5 1 2
+5 2 5
+5 3 6
+5 4 5
+",
+            "517"
+        );
     }
 }

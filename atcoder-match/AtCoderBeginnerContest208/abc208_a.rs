@@ -378,15 +378,17 @@ where
 
     {
         input! {
-            // FIXME: arguments
-            // n: Quantity,
-            // mut n: NodeIndex1Based,
+            a: usize, b: usize,
         }
 
-        // FIXME: logic
-
-        // FIXME: print
-        println!();
+        println!(
+            "{}",
+            if 1 * a <= b && b <= 6 * a {
+                "Yes"
+            } else {
+                "No"
+            }
+        );
     }
 
     Ok(())
@@ -398,26 +400,16 @@ mod tests {
 
     #[test]
     fn sample1() {
-        assert_judge!(process, "1", "2");
+        assert_judge!(process, "2 11", "Yes");
+    }
 
-        // let output = assert_judge_with_output!(process, "3");
-        //
-        // input_original! {
-        //     source = output;
-        //     o: [u32; 3],
-        // }
-        //
-        // assert_eq!(1, o[0]);
+    #[test]
+    fn sample2() {
+        assert_judge!(process, "2 13", "No");
+    }
 
-        // let output = assert_judge_with_output!(process, "10 1.00000");
-        //
-        // input_original! {
-        //      source = output;
-        //      o: f64,
-        // }
-        //
-        // assert_eq_with_error!(4f64, o, 10f64.powi(-6));
-
-        // assert_judge_with_error!(process, "7", "2.52163", f64 | 10f64.powi(-2));
+    #[test]
+    fn sample3() {
+        assert_judge!(process, "100 600", "Yes");
     }
 }

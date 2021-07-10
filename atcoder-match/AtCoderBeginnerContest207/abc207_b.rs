@@ -323,18 +323,6 @@ macro_rules! dbg {
     };
 }
 
-// From https://qiita.com/hatoo@github/items/fa14ad36a1b568d14f3e
-#[derive(PartialEq, PartialOrd)]
-struct Total<T>(T);
-
-impl<T: PartialEq> Eq for Total<T> {}
-
-impl<T: PartialOrd> Ord for Total<T> {
-    fn cmp(&self, other: &Total<T>) -> std::cmp::Ordering {
-        self.0.partial_cmp(&other.0).unwrap()
-    }
-}
-
 // -- end of helpers
 
 fn main() {
@@ -378,15 +366,23 @@ where
 
     {
         input! {
-            // FIXME: arguments
-            // n: Quantity,
-            // mut n: NodeIndex1Based,
+            a: Quantity, b: Quantity, c: Quantity, d: usize
         }
 
-        // FIXME: logic
+        let mut result = None;
 
-        // FIXME: print
-        println!();
+        for n in 0usize..=10_000_000 {
+            if (a + b * n) <= c * n * d {
+                result = Some(n);
+                break;
+            }
+        }
+
+        if let Some(result) = result {
+            println!("{}", result);
+        } else {
+            println!("-1");
+        }
     }
 
     Ok(())
@@ -398,26 +394,11 @@ mod tests {
 
     #[test]
     fn sample1() {
-        assert_judge!(process, "1", "2");
+        assert_judge!(process, "5 2 3 2", "2");
+    }
 
-        // let output = assert_judge_with_output!(process, "3");
-        //
-        // input_original! {
-        //     source = output;
-        //     o: [u32; 3],
-        // }
-        //
-        // assert_eq!(1, o[0]);
-
-        // let output = assert_judge_with_output!(process, "10 1.00000");
-        //
-        // input_original! {
-        //      source = output;
-        //      o: f64,
-        // }
-        //
-        // assert_eq_with_error!(4f64, o, 10f64.powi(-6));
-
-        // assert_judge_with_error!(process, "7", "2.52163", f64 | 10f64.powi(-2));
+    #[test]
+    fn sample2() {
+        assert_judge!(process, "6 9 2 3", "-1");
     }
 }

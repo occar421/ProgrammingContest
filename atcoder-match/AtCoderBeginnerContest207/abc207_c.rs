@@ -323,18 +323,6 @@ macro_rules! dbg {
     };
 }
 
-// From https://qiita.com/hatoo@github/items/fa14ad36a1b568d14f3e
-#[derive(PartialEq, PartialOrd)]
-struct Total<T>(T);
-
-impl<T: PartialEq> Eq for Total<T> {}
-
-impl<T: PartialOrd> Ord for Total<T> {
-    fn cmp(&self, other: &Total<T>) -> std::cmp::Ordering {
-        self.0.partial_cmp(&other.0).unwrap()
-    }
-}
-
 // -- end of helpers
 
 fn main() {
@@ -378,15 +366,35 @@ where
 
     {
         input! {
-            // FIXME: arguments
-            // n: Quantity,
-            // mut n: NodeIndex1Based,
+            n: Quantity,
+            mut tlr: [(usize, usize, usize); n],
         }
 
-        // FIXME: logic
+        for i in 0..n {
+            let mut range_i = tlr.get_mut(i).unwrap();
+            range_i.1 *= 3;
+            if range_i.0 >= 3 {
+                range_i.1 += 1;
+            }
+            range_i.2 *= 3;
+            if range_i.0 % 2 == 0 {
+                range_i.2 -= 1;
+            }
+        }
 
-        // FIXME: print
-        println!();
+        let mut count = 0;
+        for i in 0..n {
+            for j in (i + 1)..n {
+                let range_i = tlr[i];
+                let range_j = tlr[j];
+
+                if (range_j.1 <= range_i.2) && (range_i.1 <= range_j.2) {
+                    count += 1;
+                }
+            }
+        }
+
+        println!("{}", count);
     }
 
     Ok(())
@@ -398,26 +406,45 @@ mod tests {
 
     #[test]
     fn sample1() {
-        assert_judge!(process, "1", "2");
+        assert_judge!(
+            process,
+            "
+3
+1 1 2
+2 2 3
+3 2 4
+",
+            "2"
+        );
+    }
 
-        // let output = assert_judge_with_output!(process, "3");
-        //
-        // input_original! {
-        //     source = output;
-        //     o: [u32; 3],
-        // }
-        //
-        // assert_eq!(1, o[0]);
-
-        // let output = assert_judge_with_output!(process, "10 1.00000");
-        //
-        // input_original! {
-        //      source = output;
-        //      o: f64,
-        // }
-        //
-        // assert_eq_with_error!(4f64, o, 10f64.powi(-6));
-
-        // assert_judge_with_error!(process, "7", "2.52163", f64 | 10f64.powi(-2));
+    #[test]
+    fn sample2() {
+        assert_judge!(
+            process,
+            "
+19
+4 210068409 221208102
+4 16698200 910945203
+4 76268400 259148323
+4 370943597 566244098
+1 428897569 509621647
+4 250946752 823720939
+1 642505376 868415584
+2 619091266 868230936
+2 306543999 654038915
+4 486033777 715789416
+1 527225177 583184546
+2 885292456 900938599
+3 264004185 486613484
+2 345310564 818091848
+1 152544274 521564293
+4 13819154 555218434
+3 507364086 545932412
+4 797872271 935850549
+2 415488246 685203817
+",
+            "102"
+        );
     }
 }

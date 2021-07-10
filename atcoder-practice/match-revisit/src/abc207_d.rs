@@ -266,6 +266,18 @@ where
     }
 }
 
+// https://qiita.com/hatoo@github/items/fa14ad36a1b568d14f3e#%E6%B5%AE%E5%8B%95%E5%B0%8F%E6%95%B0%E7%82%B9%E3%81%AE%E6%AF%94%E8%BC%83
+#[derive(PartialEq, PartialOrd)]
+struct Total<T>(T);
+
+impl<T: PartialEq> Eq for Total<T> {}
+
+impl<T: PartialOrd> Ord for Total<T> {
+    fn cmp(&self, other: &Total<T>) -> std::cmp::Ordering {
+        self.0.partial_cmp(&other.0).unwrap()
+    }
+}
+
 #[allow(unused_macros)]
 #[macro_export]
 macro_rules! swap {
@@ -323,18 +335,6 @@ macro_rules! dbg {
     };
 }
 
-// From https://qiita.com/hatoo@github/items/fa14ad36a1b568d14f3e
-#[derive(PartialEq, PartialOrd)]
-struct Total<T>(T);
-
-impl<T: PartialEq> Eq for Total<T> {}
-
-impl<T: PartialOrd> Ord for Total<T> {
-    fn cmp(&self, other: &Total<T>) -> std::cmp::Ordering {
-        self.0.partial_cmp(&other.0).unwrap()
-    }
-}
-
 // -- end of helpers
 
 fn main() {
@@ -378,15 +378,80 @@ where
 
     {
         input! {
-            // FIXME: arguments
-            // n: Quantity,
-            // mut n: NodeIndex1Based,
+            n: Quantity,
+            ab: [(i32, i32); n],
+            cd: [(i32, i32); n],
         }
 
-        // FIXME: logic
+        // after checking editorial
 
-        // FIXME: print
-        println!();
+        #[derive(Copy, Clone, Debug)]
+        struct Tuple {
+            argument: f64,
+            length2: i32,
+        }
+
+        fn to_tuples(points: &Vec<(i32, i32)>) -> Vec<Tuple> {
+            let x_sum: i32 = points.iter().map(|&(x, _)| x).sum();
+            let y_sum: i32 = points.iter().map(|&(_, y)| y).sum();
+
+            let mut normalized_points = Vec::with_capacity(points.len());
+            for &(x, y) in points.iter() {
+                let point = (
+                    x * points.len() as i32 - x_sum,
+                    y * points.len() as i32 - y_sum,
+                );
+                if point.0 == 0 && point.1 == 0 {
+                    continue;
+                }
+                normalized_points.push(point);
+            }
+
+            let mut tuples: Vec<_> = normalized_points
+                .iter()
+                .map(|p| {
+                    let argument = (p.1 as f64).atan2(p.0 as f64);
+                    let length2 = p.0 * p.0 + p.1 * p.1;
+
+                    Tuple { argument, length2 }
+                })
+                .collect();
+            tuples.sort_by_key(|t| (Total(t.argument), t.length2));
+            tuples
+        }
+
+        let ab_tuples = to_tuples(&ab);
+        let cd_tuples = to_tuples(&cd);
+
+        let mut is_yes = false;
+        if ab_tuples.len() == cd_tuples.len() {
+            let n = ab_tuples.len();
+            if n == 0 {
+                is_yes = true;
+            }
+            for i in 0..n {
+                let mut matched = true;
+                let arg_shift = ab_tuples[i].argument - cd_tuples[0].argument;
+                for j in 0..n {
+                    let ab = ab_tuples[(i + j) % n];
+                    let cd = cd_tuples[j];
+
+                    if !(ab.length2 == cd.length2
+                        && (ab.argument - cd.argument - arg_shift).cos() >= 0.999)
+                    {
+                        matched = false;
+                        break;
+                    }
+                }
+
+                if matched {
+                    is_yes = true;
+                    break;
+                }
+            }
+        }
+
+        println!("{}", if is_yes { "Yes" } else { "No" });
     }
 
     Ok(())
@@ -398,26 +463,48 @@ mod tests {
 
     #[test]
     fn sample1() {
-        assert_judge!(process, "1", "2");
+        assert_judge!(
+            process,
+            "
+3
+0 0
+0 1
+1 0
+2 0
+3 0
+3 1
+",
+            "Yes"
+        );
+    }
 
-        // let output = assert_judge_with_output!(process, "3");
-        //
-        // input_original! {
-        //     source = output;
-        //     o: [u32; 3],
-        // }
-        //
-        // assert_eq!(1, o[0]);
+    #[test]
+    fn sample2() {
+        assert_judge!(
+            process,
+            "
+3
+1 0
+1 1
+3 0
+-1 0
+-1 1
+-3 0
+",
+            "No"
+        );
+    }
 
-        // let output = assert_judge_with_output!(process, "10 1.00000");
-        //
-        // input_original! {
-        //      source = output;
-        //      o: f64,
-        // }
-        //
-        // assert_eq_with_error!(4f64, o, 10f64.powi(-6));
-
-        // assert_judge_with_error!(process, "7", "2.52163", f64 | 10f64.powi(-2));
+    #[test]
+    fn ex1() {
+        assert_judge!(
+            process,
+            "
+1
+1 1
+-1 1
+",
+            "Yes"
+        );
     }
 }

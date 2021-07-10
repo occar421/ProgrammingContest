@@ -378,15 +378,25 @@ where
 
     {
         input! {
-            // FIXME: arguments
-            // n: Quantity,
-            // mut n: NodeIndex1Based,
+            n: Length, k: Quantity,
+            a: [usize; n],
         }
 
-        // FIXME: logic
+        let mut i_sort_a: Vec<_> = a.iter().enumerate().collect();
+        i_sort_a.sort_by_key(|(_, &a_i)| a_i);
 
-        // FIXME: print
-        println!();
+        let mut results = vec![k / n; n];
+        for i in 0..(k % n) {
+            results[i] += 1;
+        }
+
+        let mut i_sort_result: Vec<_> = i_sort_a.iter().map(|&(i, _)| i).zip(results).collect();
+
+        i_sort_result.sort_by_key(|&(i, _)| i);
+
+        for &(_, result) in i_sort_result.iter() {
+            println!("{}", result);
+        }
     }
 
     Ok(())
@@ -398,26 +408,48 @@ mod tests {
 
     #[test]
     fn sample1() {
-        assert_judge!(process, "1", "2");
+        assert_judge!(
+            process,
+            "
+2 7
+1 8
+",
+            "
+4
+3
+"
+        );
+    }
 
-        // let output = assert_judge_with_output!(process, "3");
-        //
-        // input_original! {
-        //     source = output;
-        //     o: [u32; 3],
-        // }
-        //
-        // assert_eq!(1, o[0]);
+    #[test]
+    fn sample2() {
+        assert_judge!(
+            process, "
+1 3
+33
+", "
+3
+"
+        );
+    }
 
-        // let output = assert_judge_with_output!(process, "10 1.00000");
-        //
-        // input_original! {
-        //      source = output;
-        //      o: f64,
-        // }
-        //
-        // assert_eq_with_error!(4f64, o, 10f64.powi(-6));
-
-        // assert_judge_with_error!(process, "7", "2.52163", f64 | 10f64.powi(-2));
+    #[test]
+    fn sample3() {
+        assert_judge!(
+            process,
+            "
+7 1000000000000
+99 8 2 4 43 5 3
+",
+            "
+142857142857
+142857142857
+142857142858
+142857142857
+142857142857
+142857142857
+142857142857
+"
+        );
     }
 }

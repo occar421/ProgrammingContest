@@ -323,18 +323,6 @@ macro_rules! dbg {
     };
 }
 
-// From https://qiita.com/hatoo@github/items/fa14ad36a1b568d14f3e
-#[derive(PartialEq, PartialOrd)]
-struct Total<T>(T);
-
-impl<T: PartialEq> Eq for Total<T> {}
-
-impl<T: PartialOrd> Ord for Total<T> {
-    fn cmp(&self, other: &Total<T>) -> std::cmp::Ordering {
-        self.0.partial_cmp(&other.0).unwrap()
-    }
-}
-
 // -- end of helpers
 
 fn main() {
@@ -378,15 +366,43 @@ where
 
     {
         input! {
-            // FIXME: arguments
-            // n: Quantity,
-            // mut n: NodeIndex1Based,
+            n: Quantity,
+            ab: [(i32, i32); n],
+            cd: [(i32, i32); n],
         }
 
-        // FIXME: logic
+        let mut ab_features = Vec::with_capacity(n - 1);
+        let base = ab[0];
+        for i in 1..n {
+            ab_features.push((ab[i].0 - base.0) + (ab[i].1 - base.1) * 1000);
+        }
+        ab_features.sort();
 
-        // FIXME: print
-        println!();
+        dbg!(ab_features);
+
+        let mut result = n == 1;
+        for i in 0..n {
+            let mut cd_i_features = Vec::with_capacity(n - 1);
+            let base = cd[i];
+
+            for j in 0..n {
+                if i == j {
+                    continue;
+                }
+
+                cd_i_features.push((cd[j].0 - base.0) + (cd[j].1 - base.1) * 1000);
+            }
+
+            cd_i_features.sort();
+
+            dbg!(cd_i_features);
+
+            if ab_features == cd_i_features {
+                result = true;
+            }
+        }
+
+        println!("{}", if result { "Yes" } else { "No" });
     }
 
     Ok(())
@@ -398,26 +414,35 @@ mod tests {
 
     #[test]
     fn sample1() {
-        assert_judge!(process, "1", "2");
+        assert_judge!(
+            process,
+            "
+3
+0 0
+0 1
+1 0
+2 0
+3 0
+3 1
+",
+            "Yes"
+        );
+    }
 
-        // let output = assert_judge_with_output!(process, "3");
-        //
-        // input_original! {
-        //     source = output;
-        //     o: [u32; 3],
-        // }
-        //
-        // assert_eq!(1, o[0]);
-
-        // let output = assert_judge_with_output!(process, "10 1.00000");
-        //
-        // input_original! {
-        //      source = output;
-        //      o: f64,
-        // }
-        //
-        // assert_eq_with_error!(4f64, o, 10f64.powi(-6));
-
-        // assert_judge_with_error!(process, "7", "2.52163", f64 | 10f64.powi(-2));
+    #[test]
+    fn sample2() {
+        assert_judge!(
+            process,
+            "
+3
+1 0
+1 1
+3 0
+-1 0
+-1 1
+-3 0
+",
+            "No"
+        );
     }
 }
