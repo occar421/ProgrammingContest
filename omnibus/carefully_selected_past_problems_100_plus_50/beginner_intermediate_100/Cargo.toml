@@ -26,6 +26,10 @@ name = "19_joi2009ho_b"
 path = "src/19_joi2009ho_b.rs"
 
 [[bin]]
+name = "20_arc084_a"
+path = "src/20_arc084_a.rs"
+
+[[bin]]
 name = "34_ALDS1_10_A"
 path = "src/34_ALDS1_10_A.rs"
 
