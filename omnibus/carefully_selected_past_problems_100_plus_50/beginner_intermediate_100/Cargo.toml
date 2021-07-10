@@ -50,5 +50,9 @@ name = "83_joi2015ho_a"
 path = "src/83_joi2015ho_a.rs"
 
 [[bin]]
+name = "85_DSL_1_A"
+path = "src/85_DSL_1_A.rs"
+
+[[bin]]
 name = "99_ddcc2020_qual_d"
 path = "src/99_ddcc2020_qual_d.rs"
