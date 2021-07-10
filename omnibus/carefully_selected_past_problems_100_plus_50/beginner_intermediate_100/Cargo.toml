@@ -42,6 +42,10 @@ name = "39_DPL_1_A"
 path = "src/39_DPL_1_A.rs"
 
 [[bin]]
+name = "43_pakencamp_2019_day3_d"
+path = "src/43_pakencamp_2019_day3_d.rs"
+
+[[bin]]
 name = "49_DPL_2_A"
 path = "src/49_DPL_2_A.rs"
 
