@@ -13,22 +13,47 @@ use std::str::FromStr;
 
 // From https://github.com/tanakh/competitive-rs/blob/d5f51f01a6f85ddbebec4cfcb601746bee727181/src/lib.rs#L1-L92
 //   and modified by this file author
+#[doc(hidden)]
+struct Handler<F: FnMut() -> String> {
+    handle: F,
+}
+
+#[doc(hidden)]
+macro_rules! prepare_input {
+    (source = $s:expr) => {{
+        let mut iter = $s.split_whitespace();
+        Handler {
+            handle: || iter.next().unwrap(),
+        }
+    }};
+    (stdin = $s:expr) => {{
+        let mut bytes = std::io::Read::bytes(std::io::BufReader::new($s));
+        Handler {
+            handle: move || {
+                bytes
+                    .by_ref()
+                    .map(|r| r.unwrap() as char)
+                    .skip_while(|c| c.is_whitespace())
+                    .take_while(|c| !c.is_whitespace())
+                    .collect::<String>()
+            },
+        }
+    }};
+}
+
 macro_rules! input_original {
     (source = $s:expr; $($r:tt)*) => {
-        let mut iter = $s.split_whitespace();
-        let mut _next = || { iter.next().unwrap() };
+        let mut _handler = prepare_input!{source = $s};
+        let mut _next = || (_handler.handle)();
         input_inner!{_next, $($r)*}
     };
     (stdin = $s:expr; $($r:tt)*) => {
-        let mut bytes = std::io::Read::bytes(std::io::BufReader::new($s));
-        let mut _next = move || -> String {
-            bytes
-                .by_ref()
-                .map(|r|r.unwrap() as char)
-                .skip_while(|c|c.is_whitespace())
-                .take_while(|c|!c.is_whitespace())
-                .collect()
-        };
+        let mut _handler = prepare_input!{stdin = $s};
+        let mut _next = || (_handler.handle)();
+        input_inner!{_next, $($r)*}
+    };
+    (handler = $h: ident; $($r:tt)*) => {
+        let mut _next = || ($h.handle)();
         input_inner!{_next, $($r)*}
     };
 }
@@ -160,6 +185,7 @@ pub trait GenericInteger:
     fn one() -> Self;
 }
 
+#[doc(hidden)]
 macro_rules! implement_generic_integer {
     () => {};
     ($t:ty $(, $r:ty)*) => {
@@ -352,10 +378,11 @@ where
     R: BufRead,
     W: Write,
 {
+    let mut _handler = prepare_input! { stdin = reader };
     #[allow(unused_macros)]
     macro_rules! input {
         ($($r:tt)*) => {
-            input_original! { stdin = reader; $($r)* }
+            input_original! { handler = _handler; $($r)* }
         };
     }
     #[allow(unused_macros)]
