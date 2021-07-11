@@ -1,7 +1,4 @@
-use crate::standard_io::{NodeIndex0Based, Quantity};
-
 pub mod bit {
-    use super::{NodeIndex0Based, Quantity};
     use std::marker::PhantomData;
     use std::ops::{
         BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Index, Not, Shl, ShlAssign,
@@ -323,7 +320,7 @@ pub mod bit {
         }
 
         #[inline]
-        pub fn includes(&self, index: NodeIndex0Based) -> bool {
+        pub fn includes(&self, index: usize) -> bool {
             self.value & (0b1 << index) > 0
         }
 
@@ -341,12 +338,12 @@ pub mod bit {
         }
 
         #[inline]
-        pub fn excluded_set(&self, index: NodeIndex0Based) -> Self {
+        pub fn excluded_set(&self, index: usize) -> Self {
             Self::new(self.size, self.value & !(0b1 << index))
         }
 
         #[inline]
-        pub fn appended_set(&self, index: NodeIndex0Based) -> Self {
+        pub fn appended_set(&self, index: usize) -> Self {
             Self::new(self.size, self.value | (0b1 << index))
         }
     }
@@ -371,13 +368,13 @@ pub mod bit {
         }
 
         #[inline]
-        pub fn combination(&self) -> Quantity {
+        pub fn combination(&self) -> usize {
             0b1 << self.size as u32
         }
 
-        pub fn from_indices_iter<I>(&self, iter: I) -> BitBasedSet
+        pub fn by_indices_iter<I>(&self, iter: I) -> BitBasedSet
         where
-            I: Iterator<Item = NodeIndex0Based>,
+            I: Iterator<Item = usize>,
         {
             let mut v = 0;
             for i in iter {

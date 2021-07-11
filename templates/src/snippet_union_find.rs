@@ -1,5 +1,3 @@
-use crate::standard_io::{NodeIndex0Based, Quantity};
-
 macro_rules! swap {
     ($v1:expr, $v2:expr) => {
         let buf = $v1;
@@ -15,17 +13,10 @@ pub mod union_find {
     pub use self::mapped::UnionFindMapped as UnionFind;
 
     mod core {
-        use super::super::{NodeIndex0Based, Quantity};
-
         #[derive(Debug)]
         enum Node {
-            Root {
-                size: Quantity,
-                index: NodeIndex0Based,
-            },
-            Children {
-                parent: NodeIndex0Based,
-            },
+            Root { size: usize, index: usize },
+            Children { parent: usize },
         }
 
         #[derive(Debug)]
@@ -34,7 +25,7 @@ pub mod union_find {
         }
 
         impl UnionFindCore {
-            pub fn new(n: Quantity) -> Self {
+            pub fn new(n: usize) -> Self {
                 UnionFindCore {
                     nodes: (0..n).map(|i| Node::Root { size: 1, index: i }).collect(),
                 }
@@ -42,14 +33,14 @@ pub mod union_find {
 
             /// O( log(N) )
             /// Due to its immutability, it can't be O( α(N) ) by path compression
-            pub fn get_root_of(&self, i: NodeIndex0Based) -> Option<NodeIndex0Based> {
+            pub fn get_root_of(&self, i: usize) -> Option<usize> {
                 match self.nodes.get(i)? {
                     &Node::Root { index, .. } => Some(index),
                     &Node::Children { parent } => self.get_root_of(parent),
                 }
             }
 
-            pub fn get_size_of(&self, i: NodeIndex0Based) -> Option<Quantity> {
+            pub fn get_size_of(&self, i: usize) -> Option<usize> {
                 match self.nodes[self.get_root_of(i)?] {
                     Node::Root { size, .. } => size.into(),
                     _ => panic!("Illegal condition"),
@@ -57,11 +48,7 @@ pub mod union_find {
             }
 
             /// O( log(N) )
-            pub fn connect_between(
-                &mut self,
-                a: NodeIndex0Based,
-                b: NodeIndex0Based,
-            ) -> Option<bool> {
+            pub fn connect_between(&mut self, a: usize, b: usize) -> Option<bool> {
                 let mut a = self.get_root_of(a)?;
                 let mut b = self.get_root_of(b)?;
                 if a == b {
@@ -87,7 +74,7 @@ pub mod union_find {
                 return Some(true);
             }
 
-            pub fn get_roots<'a>(&'a self) -> Box<dyn Iterator<Item = &NodeIndex0Based> + 'a> {
+            pub fn get_roots<'a>(&'a self) -> Box<dyn Iterator<Item = &usize> + 'a> {
                 Box::new(self.nodes.iter().filter_map(|node| match node {
                     Node::Root { index, .. } => Some(index),
                     Node::Children { .. } => None,
@@ -97,7 +84,6 @@ pub mod union_find {
     }
 
     mod mapped {
-        use super::super::{NodeIndex0Based, Quantity};
         use super::core::UnionFindCore;
         use std::borrow::Borrow;
         use std::collections::{HashMap, HashSet};
@@ -107,8 +93,8 @@ pub mod union_find {
 
         pub struct UnionFindMapped<'s, N: PartialEq + Hash + Debug> {
             core: UnionFindCore,
-            map: HashMap<&'s N, NodeIndex0Based>,
-            r_map: HashMap<NodeIndex0Based, &'s N>,
+            map: HashMap<&'s N, usize>,
+            r_map: HashMap<usize, &'s N>,
         }
 
         impl<'s, N: Hash + Eq + Debug> UnionFindMapped<'s, N> {
@@ -129,7 +115,7 @@ pub mod union_find {
                 Some(self.r_map[&core_root])
             }
 
-            pub fn get_size_of(&self, node: impl Borrow<N>) -> Option<Quantity> {
+            pub fn get_size_of(&self, node: impl Borrow<N>) -> Option<usize> {
                 let core_node = *self.map.get(node.borrow())?;
                 self.core.get_size_of(core_node)
             }

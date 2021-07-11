@@ -1,4 +1,4 @@
-use crate::standard_io::{GenericInteger, Length};
+use crate::standard_io::GenericInteger;
 
 macro_rules! nested_vec {
   ($e:expr; $n:expr) => {
@@ -44,14 +44,14 @@ pub mod cumulative_sum {
         impl<'a> CumulativeSumRange for (Bound<&'a usize>, Bound<&'a usize>) {}
     }
 
-    use super::{GenericInteger, Length};
+    use super::GenericInteger;
 
     pub struct CumulativeSum1d<GI>
     where
         GI: GenericInteger,
     {
         cum_sum: Vec<GI>,
-        source_length: Length,
+        source_length: usize,
     }
 
     impl<GI> CumulativeSum1d<GI>
@@ -60,12 +60,12 @@ pub mod cumulative_sum {
     {
         /// O( N )
         #[inline]
-        pub fn new(source_length: Length, source: &Vec<GI>) -> Self {
+        pub fn new(source_length: usize, source: &Vec<GI>) -> Self {
             Self::new_with_evaluator(source_length, |i| source[i])
         }
 
         /// O( N )
-        pub fn new_with_evaluator<F>(source_length: Length, evaluator: F) -> Self
+        pub fn new_with_evaluator<F>(source_length: usize, evaluator: F) -> Self
         where
             F: Fn(usize) -> GI,
         {
@@ -106,8 +106,8 @@ pub mod cumulative_sum {
         GI: GenericInteger,
     {
         cum_sum: Vec<Vec<GI>>,
-        source_height: Length,
-        source_width: Length,
+        source_height: usize,
+        source_width: usize,
     }
 
     impl<GI> CumulativeSum2d<GI>
@@ -116,14 +116,14 @@ pub mod cumulative_sum {
     {
         #[inline]
         /// O(N^2)
-        pub fn new(source_height: Length, source_width: Length, source: &Vec<Vec<GI>>) -> Self {
+        pub fn new(source_height: usize, source_width: usize, source: &Vec<Vec<GI>>) -> Self {
             Self::new_with_evaluator(source_height, source_width, |i, j| source[i][j])
         }
 
         /// O(N^2)
         pub fn new_with_evaluator<F>(
-            source_height: Length,
-            source_width: Length,
+            source_height: usize,
+            source_width: usize,
             evaluator: F,
         ) -> Self
         where
