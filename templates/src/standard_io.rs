@@ -1,12 +1,14 @@
 // Macro by MasuqaT (occar421)
 // https://github.com/occar421/ProgrammingContest/tree/master/templates/src/standard_io.rs
 
-use std::collections::HashMap;
+use std::cmp::*;
+use std::collections::*;
 use std::fmt::{Debug, Display};
 use std::hash::Hash;
-use std::io;
 use std::io::{BufRead, BufWriter, Result, Write};
-use std::ops::{Add, Div, Mul, Rem, Sub};
+#[allow(unused_imports)]
+use std::iter::FromIterator;
+use std::ops::*;
 use std::str::FromStr;
 
 pub type NodeIndex0Based = usize;
@@ -330,7 +332,7 @@ struct Total<T>(T);
 impl<T: PartialEq> Eq for Total<T> {}
 
 impl<T: PartialOrd> Ord for Total<T> {
-    fn cmp(&self, other: &Total<T>) -> std::cmp::Ordering {
+    fn cmp(&self, other: &Total<T>) -> Ordering {
         self.0.partial_cmp(&other.0).unwrap()
     }
 }
@@ -338,17 +340,17 @@ impl<T: PartialOrd> Ord for Total<T> {
 // -- end of helpers
 
 fn main() {
-    let stdio = io::stdin();
+    let stdio = std::io::stdin();
     let input = stdio.lock();
 
-    let mut stdout = io::stdout();
+    let mut stdout = std::io::stdout();
     let output = BufWriter::new(stdout.lock());
 
     process(input, output).expect("Should not emit error");
     stdout.flush().unwrap();
 }
 
-#[allow(non_snake_case)]
+#[allow(non_snake_case, unused_mut, unused_variables)]
 fn process<R, W>(reader: R, mut writer: W) -> Result<()>
 where
     R: BufRead,
