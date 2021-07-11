@@ -84,19 +84,19 @@ macro_rules! read_value {
     };
 
     ($next:expr, chars) => {
-        read_value!($next, String).chars().collect::<Vec<char>>()
+        (read_value!($next, String).chars().collect::<Vec<char>>()) as Vec<char>
     };
 
     ($next:expr, bytes) => {
-        read_value!($next, String).into_bytes()
+        (read_value!($next, String).into_bytes()) as Vec<u8>
     };
 
     ($next:expr, usize0) => {
-        read_value!($next, usize)
+        (read_value!($next, usize)) as usize
     };
 
     ($next:expr, usize1) => {
-        read_value!($next, usize) - 1
+        (read_value!($next, usize) - 1) as usize
     };
 
     ($next:expr, $t:ty) => {
