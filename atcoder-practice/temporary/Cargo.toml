@@ -68,3 +68,7 @@ path = "src/arc122_a-.rs"
 [[bin]]
 name = "arc084_a"
 path = "src/arc084_a.rs"
+
+[[bin]]
+name = "pakencamp_2019_day3_d"
+path = "src/pakencamp_2019_day3_d.rs"
