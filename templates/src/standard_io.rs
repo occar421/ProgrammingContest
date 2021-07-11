@@ -5,7 +5,6 @@ use std::cmp::*;
 use std::collections::*;
 use std::fmt::{Debug, Display};
 use std::hash::Hash;
-use std::io::{BufRead, BufWriter, Result, Write};
 #[allow(unused_imports)]
 use std::iter::FromIterator;
 use std::ops::*;
@@ -362,10 +361,12 @@ impl<T: PartialOrd> Ord for Total<T> {
 // -- end of helpers
 
 fn main() {
-    let stdio = std::io::stdin();
+    use std::io::*;
+
+    let stdio = stdin();
     let input = stdio.lock();
 
-    let mut stdout = std::io::stdout();
+    let mut stdout = stdout();
     let output = BufWriter::new(stdout.lock());
 
     process(input, output).expect("Should not emit error");
@@ -373,10 +374,10 @@ fn main() {
 }
 
 #[allow(non_snake_case, unused_mut, unused_variables)]
-fn process<R, W>(reader: R, mut writer: W) -> Result<()>
+fn process<R, W>(reader: R, mut writer: W) -> std::io::Result<()>
 where
-    R: BufRead,
-    W: Write,
+    R: std::io::BufRead,
+    W: std::io::Write,
 {
     let mut _handler = prepare_input! { stdin = reader };
     #[allow(unused_macros)]
