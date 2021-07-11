@@ -99,7 +99,7 @@ macro_rules! read_value {
     };
 
     ($next:expr, $t:ty) => {
-        $next().parse::<$t>().expect("Parse error")
+        ($next().parse::<$t>().expect("Parse error")) as $t
     };
 }
 
