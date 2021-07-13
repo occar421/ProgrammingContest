@@ -54,6 +54,10 @@ name = "54_abc006_4"
 path = "src/54_abc006_4.rs"
 
 [[bin]]
+name = "59_joi2014yo_e"
+path = "src/59_joi2014yo_e.rs"
+
+[[bin]]
 name = "62_abc079_d"
 path = "src/62_abc079_d.rs"
 
