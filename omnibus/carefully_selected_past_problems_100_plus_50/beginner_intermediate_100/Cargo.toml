@@ -78,5 +78,9 @@ name = "85_DSL_1_A"
 path = "src/85_DSL_1_A.rs"
 
 [[bin]]
+name = "97_abc150_d"
+path = "src/97_abc150_d.rs"
+
+[[bin]]
 name = "99_ddcc2020_qual_d"
 path = "src/99_ddcc2020_qual_d.rs"
