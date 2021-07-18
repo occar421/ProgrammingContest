@@ -78,6 +78,10 @@ macro_rules! read_value {
         ( $(read_value!($next, $t)),* )
     };
 
+    ($next:expr, [ $t:tt ; $len1:expr ; $len2:expr ]) => {
+        (0..$len1).map(|_| (0..$len2).map(|_| read_value!($next, $t)).collect::<Vec<_>>()).collect::<Vec<_>>()
+    };
+
     ($next:expr, [ $t:tt ; $len:expr ]) => {
         (0..$len).map(|_| read_value!($next, $t)).collect::<Vec<_>>()
     };
