@@ -73,17 +73,23 @@ mod tests {
 
     #[test]
     fn min() {
-        use templates::min;
-        use templates::standard_io::MinProcessable;
+        use templates::standard_io::{Min, PartialMin};
+        use templates::{min, partial_min};
 
         assert_eq!(min!(2), 2);
         assert_eq!(min!(2, 3), 2);
         assert_eq!(min!(3, 2, 7, 5), 2);
-        assert_eq!(min!(vec![3, 2, 7, 5]), 2);
-        assert_eq!(min!(vec![vec![3, 2], vec![7, 5]]), 2);
+
+        let empty: Vec<usize> = vec![];
+
+        assert_eq!(partial_min!(3, vec![2, 7], 5), Some(2));
+        assert_eq!(partial_min!(empty.clone()), None);
+        assert_eq!(partial_min!(vec![empty.clone(), empty.clone()]), None);
+        assert_eq!(partial_min!(vec![3, 2, 7, 5]), Some(2));
+        assert_eq!(partial_min!(vec![vec![3, 2], vec![7, 5]]), Some(2));
         assert_eq!(
-            min!(vec![vec![vec![3], vec![2]], vec![vec![7], vec![5]]]),
-            2
+            partial_min!(vec![vec![vec![3], vec![2]], vec![vec![7], vec![5]]]),
+            Some(2)
         );
     }
 }

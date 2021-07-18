@@ -163,31 +163,53 @@ macro_rules! assert_judge_with_error {
     }};
 }
 
-pub trait MinProcessable {
+pub trait Min {
     type Result;
     fn min(&self) -> Self::Result;
 }
 
-// TODO Compare with Option?
+pub trait PartialMin {
+    type Result;
+    fn partial_min(&self) -> Option<Self::Result>;
+}
 
-impl<T, PT> MinProcessable for Vec<PT>
+impl<T, MIN> PartialMin for MIN
 where
-    T: Ord + Copy,
-    PT: MinProcessable<Result = T>,
+    MIN: Min<Result = T>,
 {
     type Result = T;
 
     #[inline]
-    fn min(&self) -> Self::Result {
-        self.iter().map(|x| x.min()).min().unwrap()
+    fn partial_min(&self) -> Option<Self::Result> {
+        self.min().into()
+    }
+}
+
+impl<T, PT> PartialMin for Vec<PT>
+where
+    T: Ord + Copy,
+    PT: PartialMin<Result = T>,
+{
+    type Result = T;
+
+    #[inline]
+    fn partial_min(&self) -> Option<Self::Result> {
+        self.iter().filter_map(|x| x.partial_min()).min()
     }
 }
 
 #[allow(unused_macros)]
 #[macro_export]
 macro_rules! min {
-    ($x: expr) => (MinProcessable::min(&$x));
-    ($x: expr, $($z: expr),+) => (::std::cmp::min(MinProcessable::min(&$x), min!($($z),*)));
+    ($x: expr) => (Min::min(&$x));
+    ($x: expr, $($z: expr),+) => (::std::cmp::min(Min::min(&$x), min!($($z),*)));
+}
+
+#[allow(unused_macros)]
+#[macro_export]
+macro_rules! partial_min {
+    ($x: expr) => (PartialMin::partial_min(&$x));
+    ($x: expr, $($z: expr),+) => (::std::cmp::min(PartialMin::partial_min(&$x), partial_min!($($z),*)));
 }
 
 pub trait GenericInteger:
@@ -223,7 +245,7 @@ macro_rules! implement_generic_integer {
             fn one() -> Self { 1 }
         }
 
-        impl MinProcessable for $t {
+        impl Min for $t {
             type Result = $t;
 
             #[inline]
