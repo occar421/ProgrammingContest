@@ -172,6 +172,15 @@ pub trait PartialMin {
     fn partial_min(&self) -> Option<Self::Result>;
 }
 
+fn iter_min<'a, T, PT, I>(iter: I) -> Option<T>
+where
+    T: Ord + Copy,
+    PT: 'a + PartialMin<Result = T>,
+    I: 'a + Iterator<Item = &'a PT>,
+{
+    iter.filter_map(|x| x.partial_min()).min()
+}
+
 impl<T, PT> PartialMin for [PT]
 where
     T: Ord + Copy,
@@ -181,7 +190,7 @@ where
 
     #[inline]
     fn partial_min(&self) -> Option<Self::Result> {
-        self.iter().filter_map(|x| x.partial_min()).min()
+        iter_min(self.iter())
     }
 }
 
@@ -194,7 +203,20 @@ where
 
     #[inline]
     fn partial_min(&self) -> Option<Self::Result> {
-        self.as_slice().partial_min()
+        iter_min(self.iter())
+    }
+}
+
+impl<T, PT> PartialMin for HashSet<PT>
+where
+    T: Ord + Copy,
+    PT: PartialMin<Result = T>,
+{
+    type Result = T;
+
+    #[inline]
+    fn partial_min(&self) -> Option<Self::Result> {
+        iter_min(self.iter())
     }
 }
 
