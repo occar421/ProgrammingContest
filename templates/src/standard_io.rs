@@ -172,7 +172,7 @@ pub trait PartialMin {
     fn partial_min(&self) -> Option<Self::Result>;
 }
 
-impl<T, PT> PartialMin for Vec<PT>
+impl<T, PT> PartialMin for [PT]
 where
     T: Ord + Copy,
     PT: PartialMin<Result = T>,
@@ -182,6 +182,19 @@ where
     #[inline]
     fn partial_min(&self) -> Option<Self::Result> {
         self.iter().filter_map(|x| x.partial_min()).min()
+    }
+}
+
+impl<T, PT> PartialMin for Vec<PT>
+where
+    T: Ord + Copy,
+    PT: PartialMin<Result = T>,
+{
+    type Result = T;
+
+    #[inline]
+    fn partial_min(&self) -> Option<Self::Result> {
+        self.as_slice().partial_min()
     }
 }
 
