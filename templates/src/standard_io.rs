@@ -234,6 +234,77 @@ macro_rules! partial_min {
     ($x: expr, $($z: expr),+) => (::std::cmp::min(PartialMin::partial_min(&$x), partial_min!($($z),*)));
 }
 
+pub trait Max: PartialMax {
+    fn max(&self) -> Self::Result;
+}
+
+pub trait PartialMax {
+    type Result;
+    fn partial_max(&self) -> Option<Self::Result>;
+}
+
+fn iter_max<'a, T, PT, I>(iter: I) -> Option<T>
+where
+    T: Ord + Copy,
+    PT: 'a + PartialMax<Result = T>,
+    I: 'a + Iterator<Item = &'a PT>,
+{
+    iter.filter_map(|x| x.partial_max()).max()
+}
+
+impl<T, PT> PartialMax for [PT]
+where
+    T: Ord + Copy,
+    PT: PartialMax<Result = T>,
+{
+    type Result = T;
+
+    #[inline]
+    fn partial_max(&self) -> Option<Self::Result> {
+        iter_max(self.iter())
+    }
+}
+
+impl<T, PT> PartialMax for Vec<PT>
+where
+    T: Ord + Copy,
+    PT: PartialMax<Result = T>,
+{
+    type Result = T;
+
+    #[inline]
+    fn partial_max(&self) -> Option<Self::Result> {
+        iter_max(self.iter())
+    }
+}
+
+impl<T, PT> PartialMax for HashSet<PT>
+where
+    T: Ord + Copy,
+    PT: PartialMax<Result = T>,
+{
+    type Result = T;
+
+    #[inline]
+    fn partial_max(&self) -> Option<Self::Result> {
+        iter_max(self.iter())
+    }
+}
+
+#[allow(unused_macros)]
+#[macro_export]
+macro_rules! max {
+    ($x: expr) => (Max::max(&$x));
+    ($x: expr, $($z: expr),+) => (::std::cmp::max(Max::max(&$x), max!($($z),*)));
+}
+
+#[allow(unused_macros)]
+#[macro_export]
+macro_rules! partial_max {
+    ($x: expr) => (PartialMax::partial_max(&$x));
+    ($x: expr, $($z: expr),+) => (::std::cmp::max(PartialMax::partial_max(&$x), partial_max!($($z),*)));
+}
+
 pub trait GenericInteger:
     Copy
     + Clone
@@ -279,6 +350,22 @@ macro_rules! implement_generic_integer {
         impl Min for $t {
             #[inline]
             fn min(&self) -> Self::Result {
+                self.clone()
+            }
+        }
+
+        impl PartialMax for $t {
+            type Result = $t;
+
+            #[inline]
+            fn partial_max(&self) -> Option<Self::Result> {
+                self.clone().into()
+            }
+        }
+
+        impl Max for $t {
+            #[inline]
+            fn max(&self) -> Self::Result {
                 self.clone()
             }
         }

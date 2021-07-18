@@ -92,4 +92,26 @@ mod tests {
             Some(2)
         );
     }
+
+    #[test]
+    fn max() {
+        use templates::standard_io::{Max, PartialMax};
+        use templates::{max, partial_max};
+
+        assert_eq!(max!(2), 2);
+        assert_eq!(max!(2, 3), 3);
+        assert_eq!(max!(3, 2, 7, 5), 7);
+
+        let empty: Vec<usize> = vec![];
+
+        assert_eq!(partial_max!(3, vec![2, 7], 5), Some(7));
+        assert_eq!(partial_max!(empty.clone()), None);
+        assert_eq!(partial_max!(vec![empty.clone(), empty.clone()]), None);
+        assert_eq!(partial_max!(vec![3, 2, 7, 5]), Some(7));
+        assert_eq!(partial_max!(vec![vec![3, 2], vec![7, 5]]), Some(7));
+        assert_eq!(
+            partial_max!(vec![vec![vec![3], vec![2]], vec![vec![7], vec![5]]]),
+            Some(7)
+        );
+    }
 }
