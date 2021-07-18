@@ -223,6 +223,7 @@ where
     a / gcd(a.clone(), b) * b.clone()
 }
 
+/// O(√N)
 #[allow(dead_code)]
 pub fn prime_factorize(n: usize) -> HashMap<usize, usize> {
     let mut map = HashMap::new();
