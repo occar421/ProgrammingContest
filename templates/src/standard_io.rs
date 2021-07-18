@@ -163,6 +163,33 @@ macro_rules! assert_judge_with_error {
     }};
 }
 
+pub trait MinProcessable {
+    type Result;
+    fn min(&self) -> Self::Result;
+}
+
+// TODO Compare with Option?
+
+impl<T, PT> MinProcessable for Vec<PT>
+where
+    T: Ord + Copy,
+    PT: MinProcessable<Result = T>,
+{
+    type Result = T;
+
+    #[inline]
+    fn min(&self) -> Self::Result {
+        self.iter().map(|x| x.min()).min().unwrap()
+    }
+}
+
+#[allow(unused_macros)]
+#[macro_export]
+macro_rules! min {
+    ($x: expr) => (MinProcessable::min(&$x));
+    ($x: expr, $($z: expr),+) => (::std::cmp::min(MinProcessable::min(&$x), min!($($z),*)));
+}
+
 pub trait GenericInteger:
     Copy
     + Clone
@@ -194,6 +221,15 @@ macro_rules! implement_generic_integer {
 
             #[inline]
             fn one() -> Self { 1 }
+        }
+
+        impl MinProcessable for $t {
+            type Result = $t;
+
+            #[inline]
+            fn min(&self) -> Self::Result {
+                self.clone()
+            }
         }
 
         implement_generic_integer![ $( $r ),* ];
