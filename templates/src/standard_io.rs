@@ -163,26 +163,13 @@ macro_rules! assert_judge_with_error {
     }};
 }
 
-pub trait Min {
-    type Result;
+pub trait Min: PartialMin {
     fn min(&self) -> Self::Result;
 }
 
 pub trait PartialMin {
     type Result;
     fn partial_min(&self) -> Option<Self::Result>;
-}
-
-impl<T, MIN> PartialMin for MIN
-where
-    MIN: Min<Result = T>,
-{
-    type Result = T;
-
-    #[inline]
-    fn partial_min(&self) -> Option<Self::Result> {
-        self.min().into()
-    }
 }
 
 impl<T, PT> PartialMin for Vec<PT>
@@ -245,9 +232,16 @@ macro_rules! implement_generic_integer {
             fn one() -> Self { 1 }
         }
 
-        impl Min for $t {
+        impl PartialMin for $t {
             type Result = $t;
 
+            #[inline]
+            fn partial_min(&self) -> Option<Self::Result> {
+                self.clone().into()
+            }
+        }
+
+        impl Min for $t {
             #[inline]
             fn min(&self) -> Self::Result {
                 self.clone()
