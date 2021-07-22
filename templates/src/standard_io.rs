@@ -176,7 +176,20 @@ pub trait PartialMin {
     fn partial_min(&self) -> Option<Self::Result>;
 }
 
-fn iter_min<'a, T, PT, I>(iter: I) -> Option<T>
+impl<T, PT> PartialMin for Option<PT>
+where
+    T: Ord + Copy,
+    PT: PartialMin<Result = T>,
+{
+    type Result = T;
+
+    #[inline]
+    fn partial_min(&self) -> Option<Self::Result> {
+        self.as_ref().map(|x| x.partial_min()).flatten()
+    }
+}
+
+fn iter_partial_min<'a, T, PT, I>(iter: I) -> Option<T>
 where
     T: Ord + Copy,
     PT: 'a + PartialMin<Result = T>,
@@ -194,7 +207,7 @@ where
 
     #[inline]
     fn partial_min(&self) -> Option<Self::Result> {
-        iter_min(self.iter())
+        iter_partial_min(self.iter())
     }
 }
 
@@ -207,7 +220,7 @@ where
 
     #[inline]
     fn partial_min(&self) -> Option<Self::Result> {
-        iter_min(self.iter())
+        iter_partial_min(self.iter())
     }
 }
 
@@ -220,7 +233,18 @@ where
 
     #[inline]
     fn partial_min(&self) -> Option<Self::Result> {
-        iter_min(self.iter())
+        iter_partial_min(self.iter())
+    }
+}
+
+pub fn min_with_partial<T>(o1: Option<T>, o2: Option<T>) -> Option<T>
+where
+    T: Ord,
+{
+    match (o1, o2) {
+        (Some(v1), Some(v2)) => min(v1, v2).into(),
+        (o1, None) => o1,
+        (None, o2) => o2,
     }
 }
 
@@ -235,7 +259,7 @@ macro_rules! min {
 #[macro_export]
 macro_rules! partial_min {
     ($x: expr) => (PartialMin::partial_min(&$x));
-    ($x: expr, $($z: expr),+) => (::std::cmp::min(PartialMin::partial_min(&$x), partial_min!($($z),*)));
+    ($x: expr, $($z: expr),+) => (min_with_partial(PartialMin::partial_min(&$x), partial_min!($($z),*)));
 }
 
 pub trait Max: PartialMax {

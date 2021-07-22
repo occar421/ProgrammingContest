@@ -73,14 +73,15 @@ mod tests {
 
     #[test]
     fn min() {
-        use templates::standard_io::{Min, PartialMin};
+        use templates::standard_io::{min_with_partial, Min, PartialMin};
         use templates::{min, partial_min};
 
         assert_eq!(min!(2), 2);
         assert_eq!(min!(2, 3), 2);
         assert_eq!(min!(3, 2, 7, 5), 2);
 
-        let empty: Vec<usize> = vec![];
+        let empty: Vec<i32> = vec![];
+        let none: Option<i32> = None;
 
         assert_eq!(partial_min!(3, vec![2, 7], 5), Some(2));
         assert_eq!(partial_min!(empty.clone()), None);
@@ -91,6 +92,8 @@ mod tests {
             partial_min!(vec![vec![vec![3], vec![2]], vec![vec![7], vec![5]]]),
             Some(2)
         );
+
+        assert_eq!(partial_min!(3, none, 2, empty.clone(), 5, none, 7), Some(2));
     }
 
     #[test]
@@ -103,6 +106,7 @@ mod tests {
         assert_eq!(max!(3, 2, 7, 5), 7);
 
         let empty: Vec<usize> = vec![];
+        // let empty: Vec<i32> = vec![];
 
         assert_eq!(partial_max!(3, vec![2, 7], 5), Some(7));
         assert_eq!(partial_max!(empty.clone()), None);
@@ -113,5 +117,7 @@ mod tests {
             partial_max!(vec![vec![vec![3], vec![2]], vec![vec![7], vec![5]]]),
             Some(7)
         );
+
+        // assert_eq!(partial_max!(3, None, 2, empty.clone(), 7, None, 5), Some(7));
     }
 }
