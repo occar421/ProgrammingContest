@@ -369,10 +369,15 @@ pub trait GenericInteger:
     + Display
     + Debug
     + Add<Output = Self>
+    + AddAssign
     + Sub<Output = Self>
+    + SubAssign
     + Mul<Output = Self>
+    + MulAssign
     + Div<Output = Self>
+    + DivAssign
     + Rem<Output = Self>
+    + RemAssign
 {
     fn zero() -> Self;
     fn one() -> Self;
