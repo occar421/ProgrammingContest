@@ -271,7 +271,20 @@ pub trait PartialMax {
     fn partial_max(&self) -> Option<Self::Result>;
 }
 
-fn iter_max<'a, T, PT, I>(iter: I) -> Option<T>
+impl<T, PT> PartialMax for Option<PT>
+where
+    T: Ord + Copy,
+    PT: PartialMax<Result = T>,
+{
+    type Result = T;
+
+    #[inline]
+    fn partial_max(&self) -> Option<Self::Result> {
+        self.as_ref().map(|x| x.partial_max()).flatten()
+    }
+}
+
+fn iter_partial_max<'a, T, PT, I>(iter: I) -> Option<T>
 where
     T: Ord + Copy,
     PT: 'a + PartialMax<Result = T>,
@@ -289,7 +302,7 @@ where
 
     #[inline]
     fn partial_max(&self) -> Option<Self::Result> {
-        iter_max(self.iter())
+        iter_partial_max(self.iter())
     }
 }
 
@@ -302,7 +315,7 @@ where
 
     #[inline]
     fn partial_max(&self) -> Option<Self::Result> {
-        iter_max(self.iter())
+        iter_partial_max(self.iter())
     }
 }
 
@@ -315,7 +328,18 @@ where
 
     #[inline]
     fn partial_max(&self) -> Option<Self::Result> {
-        iter_max(self.iter())
+        iter_partial_max(self.iter())
+    }
+}
+
+pub fn max_with_partial<T>(o1: Option<T>, o2: Option<T>) -> Option<T>
+where
+    T: Ord,
+{
+    match (o1, o2) {
+        (Some(v1), Some(v2)) => max(v1, v2).into(),
+        (o1, None) => o1,
+        (None, o2) => o2,
     }
 }
 
@@ -330,7 +354,7 @@ macro_rules! max {
 #[macro_export]
 macro_rules! partial_max {
     ($x: expr) => (PartialMax::partial_max(&$x));
-    ($x: expr, $($z: expr),+) => (::std::cmp::max(PartialMax::partial_max(&$x), partial_max!($($z),*)));
+    ($x: expr, $($z: expr),+) => (max_with_partial(PartialMax::partial_max(&$x), partial_max!($($z),*)));
 }
 
 pub trait GenericInteger:
