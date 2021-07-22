@@ -1,7 +1,8 @@
 use crate::standard_io::{GenericInteger, ThenSome};
 
 pub mod modular {
-    //! ref: https://github.com/occar421/ProgrammingContest/tree/master/templates/src/snippet_modular.rs
+    //! Modular
+    //! https://github.com/occar421/ProgrammingContest/tree/master/templates/src/snippet_modular.rs
 
     use super::{GenericInteger, ThenSome};
     use std::cmp::Ordering;

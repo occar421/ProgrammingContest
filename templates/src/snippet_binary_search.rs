@@ -1,6 +1,9 @@
 use crate::standard_io::GenericInteger;
 
 pub mod binary_search {
+    //! BinarySearch
+    //! https://github.com/occar421/ProgrammingContest/tree/master/templates/src/snippet_binary_search.rs
+
     use super::GenericInteger;
     use std::ops::{Range, RangeInclusive};
 

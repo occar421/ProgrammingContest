@@ -1,4 +1,7 @@
 pub mod golden_section_search {
+    //! GoldenSectionSearch
+    //! https://github.com/occar421/ProgrammingContest/tree/master/templates/src/snippet_golden_section_search.rs
+
     #[derive(Copy, Clone, Debug)]
     pub struct MaxResultFx {
         pub max_fx: f64,

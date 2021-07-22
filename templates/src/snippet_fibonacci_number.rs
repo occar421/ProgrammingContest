@@ -1,6 +1,9 @@
 use crate::standard_io::GenericInteger;
 
 pub mod fibonacci_number {
+    //! FibonacciNumber
+    //! https://github.com/occar421/ProgrammingContest/tree/master/templates/src/snippet_fibonacci_number.rs
+
     use super::GenericInteger;
     use std::cell::RefCell;
     use std::collections::HashMap;

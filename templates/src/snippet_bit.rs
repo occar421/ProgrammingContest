@@ -1,4 +1,7 @@
 pub mod bit {
+    //! Bit
+    //! https://github.com/occar421/ProgrammingContest/tree/master/templates/src/snippet_bit.rs
+
     use std::marker::PhantomData;
     use std::ops::{
         BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Index, Not, Shl, ShlAssign,
