@@ -44,3 +44,18 @@ path = "src/abc210_e.rs"
 [[bin]]
 name = "abc120_c"
 path = "src/arc120_c.rs"
+
+# TODO
+[[bin]]
+name = "abc211_e"
+path = "src/abc211_e.rs"
+
+# TODO
+[[bin]]
+name = "arc124_b"
+path = "src/arc124_b.rs"
+
+# TODO
+[[bin]]
+name = "arc124_c"
+path = "src/arc124_c.rs"
