@@ -206,6 +206,72 @@ pub mod modular {
         }
     }
 
+    impl<M> From<usize> for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        #[inline]
+        fn from(v: usize) -> Self {
+            Self::new(v)
+        }
+    }
+
+    impl<M> From<&usize> for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        #[inline]
+        fn from(v: &usize) -> Self {
+            From::<usize>::from(*v)
+        }
+    }
+
+    impl<M> From<isize> for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        #[inline]
+        fn from(v: isize) -> Self {
+            if v >= 0 {
+                Self::new(v as usize)
+            } else if let Some(v) = v.checked_neg() {
+                -Self::new(v as usize)
+            } else {
+                -Self::new((v + M::modulo() as isize) as usize)
+            }
+        }
+    }
+
+    impl<M> From<&isize> for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        #[inline]
+        fn from(v: &isize) -> Self {
+            From::<isize>::from(*v)
+        }
+    }
+
+    impl<M> From<i32> for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        #[inline]
+        fn from(v: i32) -> Self {
+            From::<isize>::from(v as isize)
+        }
+    }
+
+    impl<M> From<&i32> for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        #[inline]
+        fn from(v: &i32) -> Self {
+            From::<isize>::from(*v as isize)
+        }
+    }
+
     impl<T, M> Add<T> for PrimeModularUsize<M>
     where
         T: Into<Self>,
@@ -389,17 +455,6 @@ pub mod modular {
             I: Iterator<Item = &'a Self>,
         {
             iter.fold(Self::one(), |acc, x| acc * x)
-        }
-    }
-
-    impl<T, M> From<T> for PrimeModularUsize<M>
-    where
-        T: Into<usize>,
-        M: ModuloExt,
-    {
-        #[inline]
-        fn from(value: T) -> Self {
-            Self::new(value.into())
         }
     }
 

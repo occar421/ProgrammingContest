@@ -76,7 +76,7 @@ mod tests {
         modulo_test!(7 as Mod7);
 
         let mut a = Mod7::new(3);
-        a += 5usize;
+        a += 5;
         assert_eq!(a.value(), 1)
     }
 
@@ -85,7 +85,7 @@ mod tests {
         modulo_test!(7 as Mod7);
 
         let mut a = Mod7::new(3);
-        a -= 5usize;
+        a -= 5;
         assert_eq!(a.value(), 5)
     }
 
@@ -169,5 +169,9 @@ mod tests {
         assert_eq!(z, s);
         let p: Mod7 = vec.iter().product();
         assert_eq!(z, p);
+        assert_eq!((z + 1).value(), 1);
+        assert_eq!((z - &1).value(), 6);
+        assert_eq!((z + (-1)).value(), 6);
+        assert_eq!((z - &(-1)).value(), 1);
     }
 }
