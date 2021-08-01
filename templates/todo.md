@@ -1,4 +1,5 @@
 * `Mod1Mil7 + 1` の使い勝手
+  * ref, into, 四則演算系
 * 素早い素数生成（`HashSet` + `SortedVec`）
 * 倍数除去用の汎用篩？
 * ダイクストラ法 with ref of any structure

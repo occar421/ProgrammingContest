@@ -158,4 +158,16 @@ mod tests {
             .generate(n, r)
             .value()
     }
+
+    #[test]
+    fn auto_cast_mod7() {
+        modulo_test!(7 as Mod7);
+
+        let z = Mod7::new(0);
+        let vec = vec![z; 10];
+        let s: Mod7 = vec.iter().sum();
+        assert_eq!(z, s);
+        let p: Mod7 = vec.iter().product();
+        assert_eq!(z, p);
+    }
 }

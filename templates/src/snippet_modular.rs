@@ -197,6 +197,15 @@ pub mod modular {
         }
     }
 
+    impl<M> From<&PrimeModularUsize<M>> for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        fn from(v: &PrimeModularUsize<M>) -> Self {
+            *v
+        }
+    }
+
     impl<T, M> Add<T> for PrimeModularUsize<M>
     where
         T: Into<Self>,
@@ -343,11 +352,19 @@ pub mod modular {
         where
             I: Iterator<Item = Self>,
         {
-            let mut result = Self::new(0);
-            for x in iter {
-                result += x;
-            }
-            result
+            iter.fold(Self::zero(), |acc, x| acc + x)
+        }
+    }
+
+    impl<'a, M> Sum<&'a PrimeModularUsize<M>> for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        fn sum<I>(iter: I) -> Self
+        where
+            I: Iterator<Item = &'a Self>,
+        {
+            iter.fold(Self::zero(), |acc, x| acc + x)
         }
     }
 
@@ -359,11 +376,19 @@ pub mod modular {
         where
             I: Iterator<Item = Self>,
         {
-            let mut result = Self::new(1);
-            for x in iter {
-                result *= x;
-            }
-            result
+            iter.fold(Self::one(), |acc, x| acc * x)
+        }
+    }
+
+    impl<'a, M> Product<&'a PrimeModularUsize<M>> for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        fn product<I>(iter: I) -> Self
+        where
+            I: Iterator<Item = &'a Self>,
+        {
+            iter.fold(Self::one(), |acc, x| acc * x)
         }
     }
 
