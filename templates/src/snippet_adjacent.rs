@@ -86,4 +86,53 @@ pub mod adjacent {
             None
         }
     }
+
+    const A2D_4: &'static [(isize, isize)] = &[(-1, 0), (0, 1), (1, 0), (0, -1)];
+
+    /// Arguments
+    ///
+    /// * `current`: (y, x)
+    /// * `vertical_range`: y range
+    /// * `horizontal_range`: x range
+    pub fn adjacent2d_4neighbors(
+        current: (usize, usize),
+        vertical_range: impl adjacent_range::AdjacentRange,
+        horizontal_range: impl adjacent_range::AdjacentRange,
+    ) -> Adjacent2d<std::slice::Iter<'static, (isize, isize)>> {
+        Adjacent2d {
+            current: (current.0 as isize, current.1 as isize),
+            vertical_range: vertical_range.to_range(),
+            horizontal_range: horizontal_range.to_range(),
+            iter: A2D_4.iter(),
+        }
+    }
+
+    const A2D_8: &'static [(isize, isize)] = &[
+        (-1, 0),
+        (-1, 1),
+        (0, 1),
+        (1, 1),
+        (1, 0),
+        (1, -1),
+        (0, -1),
+        (-1, -1),
+    ];
+
+    /// Arguments
+    ///
+    /// * `current`: (y, x)
+    /// * `vertical_range`: y range
+    /// * `horizontal_range`: x range
+    pub fn adjacent2d_8neighbors(
+        current: (usize, usize),
+        vertical_range: impl adjacent_range::AdjacentRange,
+        horizontal_range: impl adjacent_range::AdjacentRange,
+    ) -> Adjacent2d<std::slice::Iter<'static, (isize, isize)>> {
+        Adjacent2d {
+            current: (current.0 as isize, current.1 as isize),
+            vertical_range: vertical_range.to_range(),
+            horizontal_range: horizontal_range.to_range(),
+            iter: A2D_8.iter(),
+        }
+    }
 }
