@@ -98,6 +98,10 @@ name = "85_DSL_1_A"
 path = "src/85_DSL_1_A.rs"
 
 [[bin]]
+name = "94_1149"
+path = "src/94_1149.rs"
+
+[[bin]]
 name = "97_abc150_d"
 path = "src/97_abc150_d.rs"
 
