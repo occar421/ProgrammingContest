@@ -483,6 +483,25 @@ pub fn prime_factorize(n: usize) -> HashMap<usize, usize> {
     map
 }
 
+/// O(N log(logN) )
+#[allow(dead_code)]
+pub fn eratosthenes_sieve(n: usize) -> Vec<usize> {
+    let mut primes = vec![];
+    let mut is_prime = vec![true; n + 1];
+    is_prime[0] = false;
+    is_prime[1] = false;
+    for p in 0..=n {
+        if !is_prime[p] {
+            continue;
+        }
+        primes.push(p);
+        for px in (p * p..=n).step_by(p) {
+            is_prime[px] = false;
+        }
+    }
+    primes
+}
+
 pub trait IterExt<T>
 where
     T: Display,

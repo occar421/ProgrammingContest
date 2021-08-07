@@ -1,6 +1,5 @@
 #[cfg(test)]
 mod tests {
-    use templates::standard_io::Adjacent;
     use test_case::test_case;
 
     #[test_case(1, 1 => 1)]
@@ -70,6 +69,12 @@ mod tests {
         let mut pairs: Vec<_> = result.iter().collect();
         pairs.sort_by_key(|(key, _)| *key);
         pairs.iter().map(|(key, value)| (**key, **value)).collect()
+    }
+
+    #[test_case(4 => vec![2, 3])]
+    #[test_case(20 => vec![2, 3, 5, 7, 11, 13, 17, 19])]
+    fn eratosthenes_sieve(n: usize) -> Vec<usize> {
+        templates::standard_io::eratosthenes_sieve(n)
     }
 
     #[test]
