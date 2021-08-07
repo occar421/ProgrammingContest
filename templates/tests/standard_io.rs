@@ -1,5 +1,6 @@
 #[cfg(test)]
 mod tests {
+    use templates::standard_io::Adjacent;
     use test_case::test_case;
 
     #[test_case(1, 1 => 1)]
