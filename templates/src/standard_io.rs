@@ -483,22 +483,44 @@ pub fn prime_factorize(n: usize) -> HashMap<usize, usize> {
     map
 }
 
+const INC: [usize; 8] = [4, 2, 4, 2, 4, 6, 2, 6];
+
+// https://memo.sugyan.com/entry/2021/02/06/021949
 /// O(N log(logN) )
 #[allow(dead_code)]
 pub fn eratosthenes_sieve(n: usize) -> Vec<usize> {
-    let mut primes = vec![];
-    let mut is_prime = vec![true; n + 1];
-    is_prime[0] = false;
-    is_prime[1] = false;
-    for p in 0..=n {
-        if !is_prime[p] {
+    if n < 7 {
+        return [2, 3, 5]
+            .iter()
+            .filter_map(|&x| (x <= n).then_some_(x))
+            .collect();
+    }
+    let nf = n as f64;
+    let mut primes = Vec::with_capacity((nf / nf.ln() * 1.2).floor() as usize);
+    primes.push(2);
+    primes.push(3);
+    primes.push(5);
+    let mut unmarked_numbers = vec![true; n + 1];
+
+    // Wheel factorization
+    let mut p = 7 - INC.last().unwrap();
+    for i in INC.len() - 1.. {
+        p += INC[i % INC.len()];
+
+        if p > n {
+            break;
+        }
+
+        if !unmarked_numbers[p] {
             continue;
         }
+
         primes.push(p);
         for px in (p * p..=n).step_by(p) {
-            is_prime[px] = false;
+            unmarked_numbers[px] = false;
         }
     }
+
     primes
 }
 

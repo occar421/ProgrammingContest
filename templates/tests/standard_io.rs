@@ -71,8 +71,15 @@ mod tests {
         pairs.iter().map(|(key, value)| (**key, **value)).collect()
     }
 
-    #[test_case(4 => vec![2, 3])]
+    #[test_case(0 => Vec::<usize>::new())]
+    #[test_case(1 => Vec::<usize>::new())]
+    #[test_case(2 => vec![2])]
+    #[test_case(3 => vec![2, 3])]
+    #[test_case(6 => vec![2, 3, 5])]
+    #[test_case(7 => vec![2, 3, 5, 7])]
+    #[test_case(8 => vec![2, 3, 5, 7])]
     #[test_case(20 => vec![2, 3, 5, 7, 11, 13, 17, 19])]
+    #[test_case(100 => vec![2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97])]
     fn eratosthenes_sieve(n: usize) -> Vec<usize> {
         templates::standard_io::eratosthenes_sieve(n)
     }
