@@ -637,8 +637,8 @@ where
     {
         input! {
             // FIXME: arguments
-            // n: Quantity,
-            // mut n: NodeIndex1Based,
+            // n: usize,
+            // mut a: [usize1; n],
         }
 
         // FIXME: logic
