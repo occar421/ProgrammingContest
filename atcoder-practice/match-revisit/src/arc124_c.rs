@@ -636,15 +636,27 @@ where
 
     {
         input! {
-            // FIXME: arguments
-            // n: Quantity,
-            // mut n: NodeIndex1Based,
+            n: usize,
+            ab: [(usize, usize); n],
         }
 
-        // FIXME: logic
+        // after checking editorial
 
-        // FIXME: print
-        println!();
+        let mut set = HashSet::new();
+        set.insert((0usize, 0usize));
+
+        for &(a, b) in ab.iter() {
+            let mut next = HashSet::with_capacity(set.len() * 2);
+            for &(x, y) in set.iter() {
+                next.insert((gcd(x, a), gcd(y, b)));
+                next.insert((gcd(y, a), gcd(x, b)));
+            }
+            set = next;
+        }
+
+        let result = set.iter().map(|&(x, y)| lcm(x, y)).max().unwrap();
+
+        println!("{}", result);
     }
 
     Ok(())
@@ -656,26 +668,74 @@ mod tests {
 
     #[test]
     fn sample1() {
-        assert_judge!(process, "1", "2");
+        assert_judge!(
+            process,
+            "
+2
+2 15
+10 6
+",
+            "10"
+        );
+    }
 
-        // let output = assert_judge_with_output!(process, "3");
-        //
-        // input_original! {
-        //     source = output;
-        //     o: [u32; 3],
-        // }
-        //
-        // assert_eq!(1, o[0]);
+    #[test]
+    fn sample2() {
+        assert_judge!(
+            process,
+            "
+5
+148834018 644854700
+947642099 255192490
+35137537 134714230
+944287156 528403260
+68656286 200621680
+",
+            "238630"
+        );
+    }
 
-        // let output = assert_judge_with_output!(process, "10 1.00000");
-        //
-        // input_original! {
-        //      source = output;
-        //      o: f64,
-        // }
-        //
-        // assert_eq_with_error!(4f64, o, 10f64.powi(-6));
+    #[test]
+    fn sample3() {
+        assert_judge!(
+            process,
+            "
+20
+557057460 31783488
+843507940 794587200
+640711140 620259584
+1901220 499867584
+190122000 41414848
+349507610 620259584
+890404700 609665088
+392918800 211889920
+507308870 722352000
+156850650 498904448
+806117280 862969856
+193607570 992030080
+660673950 422816704
+622015810 563434560
+207866720 316871744
+63057130 117502592
+482593010 366954816
+605221700 705015552
+702500790 900532160
+171743540 353470912
+",
+            "152594452160"
+        );
+    }
 
-        // assert_judge_with_error!(process, "7", "2.52163", f64 | 10f64.powi(-2));
+    #[test]
+    fn ex1() {
+        assert_judge!(
+            process,
+            "
+2
+1 1
+1 1
+",
+            "1"
+        );
     }
 }
