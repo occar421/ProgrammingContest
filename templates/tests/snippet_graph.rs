@@ -32,8 +32,53 @@ mod tests {
             assert_eq!(d.cost_to((1, 'a')), None);
         }
 
-        // TODO struct
+        #[test]
+        fn user_defined_struct() {
+            #[derive(Eq, PartialEq, Hash, Clone)]
+            struct P {
+                n: usize,
+                c: char,
+            }
+            fn p(n: usize, c: char) -> P {
+                P { n, c }
+            }
 
-        // TODO complex
+            let nodes = HashSet::from_iter(vec![p(0, 'a'), p(0, 'b'), p(1, 'a')]);
+            let mut edges = HashMap::new();
+            edges
+                .entry(p(0, 'a'))
+                .or_insert(vec![])
+                .push((p(0, 'b'), 2));
+
+            let graph = Graph::new(&nodes, &edges);
+            let d = graph.dijkstra(p(0, 'a'), 0);
+            assert_eq!(d.cost_to(p(0, 'a')), Some(0));
+            assert_eq!(d.cost_to(p(0, 'b')), Some(2));
+            assert_eq!(d.cost_to(p(1, 'a')), None);
+        }
+
+        #[test]
+        fn user_defined_struct_ref() {
+            #[derive(Eq, PartialEq, Hash, Clone)]
+            struct P {
+                n: usize,
+                c: char,
+            }
+
+            let p_0a = P { n: 0, c: 'a' };
+            let p_0b = P { n: 0, c: 'b' };
+            let p_1a = P { n: 1, c: 'a' };
+            let nodes = HashSet::from_iter(vec![&p_0a, &p_0b, &p_1a]);
+            let mut edges = HashMap::new();
+            edges.entry(&p_0a).or_insert(vec![]).push((&p_0b, 2));
+
+            let graph = Graph::new(&nodes, &edges);
+            let d = graph.dijkstra(&p_0a, 0);
+            assert_eq!(d.cost_to(&p_0a), Some(0));
+            assert_eq!(d.cost_to(&p_0b), Some(2));
+            assert_eq!(d.cost_to(&p_1a), None);
+        }
+
+        // TODO path
     }
 }
