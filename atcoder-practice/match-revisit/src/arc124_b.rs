@@ -636,15 +636,30 @@ where
 
     {
         input! {
-            // FIXME: arguments
-            // n: Quantity,
-            // mut n: NodeIndex1Based,
+            n: usize,
+            a: [usize; n],
+            mut b: [usize; n],
         }
 
-        // FIXME: logic
+        // after checking editorial
 
-        // FIXME: print
-        println!();
+        b.sort_unstable();
+
+        let mut answers = HashSet::new();
+        for x in b.iter().map(|&b_i| a[0] ^ b_i) {
+            let mut c: Vec<_> = a.iter().map(|&a_i| a_i ^ x).collect();
+            c.sort_unstable();
+            if b.iter().eq(c.iter()) {
+                answers.insert(x);
+            }
+        }
+
+        let mut answers: Vec<_> = answers.into_iter().collect();
+        answers.sort_unstable();
+        println!("{}", answers.len());
+        for answer in answers.iter() {
+            println!("{}", answer);
+        }
     }
 
     Ok(())
@@ -656,26 +671,55 @@ mod tests {
 
     #[test]
     fn sample1() {
-        assert_judge!(process, "1", "2");
+        assert_judge!(
+            process,
+            "
+3
+1 2 3
+6 4 7
+",
+            "
+1
+5
+"
+        );
+    }
 
-        // let output = assert_judge_with_output!(process, "3");
-        //
-        // input_original! {
-        //     source = output;
-        //     o: [u32; 3],
-        // }
-        //
-        // assert_eq!(1, o[0]);
+    #[test]
+    fn sample2() {
+        assert_judge!(
+            process,
+            "
+2
+0 1
+0 2
+",
+            "
+0
+"
+        );
+    }
 
-        // let output = assert_judge_with_output!(process, "10 1.00000");
-        //
-        // input_original! {
-        //      source = output;
-        //      o: f64,
-        // }
-        //
-        // assert_eq_with_error!(4f64, o, 10f64.powi(-6));
-
-        // assert_judge_with_error!(process, "7", "2.52163", f64 | 10f64.powi(-2));
+    #[test]
+    fn sample3() {
+        assert_judge!(
+            process,
+            "
+24
+14911005 70152939 282809711 965900047 168465665 337027481 520073861 20800623 934711525 944543101 522277111 580736275 468493313 912814743 99651737 439502451 365446123 198473587 285587229 253330309 591640417 761745547 247947767 750367481
+805343020 412569406 424258892 329301584 123050452 1042573510 1073384116 495212986 158432830 145726540 623594202 836660574 380872916 722447664 230460104 718360386 620079272 109804454 60321058 38178640 475708360 207775930 393038502 310271010
+",
+            "
+8
+107543995
+129376201
+139205201
+160626723
+312334911
+323172429
+481902037
+493346727
+"
+        );
     }
 }
