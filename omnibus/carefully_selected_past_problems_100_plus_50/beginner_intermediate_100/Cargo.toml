@@ -14,6 +14,10 @@ name = "04_pakencamp_2019_day3_c"
 path = "src/04_pakencamp_2019_day3_c.rs"
 
 [[bin]]
+name = "05_arc096_a"
+path = "src/05_arc096_a.rs"
+
+[[bin]]
 name = "06_sumitb2019_d"
 path = "src/06_sumitb2019_d.rs"
 
