@@ -38,9 +38,14 @@ pub mod graph {
         use std::hash::Hash;
         use std::ops::Add;
 
+        struct VisitedNodeInfo<Node, Cost> {
+            cost: Cost,
+            previous_node: Option<Node>,
+        }
+
         pub struct Dijkstra<'a, Node, Cost> {
             heap: BinaryHeap<DijkstraQuery<Node, Cost>>,
-            visited_nodes: HashMap<Node, Cost>,
+            visited_nodes: HashMap<Node, VisitedNodeInfo<Node, Cost>>,
             graph: &'a Graph<'a, Node, Cost>,
         }
 
@@ -61,19 +66,32 @@ pub mod graph {
                 self.heap.push(DijkstraQuery {
                     cost: initial_cost,
                     node: start_node,
+                    previous_node: None,
                 });
 
-                while let Some(DijkstraQuery { cost, node }) = self.heap.pop() {
+                while let Some(DijkstraQuery {
+                    cost,
+                    node,
+                    previous_node,
+                }) = self.heap.pop()
+                {
                     if self.visited_nodes.contains_key(&node) {
                         continue;
                     }
-                    self.visited_nodes.insert(node.clone(), cost.clone());
+                    self.visited_nodes.insert(
+                        node.clone(),
+                        VisitedNodeInfo {
+                            cost: cost.clone(),
+                            previous_node,
+                        },
+                    );
 
                     if let Some(edges) = self.graph.edges.get(&node) {
                         for (dest, move_cost) in edges.iter() {
                             self.heap.push(DijkstraQuery {
                                 cost: cost.clone() + move_cost.clone(),
                                 node: dest.clone(),
+                                previous_node: node.clone().into(),
                             });
                         }
                     }
@@ -81,13 +99,28 @@ pub mod graph {
             }
 
             pub fn cost_to(&self, node: Node) -> Option<Cost> {
-                self.visited_nodes.get(&node).cloned()
+                let info = self.visited_nodes.get(&node)?;
+                info.cost.clone().into()
+            }
+
+            pub fn path_to(&self, node: Node) -> Option<Vec<Node>> {
+                let mut info = self.visited_nodes.get(&node)?;
+
+                let mut v = vec![node.clone()];
+                while let Some(prev) = info.previous_node.clone() {
+                    v.push(prev.clone());
+                    info = &self.visited_nodes[&prev]
+                }
+
+                v.reverse();
+                v.into()
             }
         }
 
         pub struct DijkstraQuery<Node, Cost> {
             cost: Cost,
             node: Node,
+            previous_node: Option<Node>,
         }
 
         impl<Node, Cost> PartialEq for DijkstraQuery<Node, Cost>

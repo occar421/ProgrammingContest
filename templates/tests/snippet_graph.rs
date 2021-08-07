@@ -7,7 +7,7 @@ mod tests {
         use templates::snippet_graph::graph::Graph;
 
         #[test]
-        fn int() {
+        fn cost_int() {
             let nodes = HashSet::from_iter(vec![0, 1, 2]);
             let mut edges = HashMap::new();
             edges.entry(0).or_insert(vec![]).push((1, 2));
@@ -79,6 +79,18 @@ mod tests {
             assert_eq!(d.cost_to(&p_1a), None);
         }
 
-        // TODO path
+        #[test]
+        fn path_int() {
+            let nodes = HashSet::from_iter(vec![0, 1, 2]);
+            let mut edges = HashMap::new();
+            edges.entry(0).or_insert(vec![]).push((1, 2));
+
+            let graph = Graph::new(&nodes, &edges);
+            let d = graph.dijkstra(0, 0);
+            assert_eq!(d.path_to(0).unwrap()[0], 0);
+            assert_eq!(d.path_to(1).unwrap()[0], 0);
+            assert_eq!(d.path_to(1).unwrap()[1], 1);
+            assert_eq!(d.path_to(2), None);
+        }
     }
 }
