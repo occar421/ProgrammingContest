@@ -2,18 +2,17 @@ pub mod graph {
     //! Graph
     //! https://github.com/occar421/ProgrammingContest/tree/master/templates/src/snippet_graph.rs
 
-    use std::collections::{HashMap, HashSet};
+    use std::collections::HashMap;
     use std::hash::Hash;
     use std::ops::Add;
 
     pub struct Graph<'a, Node, Cost> {
-        nodes: &'a HashSet<Node>,
         edges: &'a HashMap<Node, Vec<(Node, Cost)>>,
     }
 
     impl<'a, Node, Cost> Graph<'a, Node, Cost> {
-        pub fn new(nodes: &'a HashSet<Node>, edges: &'a HashMap<Node, Vec<(Node, Cost)>>) -> Self {
-            Self { nodes, edges }
+        pub fn new(edges: &'a HashMap<Node, Vec<(Node, Cost)>>) -> Self {
+            Self { edges }
         }
 
         pub fn dijkstra(
