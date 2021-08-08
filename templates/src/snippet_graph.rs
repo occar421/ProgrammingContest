@@ -1,7 +1,10 @@
+use crate::standard_io::GenericInteger;
+
 pub mod graph {
     //! Graph
     //! https://github.com/occar421/ProgrammingContest/tree/master/templates/src/snippet_graph.rs
 
+    use super::GenericInteger;
     use std::collections::HashMap;
     use std::hash::Hash;
     use std::ops::Add;
@@ -15,14 +18,28 @@ pub mod graph {
             Self { edges }
         }
 
+        /// Dijkstra
+        /// O( (E+V) logV )
         pub fn dijkstra(&self, start_node: Node, initial_cost: Cost) -> dijkstra::Result<Node, Cost>
         where
             Node: Clone + Hash + Eq,
             Cost: Clone + Ord + Add<Cost, Output = Cost>,
         {
-            let mut memo = dijkstra::Result::new(self);
-            memo.run(start_node, initial_cost);
-            memo
+            let mut result = dijkstra::Result::new(self);
+            result.run(start_node, initial_cost);
+            result
+        }
+
+        /// 01-BFS
+        /// O(E+V)
+        pub fn x01bfs(&self, start_node: Node) -> x01bfs::Result<Node, Cost>
+        where
+            Node: Clone + Hash + Eq,
+            Cost: GenericInteger,
+        {
+            let mut result = x01bfs::Result::new(self);
+            result.run(start_node);
+            result
         }
     }
 
@@ -163,6 +180,95 @@ pub mod graph {
             fn cmp(&self, other: &Self) -> Ordering {
                 self.cost.cmp(&other.cost).reverse() // ascending
             }
+        }
+    }
+
+    mod x01bfs {
+        use super::super::GenericInteger;
+        use super::{Graph, SearchResult, VisitedNodeInfo};
+        use std::collections::{HashMap, VecDeque};
+        use std::hash::Hash;
+
+        pub struct Result<'a, Node, Cost> {
+            deque: VecDeque<Query<Node, Cost>>,
+            visited_nodes: HashMap<Node, VisitedNodeInfo<Node, Cost>>,
+            graph: &'a Graph<'a, Node, Cost>,
+        }
+
+        impl<'a, Node, Cost> Result<'a, Node, Cost>
+        where
+            Node: Clone + Hash + Eq,
+            Cost: GenericInteger,
+        {
+            pub fn new(graph: &'a Graph<'a, Node, Cost>) -> Self {
+                Self {
+                    deque: VecDeque::new(),
+                    visited_nodes: HashMap::new(),
+                    graph,
+                }
+            }
+
+            pub fn run(&mut self, start_node: Node) {
+                self.deque.push_front(Query {
+                    cost: Cost::zero(),
+                    node: start_node,
+                    previous_node: None,
+                });
+
+                while let Some(Query {
+                    cost,
+                    node,
+                    previous_node,
+                }) = self.deque.pop_front()
+                {
+                    if self.visited_nodes.contains_key(&node) {
+                        continue;
+                    }
+                    self.visited_nodes.insert(
+                        node.clone(),
+                        VisitedNodeInfo {
+                            cost,
+                            previous_node,
+                        },
+                    );
+
+                    if let Some(edges) = self.graph.edges.get(&node) {
+                        for (dest, move_cost) in edges.iter() {
+                            if *move_cost == Cost::zero() {
+                                self.deque.push_front(Query {
+                                    cost,
+                                    node: dest.clone(),
+                                    previous_node: node.clone().into(),
+                                });
+                            } else if *move_cost == Cost::one() {
+                                self.deque.push_back(Query {
+                                    cost: cost + Cost::one(),
+                                    node: dest.clone(),
+                                    previous_node: node.clone().into(),
+                                });
+                            } else {
+                                panic!("Non 0/1 cost found.");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        impl<'a, Node, Cost> SearchResult<Node, Cost> for Result<'a, Node, Cost>
+        where
+            Node: Clone + Hash + Eq,
+            Cost: Clone,
+        {
+            fn visited_nodes(&self) -> &HashMap<Node, VisitedNodeInfo<Node, Cost>> {
+                &self.visited_nodes
+            }
+        }
+
+        pub struct Query<Node, Cost> {
+            cost: Cost,
+            node: Node,
+            previous_node: Option<Node>,
         }
     }
 }
