@@ -1,0 +1,30 @@
+[package]
+name = "AtCoderBeginnerContest213"
+version = "0.1.0"
+authors = ["MasuqaT <occar@hotmail.co.jp>"]
+edition = "2018"
+publish = false
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+[[bin]]
+name = "abc213_a"
+path = "abc213_a.rs"
+
+[[bin]]
+name = "abc213_b"
+path = "abc213_b.rs"
+
+[[bin]]
+name = "abc213_c"
+path = "abc213_c.rs"
+
+[[bin]]
+name = "abc213_d"
+path = "abc213_d.rs"
+
+[[bin]]
+name = "abc213_e"
+path = "abc213_e.rs"
