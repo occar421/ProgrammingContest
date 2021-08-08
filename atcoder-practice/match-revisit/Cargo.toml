@@ -64,3 +64,7 @@ path = "src/abc213_e.rs"
 [[bin]]
 name = "abc213_e2"
 path = "src/abc213_e2.rs"
+
+[[bin]]
+name = "abc213_e3"
+path = "src/abc213_e3.rs"
