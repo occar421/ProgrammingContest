@@ -15,40 +15,62 @@ pub mod graph {
             Self { edges }
         }
 
-        pub fn dijkstra(
-            &self,
-            start_node: Node,
-            initial_cost: Cost,
-        ) -> dijkstra::Dijkstra<Node, Cost>
+        pub fn dijkstra(&self, start_node: Node, initial_cost: Cost) -> dijkstra::Result<Node, Cost>
         where
             Node: Clone + Hash + Eq,
             Cost: Clone + Ord + Add<Cost, Output = Cost>,
         {
-            let mut memo = dijkstra::Dijkstra::new(self);
+            let mut memo = dijkstra::Result::new(self);
             memo.run(start_node, initial_cost);
             memo
         }
     }
 
+    pub struct VisitedNodeInfo<Node, Cost> {
+        cost: Cost,
+        previous_node: Option<Node>,
+    }
+
+    pub trait SearchResult<Node, Cost>
+    where
+        Node: Clone + Hash + Eq,
+        Cost: Clone,
+    {
+        fn visited_nodes(&self) -> &HashMap<Node, VisitedNodeInfo<Node, Cost>>;
+
+        fn cost_to(&self, node: Node) -> Option<Cost> {
+            let info = self.visited_nodes().get(&node)?;
+            info.cost.clone().into()
+        }
+
+        fn path_to(&self, node: Node) -> Option<Vec<Node>> {
+            let mut info = self.visited_nodes().get(&node)?;
+
+            let mut v = vec![node.clone()];
+            while let Some(prev) = info.previous_node.clone() {
+                v.push(prev.clone());
+                info = &self.visited_nodes()[&prev]
+            }
+
+            v.reverse();
+            v.into()
+        }
+    }
+
     mod dijkstra {
-        use super::Graph;
+        use super::{Graph, SearchResult, VisitedNodeInfo};
         use std::cmp::Ordering;
         use std::collections::{BinaryHeap, HashMap};
         use std::hash::Hash;
         use std::ops::Add;
 
-        struct VisitedNodeInfo<Node, Cost> {
-            cost: Cost,
-            previous_node: Option<Node>,
-        }
-
-        pub struct Dijkstra<'a, Node, Cost> {
-            heap: BinaryHeap<DijkstraQuery<Node, Cost>>,
+        pub struct Result<'a, Node, Cost> {
+            heap: BinaryHeap<Query<Node, Cost>>,
             visited_nodes: HashMap<Node, VisitedNodeInfo<Node, Cost>>,
             graph: &'a Graph<'a, Node, Cost>,
         }
 
-        impl<'a, Node, Cost> Dijkstra<'a, Node, Cost>
+        impl<'a, Node, Cost> Result<'a, Node, Cost>
         where
             Node: Clone + Hash + Eq,
             Cost: Clone + Ord + Add<Cost, Output = Cost>,
@@ -62,13 +84,13 @@ pub mod graph {
             }
 
             pub fn run(&mut self, start_node: Node, initial_cost: Cost) {
-                self.heap.push(DijkstraQuery {
+                self.heap.push(Query {
                     cost: initial_cost,
                     node: start_node,
                     previous_node: None,
                 });
 
-                while let Some(DijkstraQuery {
+                while let Some(Query {
                     cost,
                     node,
                     previous_node,
@@ -87,7 +109,7 @@ pub mod graph {
 
                     if let Some(edges) = self.graph.edges.get(&node) {
                         for (dest, move_cost) in edges.iter() {
-                            self.heap.push(DijkstraQuery {
+                            self.heap.push(Query {
                                 cost: cost.clone() + move_cost.clone(),
                                 node: dest.clone(),
                                 previous_node: node.clone().into(),
@@ -96,33 +118,25 @@ pub mod graph {
                     }
                 }
             }
+        }
 
-            pub fn cost_to(&self, node: Node) -> Option<Cost> {
-                let info = self.visited_nodes.get(&node)?;
-                info.cost.clone().into()
-            }
-
-            pub fn path_to(&self, node: Node) -> Option<Vec<Node>> {
-                let mut info = self.visited_nodes.get(&node)?;
-
-                let mut v = vec![node.clone()];
-                while let Some(prev) = info.previous_node.clone() {
-                    v.push(prev.clone());
-                    info = &self.visited_nodes[&prev]
-                }
-
-                v.reverse();
-                v.into()
+        impl<'a, Node, Cost> SearchResult<Node, Cost> for Result<'a, Node, Cost>
+        where
+            Node: Clone + Hash + Eq,
+            Cost: Clone,
+        {
+            fn visited_nodes(&self) -> &HashMap<Node, VisitedNodeInfo<Node, Cost>> {
+                &self.visited_nodes
             }
         }
 
-        pub struct DijkstraQuery<Node, Cost> {
+        pub struct Query<Node, Cost> {
             cost: Cost,
             node: Node,
             previous_node: Option<Node>,
         }
 
-        impl<Node, Cost> PartialEq for DijkstraQuery<Node, Cost>
+        impl<Node, Cost> PartialEq for Query<Node, Cost>
         where
             Cost: PartialEq,
         {
@@ -131,20 +145,20 @@ pub mod graph {
             }
         }
 
-        impl<Node, Cost> PartialOrd for DijkstraQuery<Node, Cost>
+        impl<Node, Cost> PartialOrd for Query<Node, Cost>
         where
-            Cost: Ord,
+            Cost: Ord + PartialEq,
         {
             fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
                 self.cmp(&other).into()
             }
         }
 
-        impl<Node, Cost> Eq for DijkstraQuery<Node, Cost> where Cost: PartialEq {}
+        impl<Node, Cost> Eq for Query<Node, Cost> where Cost: PartialEq {}
 
-        impl<Node, Cost> Ord for DijkstraQuery<Node, Cost>
+        impl<Node, Cost> Ord for Query<Node, Cost>
         where
-            Cost: Ord,
+            Cost: Ord + PartialEq,
         {
             fn cmp(&self, other: &Self) -> Ordering {
                 self.cost.cmp(&other.cost).reverse() // ascending
