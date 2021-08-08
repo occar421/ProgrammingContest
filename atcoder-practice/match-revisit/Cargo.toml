@@ -56,3 +56,7 @@ path = "src/arc124_b.rs"
 [[bin]]
 name = "arc124_c"
 path = "src/arc124_c.rs"
+
+[[bin]]
+name = "abc213_e"
+path = "src/abc213_e.rs"
