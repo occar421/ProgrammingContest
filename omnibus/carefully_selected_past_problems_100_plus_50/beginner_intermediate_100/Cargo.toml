@@ -10,6 +10,10 @@ publish = false
 [dependencies]
 
 [[bin]]
+name = "01_ITP1_7_B"
+path = "src/01_ITP1_7_B.rs"
+
+[[bin]]
 name = "04_pakencamp_2019_day3_c"
 path = "src/04_pakencamp_2019_day3_c.rs"
 
