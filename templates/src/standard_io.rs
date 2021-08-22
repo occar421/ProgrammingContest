@@ -631,6 +631,14 @@ impl<T: PartialOrd> Ord for Total<T> {
     }
 }
 
+pub fn index_to_ascii_gen(base: char) -> impl Fn(usize) -> char {
+    move |index| (index as u8 + base as u8) as char
+}
+
+pub fn ascii_to_index_gen(base: char) -> impl Fn(char) -> usize {
+    move |ascii| ascii as usize - base as usize
+}
+
 // -- end of helpers
 
 fn main() {

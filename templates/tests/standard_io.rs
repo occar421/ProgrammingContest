@@ -133,4 +133,24 @@ mod tests {
 
         assert_eq!(partial_max!(3, none, 2, empty.clone(), 7, none, 5), Some(7));
     }
+
+    #[test_case('A', 0 => 'A')]
+    #[test_case('A', 1 => 'B')]
+    #[test_case('A', 2 => 'C')]
+    #[test_case('A', 25 => 'Z')]
+    #[test_case('a', 24 => 'y')]
+    fn index_to_ascii(base: char, index: usize) -> char {
+        let gen = templates::standard_io::index_to_ascii_gen(base);
+        gen(index)
+    }
+
+    #[test_case('A', 'A' => 0)]
+    #[test_case('A', 'B' => 1)]
+    #[test_case('A', 'C' => 2)]
+    #[test_case('A', 'Z' => 25)]
+    #[test_case('a', 'y' => 24)]
+    fn ascii_to_index(base: char, ascii: char) -> usize {
+        let gen = templates::standard_io::ascii_to_index_gen(base);
+        gen(ascii)
+    }
 }
