@@ -351,6 +351,39 @@ pub mod bit {
         }
     }
 
+    pub struct BitBasedSetIntoIter {
+        set: BitBasedSet,
+        current: usize,
+    }
+
+    impl Iterator for BitBasedSetIntoIter {
+        type Item = usize;
+
+        fn next(&mut self) -> Option<Self::Item> {
+            let mut current = self.current;
+            while self.set.size >= current {
+                if self.set.includes(current) {
+                    self.current = current + 1;
+                    return Some(current);
+                }
+                current += 1;
+            }
+            return None;
+        }
+    }
+
+    impl IntoIterator for BitBasedSet {
+        type Item = usize;
+        type IntoIter = BitBasedSetIntoIter;
+
+        fn into_iter(self) -> Self::IntoIter {
+            BitBasedSetIntoIter {
+                set: self,
+                current: 0,
+            }
+        }
+    }
+
     pub struct BitBasedSetGenerator {
         size: usize,
     }
@@ -373,6 +406,11 @@ pub mod bit {
         #[inline]
         pub fn combination(&self) -> usize {
             0b1 << self.size as u32
+        }
+
+        #[inline]
+        pub fn from(&self, v: usize) -> BitBasedSet {
+            BitBasedSet::new(self.size, v)
         }
 
         pub fn by_indices_iter<I>(&self, iter: I) -> BitBasedSet
