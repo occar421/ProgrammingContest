@@ -179,7 +179,7 @@ pub trait PartialMin {
 
 impl<T, PT> PartialMin for Option<PT>
 where
-    T: Ord + Copy,
+    T: Ord,
     PT: PartialMin<Result = T>,
 {
     type Result = T;
@@ -192,7 +192,7 @@ where
 
 fn iter_partial_min<'a, T, PT, I>(iter: I) -> Option<T>
 where
-    T: Ord + Copy,
+    T: Ord,
     PT: 'a + PartialMin<Result = T>,
     I: 'a + Iterator<Item = &'a PT>,
 {
@@ -201,7 +201,7 @@ where
 
 impl<T, PT> PartialMin for [PT]
 where
-    T: Ord + Copy,
+    T: Ord,
     PT: PartialMin<Result = T>,
 {
     type Result = T;
@@ -214,7 +214,7 @@ where
 
 impl<T, PT> PartialMin for Vec<PT>
 where
-    T: Ord + Copy,
+    T: Ord,
     PT: PartialMin<Result = T>,
 {
     type Result = T;
@@ -227,7 +227,7 @@ where
 
 impl<T, PT> PartialMin for HashSet<PT>
 where
-    T: Ord + Copy,
+    T: Ord,
     PT: PartialMin<Result = T>,
 {
     type Result = T;
@@ -274,7 +274,7 @@ pub trait PartialMax {
 
 impl<T, PT> PartialMax for Option<PT>
 where
-    T: Ord + Copy,
+    T: Ord,
     PT: PartialMax<Result = T>,
 {
     type Result = T;
@@ -287,7 +287,7 @@ where
 
 fn iter_partial_max<'a, T, PT, I>(iter: I) -> Option<T>
 where
-    T: Ord + Copy,
+    T: Ord,
     PT: 'a + PartialMax<Result = T>,
     I: 'a + Iterator<Item = &'a PT>,
 {
@@ -296,7 +296,7 @@ where
 
 impl<T, PT> PartialMax for [PT]
 where
-    T: Ord + Copy,
+    T: Ord,
     PT: PartialMax<Result = T>,
 {
     type Result = T;
@@ -309,7 +309,7 @@ where
 
 impl<T, PT> PartialMax for Vec<PT>
 where
-    T: Ord + Copy,
+    T: Ord,
     PT: PartialMax<Result = T>,
 {
     type Result = T;
@@ -322,7 +322,7 @@ where
 
 impl<T, PT> PartialMax for HashSet<PT>
 where
-    T: Ord + Copy,
+    T: Ord,
     PT: PartialMax<Result = T>,
 {
     type Result = T;
