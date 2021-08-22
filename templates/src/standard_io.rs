@@ -363,6 +363,8 @@ pub trait GenericInteger:
 {
     fn zero() -> Self;
     fn one() -> Self;
+    fn is_odd(&self) -> bool;
+    fn is_even(&self) -> bool;
 }
 
 #[doc(hidden)]
@@ -375,6 +377,12 @@ macro_rules! implement_generic_integer {
 
             #[inline]
             fn one() -> Self { 1 }
+
+            #[inline]
+            fn is_odd(&self) -> bool { self % 2 == 1 }
+
+            #[inline]
+            fn is_even(&self) -> bool { self % 2 == 0 }
         }
 
         impl PartialMin for $t {

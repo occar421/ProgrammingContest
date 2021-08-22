@@ -502,12 +502,24 @@ pub mod modular {
     where
         M: ModuloExt,
     {
+        #[inline]
         fn zero() -> Self {
             Self::new(0)
         }
 
+        #[inline]
         fn one() -> Self {
             Self::new(1)
+        }
+
+        #[inline]
+        fn is_odd(&self) -> bool {
+            self.value % 2 == 1
+        }
+
+        #[inline]
+        fn is_even(&self) -> bool {
+            self.value % 2 == 0
         }
     }
 
