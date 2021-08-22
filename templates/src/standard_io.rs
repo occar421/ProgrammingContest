@@ -372,6 +372,19 @@ where
     iter.map(|x| x.sum()).sum()
 }
 
+impl<T, ST> AutoSum for Option<ST>
+where
+    T: Sum,
+    ST: AutoSum<Result = T>,
+{
+    type Result = T;
+
+    #[inline]
+    fn sum(&self) -> Self::Result {
+        iter_auto_sum(self.iter())
+    }
+}
+
 impl<T, ST> AutoSum for [ST]
 where
     T: Sum,

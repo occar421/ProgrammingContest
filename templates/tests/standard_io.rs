@@ -142,6 +142,11 @@ mod tests {
         assert_eq!(sum!(2), 2);
         assert_eq!(sum!(2, 3), 5);
 
+        let empty: Vec<i32> = vec![];
+        let none: Option<i32> = None;
+
+        assert_eq!(sum!(empty.clone()), 0);
+        assert_eq!(sum!(none), 0);
         assert_eq!(sum!(vec![1]), 1);
         assert_eq!(sum!(vec![1, 3, 5]), 9);
         assert_eq!(sum!(vec![1, 3, 5], 7), 16);
