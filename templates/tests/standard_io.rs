@@ -153,6 +153,25 @@ mod tests {
         assert_eq!(sum!(vec![vec![1], vec![3]]), 4);
     }
 
+    #[test]
+    fn auto_product() {
+        use templates::product;
+        use templates::standard_io::AutoProduct;
+
+        assert_eq!(product!(2), 2);
+        assert_eq!(product!(2, 3), 6);
+
+        let empty: Vec<i32> = vec![];
+        let none: Option<i32> = None;
+
+        assert_eq!(product!(empty.clone()), 1);
+        assert_eq!(product!(none), 1);
+        assert_eq!(product!(vec![2]), 2);
+        assert_eq!(product!(vec![2, 3, 5]), 30);
+        assert_eq!(product!(vec![2, 3, 5], 7), 210);
+        assert_eq!(product!(vec![vec![2], vec![3]]), 6);
+    }
+
     #[test_case('A', 0 => 'A')]
     #[test_case('A', 1 => 'B')]
     #[test_case('A', 2 => 'C')]

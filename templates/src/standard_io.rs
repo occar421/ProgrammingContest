@@ -7,7 +7,7 @@ use std::fmt::{Debug, Display};
 use std::hash::Hash;
 #[allow(unused_imports)]
 use std::iter::FromIterator;
-use std::iter::Sum;
+use std::iter::{Product, Sum};
 use std::ops::*;
 use std::str::FromStr;
 
@@ -313,6 +313,32 @@ macro_rules! sum {
     ($x: expr, $($z: expr),+) => (AutoSum::sum(&$x) + sum!($($z),*));
 }
 
+pub trait AutoProduct {
+    type Result;
+    fn product(&self) -> Self::Result;
+}
+
+fn iter_auto_product<'a, T, ST, I>(iter: I) -> T
+where
+    T: Product,
+    ST: 'a + AutoProduct<Result = T>,
+    I: 'a + IntoIterator<Item = &'a ST>,
+{
+    iter.into_iter().map(|x| x.product()).product()
+}
+
+impl_collection_util!(
+    AutoProduct::product -> Id where Product { iter_auto_product },
+    [Option, Slice, Vec, HashSet]
+);
+
+#[allow(unused_macros)]
+#[macro_export]
+macro_rules! product {
+    ($x: expr) => (AutoProduct::product(&$x));
+    ($x: expr, $($z: expr),+) => (AutoProduct::product(&$x) * product!($($z),*));
+}
+
 pub trait GenericInteger:
     Copy
     + Clone
@@ -388,6 +414,15 @@ macro_rules! implement_generic_integer {
 
             #[inline]
             fn sum(&self) -> Self {
+                self.clone()
+            }
+        }
+
+        impl AutoProduct for $t {
+            type Result = $t;
+
+            #[inline]
+            fn product(&self) -> Self {
                 self.clone()
             }
         }
