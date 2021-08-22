@@ -51,4 +51,30 @@ mod tests {
         assert_eq!(cum_sum.sum_in(1..2).value(), 4 % 7);
         assert_eq!(cum_sum.sum_in(..).value(), 12 % 7);
     }
+
+    #[test]
+    fn min_mod7() {
+        use templates::partial_min;
+        use templates::standard_io::PartialMin;
+        modulo_test!(7 as Mod7);
+
+        let data = vec![
+            vec![Mod7::new(2), Mod7::new(4)],
+            vec![Mod7::new(6), Mod7::new(8)],
+        ];
+        assert_eq!(partial_min!(data).unwrap().value(), 8 % 7);
+    }
+
+    #[test]
+    fn sum_mod7() {
+        use templates::standard_io::AutoSum;
+        use templates::sum;
+        modulo_test!(7 as Mod7);
+
+        let data = vec![
+            vec![Mod7::new(2), Mod7::new(4)],
+            vec![Mod7::new(6), Mod7::new(8)],
+        ];
+        assert_eq!(sum!(data).value(), 20 % 7);
+    }
 }

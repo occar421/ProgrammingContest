@@ -1,10 +1,12 @@
-use crate::standard_io::{GenericInteger, ThenSome};
+use crate::standard_io::{
+    AutoProduct, AutoSum, GenericInteger, Max, Min, PartialMax, PartialMin, ThenSome,
+};
 
 pub mod modular {
     //! Modular
     //! https://github.com/occar421/ProgrammingContest/tree/master/templates/src/snippet_modular.rs
 
-    use super::{GenericInteger, ThenSome};
+    use super::{AutoProduct, AutoSum, GenericInteger, Max, Min, PartialMax, PartialMin, ThenSome};
     use std::cmp::Ordering;
     use std::fmt::{Debug, Display, Formatter};
     use std::hash::{Hash, Hasher};
@@ -523,6 +525,74 @@ pub mod modular {
         }
     }
 
+    impl<M> PartialMin for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        type Result = PrimeModularUsize<M>;
+
+        #[inline]
+        fn partial_min(&self) -> Option<Self::Result> {
+            self.clone().into()
+        }
+    }
+
+    impl<M> Min for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        #[inline]
+        fn min(&self) -> Self::Result {
+            self.clone()
+        }
+    }
+
+    impl<M> PartialMax for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        type Result = PrimeModularUsize<M>;
+
+        #[inline]
+        fn partial_max(&self) -> Option<Self::Result> {
+            self.clone().into()
+        }
+    }
+
+    impl<M> Max for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        #[inline]
+        fn max(&self) -> Self::Result {
+            self.clone()
+        }
+    }
+
+    impl<M> AutoSum for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        type Result = PrimeModularUsize<M>;
+
+        #[inline]
+        fn sum(&self) -> Self {
+            self.clone()
+        }
+    }
+
+    impl<M> AutoProduct for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        type Result = PrimeModularUsize<M>;
+
+        #[inline]
+        fn product(&self) -> Self {
+            self.clone()
+        }
+    }
+
     pub struct PrimeModularCombinationGenerator<M>
     where
         M: ModuloExt,
@@ -542,7 +612,6 @@ pub mod modular {
             let mut f_of_i = PrimeModularUsize::new(1);
             factorials.push(f_of_i);
             for i in 1..=n_max {
-                let i = PrimeModularUsize::new(i);
                 f_of_i *= i;
                 factorials.push(f_of_i);
             }
@@ -556,7 +625,6 @@ pub mod modular {
             reversed_rof.push(f_of_i_reciprocal);
             // calc from (n-1)!^-1 to 0!^-1
             for i in (1..=n_max).rev() {
-                let i = PrimeModularUsize::new(i);
                 f_of_i_reciprocal *= i;
                 reversed_rof.push(f_of_i_reciprocal);
             }
