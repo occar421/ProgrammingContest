@@ -168,6 +168,8 @@ macro_rules! assert_judge_with_error {
     }};
 }
 
+type Slice<T> = [T];
+
 pub trait Min: PartialMin {
     fn min(&self) -> Self::Result;
 }
@@ -175,6 +177,15 @@ pub trait Min: PartialMin {
 pub trait PartialMin {
     type Result;
     fn partial_min(&self) -> Option<Self::Result>;
+}
+
+fn iter_partial_min<'a, T, PT, I>(iter: I) -> Option<T>
+where
+    T: Ord,
+    PT: 'a + PartialMin<Result = T>,
+    I: 'a + IntoIterator<Item = &'a PT>,
+{
+    iter.into_iter().filter_map(|x| x.partial_min()).min()
 }
 
 impl<T, PT> PartialMin for Option<PT>
@@ -186,20 +197,11 @@ where
 
     #[inline]
     fn partial_min(&self) -> Option<Self::Result> {
-        self.as_ref().map(|x| x.partial_min()).flatten()
+        iter_partial_min(self)
     }
 }
 
-fn iter_partial_min<'a, T, PT, I>(iter: I) -> Option<T>
-where
-    T: Ord,
-    PT: 'a + PartialMin<Result = T>,
-    I: 'a + Iterator<Item = &'a PT>,
-{
-    iter.filter_map(|x| x.partial_min()).min()
-}
-
-impl<T, PT> PartialMin for [PT]
+impl<T, PT> PartialMin for Slice<PT>
 where
     T: Ord,
     PT: PartialMin<Result = T>,
@@ -208,7 +210,7 @@ where
 
     #[inline]
     fn partial_min(&self) -> Option<Self::Result> {
-        iter_partial_min(self.iter())
+        iter_partial_min(self)
     }
 }
 
@@ -221,7 +223,7 @@ where
 
     #[inline]
     fn partial_min(&self) -> Option<Self::Result> {
-        iter_partial_min(self.iter())
+        iter_partial_min(self)
     }
 }
 
@@ -234,7 +236,7 @@ where
 
     #[inline]
     fn partial_min(&self) -> Option<Self::Result> {
-        iter_partial_min(self.iter())
+        iter_partial_min(self)
     }
 }
 
@@ -272,6 +274,15 @@ pub trait PartialMax {
     fn partial_max(&self) -> Option<Self::Result>;
 }
 
+fn iter_partial_max<'a, T, PT, I>(iter: I) -> Option<T>
+where
+    T: Ord,
+    PT: 'a + PartialMax<Result = T>,
+    I: 'a + IntoIterator<Item = &'a PT>,
+{
+    iter.into_iter().filter_map(|x| x.partial_max()).max()
+}
+
 impl<T, PT> PartialMax for Option<PT>
 where
     T: Ord,
@@ -281,20 +292,11 @@ where
 
     #[inline]
     fn partial_max(&self) -> Option<Self::Result> {
-        self.as_ref().map(|x| x.partial_max()).flatten()
+        iter_partial_max(self)
     }
 }
 
-fn iter_partial_max<'a, T, PT, I>(iter: I) -> Option<T>
-where
-    T: Ord,
-    PT: 'a + PartialMax<Result = T>,
-    I: 'a + Iterator<Item = &'a PT>,
-{
-    iter.filter_map(|x| x.partial_max()).max()
-}
-
-impl<T, PT> PartialMax for [PT]
+impl<T, PT> PartialMax for Slice<PT>
 where
     T: Ord,
     PT: PartialMax<Result = T>,
@@ -303,7 +305,7 @@ where
 
     #[inline]
     fn partial_max(&self) -> Option<Self::Result> {
-        iter_partial_max(self.iter())
+        iter_partial_max(self)
     }
 }
 
@@ -316,7 +318,7 @@ where
 
     #[inline]
     fn partial_max(&self) -> Option<Self::Result> {
-        iter_partial_max(self.iter())
+        iter_partial_max(self)
     }
 }
 
@@ -329,7 +331,7 @@ where
 
     #[inline]
     fn partial_max(&self) -> Option<Self::Result> {
-        iter_partial_max(self.iter())
+        iter_partial_max(self)
     }
 }
 
@@ -367,9 +369,9 @@ fn iter_auto_sum<'a, T, ST, I>(iter: I) -> T
 where
     T: Sum,
     ST: 'a + AutoSum<Result = T>,
-    I: 'a + Iterator<Item = &'a ST>,
+    I: 'a + IntoIterator<Item = &'a ST>,
 {
-    iter.map(|x| x.sum()).sum()
+    iter.into_iter().map(|x| x.sum()).sum()
 }
 
 impl<T, ST> AutoSum for Option<ST>
@@ -381,11 +383,11 @@ where
 
     #[inline]
     fn sum(&self) -> Self::Result {
-        iter_auto_sum(self.iter())
+        iter_auto_sum(self)
     }
 }
 
-impl<T, ST> AutoSum for [ST]
+impl<T, ST> AutoSum for Slice<ST>
 where
     T: Sum,
     ST: AutoSum<Result = T>,
@@ -394,7 +396,7 @@ where
 
     #[inline]
     fn sum(&self) -> Self::Result {
-        iter_auto_sum(self.iter())
+        iter_auto_sum(self)
     }
 }
 
@@ -407,7 +409,7 @@ where
 
     #[inline]
     fn sum(&self) -> Self::Result {
-        iter_auto_sum(self.iter())
+        iter_auto_sum(self)
     }
 }
 
@@ -420,7 +422,7 @@ where
 
     #[inline]
     fn sum(&self) -> Self::Result {
-        iter_auto_sum(self.iter())
+        iter_auto_sum(self)
     }
 }
 
