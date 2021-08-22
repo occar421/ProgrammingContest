@@ -451,7 +451,20 @@ pub fn lcm<T>(a: T, b: T) -> T
 where
     T: GenericInteger,
 {
-    a / gcd(a.clone(), b) * b.clone()
+    gcd_lcm(a, b).1
+}
+
+#[inline]
+pub fn gcd_lcm<T>(a: T, b: T) -> (T, T)
+where
+    T: GenericInteger,
+{
+    if a == T::zero() && b == T::zero() {
+        return (T::zero(), T::zero());
+    }
+    let gcd = gcd(a, b);
+    let lcm = a * (b / gcd);
+    return (gcd, lcm);
 }
 
 /// O(√N)
