@@ -7,6 +7,7 @@ use std::fmt::{Debug, Display};
 use std::hash::Hash;
 #[allow(unused_imports)]
 use std::iter::FromIterator;
+use std::iter::Sum;
 use std::ops::*;
 use std::str::FromStr;
 
@@ -357,6 +358,66 @@ macro_rules! partial_max {
     ($x: expr, $($z: expr),+) => (max_with_partial(PartialMax::partial_max(&$x), partial_max!($($z),*)));
 }
 
+pub trait AutoSum {
+    type Result;
+    fn sum(&self) -> Self::Result;
+}
+
+fn iter_auto_sum<'a, T, ST, I>(iter: I) -> T
+where
+    T: Sum,
+    ST: 'a + AutoSum<Result = T>,
+    I: 'a + Iterator<Item = &'a ST>,
+{
+    iter.map(|x| x.sum()).sum()
+}
+
+impl<T, ST> AutoSum for [ST]
+where
+    T: Sum,
+    ST: AutoSum<Result = T>,
+{
+    type Result = T;
+
+    #[inline]
+    fn sum(&self) -> Self::Result {
+        iter_auto_sum(self.iter())
+    }
+}
+
+impl<T, ST> AutoSum for Vec<ST>
+where
+    T: Sum,
+    ST: AutoSum<Result = T>,
+{
+    type Result = T;
+
+    #[inline]
+    fn sum(&self) -> Self::Result {
+        iter_auto_sum(self.iter())
+    }
+}
+
+impl<T, ST> AutoSum for HashSet<ST>
+where
+    T: Sum,
+    ST: AutoSum<Result = T>,
+{
+    type Result = T;
+
+    #[inline]
+    fn sum(&self) -> Self::Result {
+        iter_auto_sum(self.iter())
+    }
+}
+
+#[allow(unused_macros)]
+#[macro_export]
+macro_rules! sum {
+    ($x: expr) => (AutoSum::sum(&$x));
+    ($x: expr, $($z: expr),+) => (AutoSum::sum(&$x) + sum!($($z),*));
+}
+
 pub trait GenericInteger:
     Copy
     + Clone
@@ -423,6 +484,15 @@ macro_rules! implement_generic_integer {
         impl Max for $t {
             #[inline]
             fn max(&self) -> Self::Result {
+                self.clone()
+            }
+        }
+
+        impl AutoSum for $t {
+            type Result = $t;
+
+            #[inline]
+            fn sum(&self) -> Self {
                 self.clone()
             }
         }

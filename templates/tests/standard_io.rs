@@ -134,6 +134,20 @@ mod tests {
         assert_eq!(partial_max!(3, none, 2, empty.clone(), 7, none, 5), Some(7));
     }
 
+    #[test]
+    fn auto_sum() {
+        use templates::standard_io::AutoSum;
+        use templates::sum;
+
+        assert_eq!(sum!(2), 2);
+        assert_eq!(sum!(2, 3), 5);
+
+        assert_eq!(sum!(vec![1]), 1);
+        assert_eq!(sum!(vec![1, 3, 5]), 9);
+        assert_eq!(sum!(vec![1, 3, 5], 7), 16);
+        assert_eq!(sum!(vec![vec![1], vec![3]]), 4);
+    }
+
     #[test_case('A', 0 => 'A')]
     #[test_case('A', 1 => 'B')]
     #[test_case('A', 2 => 'C')]
