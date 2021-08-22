@@ -619,6 +619,24 @@ macro_rules! dbg {
     };
 }
 
+#[allow(unused_macros)]
+macro_rules! dbg_raw {
+    () => {
+        #[cfg(debug_assertions)]
+        eprintln!();
+    };
+    ($a:expr) => {
+        #[cfg(debug_assertions)]
+        eprintln!("{:?}", $a);
+    };
+    ($a:expr, $($b:expr),+ $(,)*) => {
+        #[cfg(debug_assertions)]
+        eprint!("{:?}", $a);
+
+        dbg_raw!($($b),+);
+    };
+}
+
 // From https://qiita.com/hatoo@github/items/fa14ad36a1b568d14f3e
 #[derive(PartialEq, PartialOrd)]
 struct Total<T>(T);
