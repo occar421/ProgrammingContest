@@ -63,6 +63,7 @@ mod tests {
             vec![Mod7::new(6), Mod7::new(8)],
         ];
         assert_eq!(partial_min!(data).unwrap().value(), 8 % 7);
+        assert_eq!(partial_min!(data.last()).unwrap().value(), 8 % 7);
     }
 
     #[test]
@@ -76,5 +77,6 @@ mod tests {
             vec![Mod7::new(6), Mod7::new(8)],
         ];
         assert_eq!(sum!(data).value(), 20 % 7);
+        assert_eq!(sum!(data.last()).value(), 14 % 7);
     }
 }

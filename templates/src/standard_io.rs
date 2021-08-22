@@ -184,6 +184,19 @@ macro_rules! impl_collection_util {
             }
         }
 
+        impl<T, PT> $tr for &$t<PT>
+        where
+            T: $req,
+            PT: $tr<Result = T>,
+        {
+            type Result = T;
+
+            #[inline]
+            fn $met(&self) -> $ret<Self::Result> {
+                $proc(*self)
+            }
+        }
+
         impl_collection_util!($tr::$met -> $ret where $req {$proc}, [ $( $r ),* ]);
     };
 }
