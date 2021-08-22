@@ -168,7 +168,28 @@ macro_rules! assert_judge_with_error {
     }};
 }
 
+macro_rules! impl_collection_util {
+    ($tr: tt :: $met: ident -> $ret: tt where $req: tt { $proc: ident }, []) => {};
+    ($tr: tt :: $met: ident -> $ret: tt where $req: tt { $proc: ident }, [ $t: tt $(, $r:tt)* ]) => {
+        impl<T, PT> $tr for $t<PT>
+        where
+            T: $req,
+            PT: $tr<Result = T>,
+        {
+            type Result = T;
+
+            #[inline]
+            fn $met(&self) -> $ret<Self::Result> {
+                $proc(self)
+            }
+        }
+
+        impl_collection_util!($tr::$met -> $ret where $req {$proc}, [ $( $r ),* ]);
+    };
+}
+
 type Slice<T> = [T];
+type Id<T> = T;
 
 pub trait Min: PartialMin {
     fn min(&self) -> Self::Result;
@@ -188,57 +209,10 @@ where
     iter.into_iter().filter_map(|x| x.partial_min()).min()
 }
 
-impl<T, PT> PartialMin for Option<PT>
-where
-    T: Ord,
-    PT: PartialMin<Result = T>,
-{
-    type Result = T;
-
-    #[inline]
-    fn partial_min(&self) -> Option<Self::Result> {
-        iter_partial_min(self)
-    }
-}
-
-impl<T, PT> PartialMin for Slice<PT>
-where
-    T: Ord,
-    PT: PartialMin<Result = T>,
-{
-    type Result = T;
-
-    #[inline]
-    fn partial_min(&self) -> Option<Self::Result> {
-        iter_partial_min(self)
-    }
-}
-
-impl<T, PT> PartialMin for Vec<PT>
-where
-    T: Ord,
-    PT: PartialMin<Result = T>,
-{
-    type Result = T;
-
-    #[inline]
-    fn partial_min(&self) -> Option<Self::Result> {
-        iter_partial_min(self)
-    }
-}
-
-impl<T, PT> PartialMin for HashSet<PT>
-where
-    T: Ord,
-    PT: PartialMin<Result = T>,
-{
-    type Result = T;
-
-    #[inline]
-    fn partial_min(&self) -> Option<Self::Result> {
-        iter_partial_min(self)
-    }
-}
+impl_collection_util!(
+    PartialMin::partial_min -> Option where Ord { iter_partial_min },
+    [Option, Slice, Vec, HashSet]
+);
 
 pub fn min_with_partial<T>(o1: Option<T>, o2: Option<T>) -> Option<T>
 where
@@ -283,57 +257,10 @@ where
     iter.into_iter().filter_map(|x| x.partial_max()).max()
 }
 
-impl<T, PT> PartialMax for Option<PT>
-where
-    T: Ord,
-    PT: PartialMax<Result = T>,
-{
-    type Result = T;
-
-    #[inline]
-    fn partial_max(&self) -> Option<Self::Result> {
-        iter_partial_max(self)
-    }
-}
-
-impl<T, PT> PartialMax for Slice<PT>
-where
-    T: Ord,
-    PT: PartialMax<Result = T>,
-{
-    type Result = T;
-
-    #[inline]
-    fn partial_max(&self) -> Option<Self::Result> {
-        iter_partial_max(self)
-    }
-}
-
-impl<T, PT> PartialMax for Vec<PT>
-where
-    T: Ord,
-    PT: PartialMax<Result = T>,
-{
-    type Result = T;
-
-    #[inline]
-    fn partial_max(&self) -> Option<Self::Result> {
-        iter_partial_max(self)
-    }
-}
-
-impl<T, PT> PartialMax for HashSet<PT>
-where
-    T: Ord,
-    PT: PartialMax<Result = T>,
-{
-    type Result = T;
-
-    #[inline]
-    fn partial_max(&self) -> Option<Self::Result> {
-        iter_partial_max(self)
-    }
-}
+impl_collection_util!(
+    PartialMax::partial_max -> Option where Ord { iter_partial_max },
+    [Option, Slice, Vec, HashSet]
+);
 
 pub fn max_with_partial<T>(o1: Option<T>, o2: Option<T>) -> Option<T>
 where
@@ -374,57 +301,10 @@ where
     iter.into_iter().map(|x| x.sum()).sum()
 }
 
-impl<T, ST> AutoSum for Option<ST>
-where
-    T: Sum,
-    ST: AutoSum<Result = T>,
-{
-    type Result = T;
-
-    #[inline]
-    fn sum(&self) -> Self::Result {
-        iter_auto_sum(self)
-    }
-}
-
-impl<T, ST> AutoSum for Slice<ST>
-where
-    T: Sum,
-    ST: AutoSum<Result = T>,
-{
-    type Result = T;
-
-    #[inline]
-    fn sum(&self) -> Self::Result {
-        iter_auto_sum(self)
-    }
-}
-
-impl<T, ST> AutoSum for Vec<ST>
-where
-    T: Sum,
-    ST: AutoSum<Result = T>,
-{
-    type Result = T;
-
-    #[inline]
-    fn sum(&self) -> Self::Result {
-        iter_auto_sum(self)
-    }
-}
-
-impl<T, ST> AutoSum for HashSet<ST>
-where
-    T: Sum,
-    ST: AutoSum<Result = T>,
-{
-    type Result = T;
-
-    #[inline]
-    fn sum(&self) -> Self::Result {
-        iter_auto_sum(self)
-    }
-}
+impl_collection_util!(
+    AutoSum::sum -> Id where Sum { iter_auto_sum },
+    [Option, Slice, Vec, HashSet]
+);
 
 #[allow(unused_macros)]
 #[macro_export]
