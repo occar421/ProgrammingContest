@@ -410,6 +410,46 @@ pub mod modular {
         }
     }
 
+    impl<M> PartialEq<usize> for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        fn eq(&self, other: &usize) -> bool {
+            *other < M::modulo() && self.value == *other
+        }
+    }
+
+    impl<M> PartialOrd<usize> for PrimeModularUsize<M>
+    where
+        M: ModuloExt,
+    {
+        fn partial_cmp(&self, other: &usize) -> Option<Ordering> {
+            if *other < M::modulo() {
+                self.value.partial_cmp(other)
+            } else {
+                Ordering::Less.into()
+            }
+        }
+    }
+
+    impl<M> PartialEq<PrimeModularUsize<M>> for usize
+    where
+        M: ModuloExt,
+    {
+        fn eq(&self, other: &PrimeModularUsize<M>) -> bool {
+            other.eq(self)
+        }
+    }
+
+    impl<M> PartialOrd<PrimeModularUsize<M>> for usize
+    where
+        M: ModuloExt,
+    {
+        fn partial_cmp(&self, other: &PrimeModularUsize<M>) -> Option<Ordering> {
+            other.partial_cmp(self).map(|x| x.reverse())
+        }
+    }
+
     impl<M> Sum for PrimeModularUsize<M>
     where
         M: ModuloExt,

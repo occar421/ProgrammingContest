@@ -165,13 +165,31 @@ mod tests {
 
         let z = Mod7::new(0);
         let vec = vec![z; 10];
+
         let s: Mod7 = vec.iter().sum();
         assert_eq!(z, s);
         let p: Mod7 = vec.iter().product();
         assert_eq!(z, p);
+
         assert_eq!((z + 1).value(), 1);
         assert_eq!((z - &1).value(), 6);
         assert_eq!((z + (-1)).value(), 6);
         assert_eq!((z - &(-1)).value(), 1);
+
+        assert_eq!(z > 0, false);
+        assert_eq!(z > 10, false);
+        assert_eq!(z > 14, false);
+        assert_eq!(z < 10, true);
+        assert_eq!(z < 14, true);
+        assert_eq!(z <= 0, true);
+        assert_eq!(z == 0, true);
+        assert_eq!(z == 10, false);
+        assert_eq!(z == 14, false);
+        assert_eq!(0 < z, false);
+        assert_eq!(10 < z, false);
+        assert_eq!(0 > z, false);
+        assert_eq!(10 > z, true);
+        assert_eq!(0 == z, true);
+        assert_eq!(10 == z, false);
     }
 }
