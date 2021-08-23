@@ -1,5 +1,5 @@
 [package]
-name = "atcoder-practice"
+name = "20210823"
 version = "0.1.0"
 authors = ["MasuqaT <occar@hotmail.co.jp>"]
 edition = "2018"
@@ -10,15 +10,9 @@ publish = false
 [dependencies]
 
 [[bin]]
-name = "_"
-path = "_.rs"
+name = "arc119_a"
+path = "arc119_a.rs"
 
-[workspace]
-members = [
-    "temporary",
-    "abs",
-    "match-revisit",
-    "virtual-match",
-    "virtual-match/AtCoderRegularContest124",
-    "virtual-match/20210823",
-]
+[[bin]]
+name = "arc125_a"
+path = "arc125_a.rs"
