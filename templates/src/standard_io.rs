@@ -103,6 +103,14 @@ macro_rules! read_value {
         (read_value!($next, usize) - 1) as usize
     };
 
+    ($next:expr, (Point2d<$t:tt>)) => {
+        {
+            let x = read_value!($next, $t);
+            let y = read_value!($next, $t);
+            Point2d { x, y }
+        }
+    };
+
     ($next:expr, $t:ty) => {
         ($next().parse::<$t>().expect("Parse error")) as $t
     };
@@ -691,6 +699,12 @@ pub fn ascii_to_index_gen(base: char) -> impl Fn(char) -> usize {
     move |ascii| ascii as usize - base as usize
 }
 
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug, Default)]
+struct Point2d<T> {
+    x: T,
+    y: T,
+}
+
 // -- end of helpers
 
 fn main() {
@@ -737,15 +751,21 @@ where
 
     {
         input! {
+            n: usize,
+            mut p: [(Point2d<usize>); n],
             // FIXME: arguments
             // n: usize,
             // mut a: [usize1; n],
         }
 
+        dbg!(p);
+        p.sort_by_key(|p| p.x);
+        dbg!(p);
+
         // FIXME: logic
 
         // FIXME: print
-        println!();
+        println!("{}", p[0].y);
     }
 
     Ok(())
@@ -757,7 +777,13 @@ mod tests {
 
     #[test]
     fn sample1() {
-        assert_judge!(process, "1", "2");
+        assert_judge!(
+            process,
+            "2
+2 3
+1 4",
+            "2"
+        );
 
         // let output = assert_judge_with_output!(process, "3");
         //
