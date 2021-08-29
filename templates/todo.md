@@ -8,3 +8,5 @@
 * コードコメントに使用例を記載
 * Integer（本物の整数型） と GeneralizedInteger（整数もどき） の分離 現 GenericInteger は Integer に
 * into_iter の活用
+* トポロジカルソート
+* 閉路検出
