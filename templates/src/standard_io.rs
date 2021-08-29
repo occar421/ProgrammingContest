@@ -751,21 +751,15 @@ where
 
     {
         input! {
-            n: usize,
-            mut p: [(Point2d<usize>); n],
             // FIXME: arguments
             // n: usize,
             // mut a: [usize1; n],
         }
 
-        dbg!(p);
-        p.sort_by_key(|p| p.x);
-        dbg!(p);
-
         // FIXME: logic
 
         // FIXME: print
-        println!("{}", p[0].y);
+        println!();
     }
 
     Ok(())
@@ -777,13 +771,7 @@ mod tests {
 
     #[test]
     fn sample1() {
-        assert_judge!(
-            process,
-            "2
-2 3
-1 4",
-            "2"
-        );
+        assert_judge!(process, "1", "2");
 
         // let output = assert_judge_with_output!(process, "3");
         //
