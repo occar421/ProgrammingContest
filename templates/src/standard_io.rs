@@ -700,9 +700,9 @@ pub fn ascii_to_index_gen(base: char) -> impl Fn(char) -> usize {
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug, Default)]
-struct Point2d<T> {
-    x: T,
-    y: T,
+pub struct Point2d<T> {
+    pub x: T,
+    pub y: T,
 }
 
 // -- end of helpers

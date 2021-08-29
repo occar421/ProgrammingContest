@@ -1,11 +1,14 @@
+use crate::standard_io::Point2d;
+
 pub mod adjacent {
     //! Adjacent
     //! https://github.com/occar421/ProgrammingContest/tree/master/templates/src/snippet_adjacent.rs
 
+    use super::Point2d;
     use std::ops::Range;
 
     pub struct Adjacent2d<I> {
-        current: (isize, isize),
+        current: Point2d<isize>,
         vertical_range: Range<isize>,
         horizontal_range: Range<isize>,
         iter: I,
@@ -45,21 +48,19 @@ pub mod adjacent {
 
     impl<'a, I> Adjacent2d<I>
     where
-        I: Iterator<Item = &'a (isize, isize)>,
+        I: Iterator<Item = &'a Point2d<isize>>,
     {
-        /// Arguments
-        ///
-        /// * `current`: (y, x)
-        /// * `vertical_range`: y range
-        /// * `horizontal_range`: x range
         pub fn new(
-            current: (usize, usize),
+            current: Point2d<usize>,
             vertical_range: impl adjacent_range::AdjacentRange,
             horizontal_range: impl adjacent_range::AdjacentRange,
             iter: I,
         ) -> Self {
             Self {
-                current: (current.0 as isize, current.1 as isize),
+                current: Point2d {
+                    x: current.x as isize,
+                    y: current.y as isize,
+                },
                 vertical_range: vertical_range.to_range(),
                 horizontal_range: horizontal_range.to_range(),
                 iter,
@@ -70,66 +71,69 @@ pub mod adjacent {
     // From https://poyopoyoyon.hatenablog.com/entry/2020/11/08/183212
     impl<'a, I> Iterator for Adjacent2d<I>
     where
-        I: Iterator<Item = &'a (isize, isize)>,
+        I: Iterator<Item = &'a Point2d<isize>>,
     {
-        type Item = (usize, usize);
+        type Item = Point2d<usize>;
 
-        /// Returns (y, x)
-        fn next(&mut self) -> Option<(usize, usize)> {
-            while let Some((dy, dx)) = self.iter.next() {
-                let ny = self.current.0 + dy;
-                let nx = self.current.1 + dx;
+        fn next(&mut self) -> Option<Self::Item> {
+            while let Some(Point2d { x: dx, y: dy }) = self.iter.next() {
+                let ny = self.current.y + dy;
+                let nx = self.current.x + dx;
                 if self.vertical_range.contains(&ny) && self.horizontal_range.contains(&nx) {
-                    return Some((ny as usize, nx as usize));
+                    return Some(Point2d {
+                        x: nx as usize,
+                        y: ny as usize,
+                    });
                 }
             }
             None
         }
     }
 
-    const A2D_4: &'static [(isize, isize)] = &[(-1, 0), (0, 1), (1, 0), (0, -1)];
+    const A2D_4: &'static [Point2d<isize>] = &[
+        Point2d { x: 0, y: -1 },
+        Point2d { x: 1, y: 0 },
+        Point2d { x: 0, y: 1 },
+        Point2d { x: -1, y: 0 },
+    ];
 
-    /// Arguments
-    ///
-    /// * `current`: (y, x)
-    /// * `vertical_range`: y range
-    /// * `horizontal_range`: x range
     pub fn adjacent2d_4neighbors(
-        current: (usize, usize),
+        current: Point2d<usize>,
         vertical_range: impl adjacent_range::AdjacentRange,
         horizontal_range: impl adjacent_range::AdjacentRange,
-    ) -> Adjacent2d<std::slice::Iter<'static, (isize, isize)>> {
+    ) -> Adjacent2d<std::slice::Iter<'static, Point2d<isize>>> {
         Adjacent2d {
-            current: (current.0 as isize, current.1 as isize),
+            current: Point2d {
+                x: current.x as isize,
+                y: current.y as isize,
+            },
             vertical_range: vertical_range.to_range(),
             horizontal_range: horizontal_range.to_range(),
             iter: A2D_4.iter(),
         }
     }
 
-    const A2D_8: &'static [(isize, isize)] = &[
-        (-1, 0),
-        (-1, 1),
-        (0, 1),
-        (1, 1),
-        (1, 0),
-        (1, -1),
-        (0, -1),
-        (-1, -1),
+    const A2D_8: &'static [Point2d<isize>] = &[
+        Point2d { x: 0, y: -1 },
+        Point2d { x: 1, y: -1 },
+        Point2d { x: 1, y: 0 },
+        Point2d { x: 1, y: 1 },
+        Point2d { x: 0, y: 1 },
+        Point2d { x: -1, y: 1 },
+        Point2d { x: -1, y: 0 },
+        Point2d { x: -1, y: -1 },
     ];
 
-    /// Arguments
-    ///
-    /// * `current`: (y, x)
-    /// * `vertical_range`: y range
-    /// * `horizontal_range`: x range
     pub fn adjacent2d_8neighbors(
-        current: (usize, usize),
+        current: Point2d<usize>,
         vertical_range: impl adjacent_range::AdjacentRange,
         horizontal_range: impl adjacent_range::AdjacentRange,
-    ) -> Adjacent2d<std::slice::Iter<'static, (isize, isize)>> {
+    ) -> Adjacent2d<std::slice::Iter<'static, Point2d<isize>>> {
         Adjacent2d {
-            current: (current.0 as isize, current.1 as isize),
+            current: Point2d {
+                x: current.x as isize,
+                y: current.y as isize,
+            },
             vertical_range: vertical_range.to_range(),
             horizontal_range: horizontal_range.to_range(),
             iter: A2D_8.iter(),
