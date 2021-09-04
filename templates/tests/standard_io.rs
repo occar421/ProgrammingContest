@@ -98,6 +98,8 @@ mod tests {
     }
 
     mod collection_util {
+        use std::collections::HashSet;
+
         #[test]
         fn min() {
             use templates::standard_io::{min_with_partial, Min, PartialMin};
@@ -121,6 +123,23 @@ mod tests {
             );
 
             assert_eq!(partial_min!(3, none, 2, empty.clone(), 5, none, 7), Some(2));
+
+            assert_eq!(partial_min!(vec![3, 2].iter()), Some(2));
+            assert_eq!(partial_min!(vec![vec![3, 2], vec![7, 5]].iter()), Some(2));
+            assert_eq!(
+                partial_min!(vec![vec![3, 2].iter(), vec![7, 5].iter()]),
+                Some(2)
+            );
+            assert_eq!(
+                partial_min!(vec![vec![3, 2].iter(), vec![7, 5].iter()].iter()),
+                Some(2)
+            );
+            assert_eq!(partial_min!(vec![3, 2].iter().filter(|&&x| x > 0)), Some(2));
+            assert_eq!(
+                partial_min!(vec![vec![3, 2].iter().filter(|&&x| x > 0)]),
+                Some(2)
+            );
+            assert_eq!(partial_min!(vec![HashSet::<usize>::new().iter()]), None);
         }
 
         #[test]

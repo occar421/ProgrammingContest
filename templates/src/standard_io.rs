@@ -230,6 +230,44 @@ where
     iter.into_iter().filter_map(|x| x.partial_min()).min()
 }
 
+impl<'a, T, PT> PartialMin for std::slice::Iter<'a, PT>
+where
+    T: Ord,
+    PT: 'a + PartialMin<Result = T>,
+{
+    type Result = T;
+
+    fn partial_min(&self) -> Option<Self::Result> {
+        self.clone().filter_map(|x| x.partial_min()).min()
+    }
+}
+
+impl<'a, T, PT> PartialMin for std::collections::hash_set::Iter<'a, PT>
+where
+    T: Ord,
+    PT: 'a + PartialMin<Result = T>,
+{
+    type Result = T;
+
+    fn partial_min(&self) -> Option<Self::Result> {
+        self.clone().filter_map(|x| x.partial_min()).min()
+    }
+}
+
+impl<'a, T, PT, I, P> PartialMin for std::iter::Filter<I, P>
+where
+    T: Ord,
+    PT: 'a + PartialMin<Result = T>,
+    I: 'a + Iterator<Item = &'a PT> + Clone,
+    P: Clone + FnMut(&I::Item) -> bool,
+{
+    type Result = T;
+
+    fn partial_min(&self) -> Option<Self::Result> {
+        self.clone().filter_map(|x| x.partial_min()).min()
+    }
+}
+
 impl_collection_util!(
     PartialMin::partial_min -> Option where Ord { iter_partial_min },
     [Option, Slice, Vec, HashSet]
