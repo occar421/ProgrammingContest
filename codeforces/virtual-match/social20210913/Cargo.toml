@@ -1,5 +1,5 @@
 [package]
-name = "codeforces-virtual-match"
+name = "social20210913"
 version = "0.1.0"
 authors = ["MasuqaT <occar@hotmail.co.jp>"]
 edition = "2018"
@@ -10,11 +10,17 @@ publish = false
 [dependencies]
 
 [[bin]]
-name = "_"
-path = "_.rs"
+name = "A"
+path = "A.rs"
 
-[workspace]
-members = [
-    "social20210906",
-    "social20210913",
-]
+[[bin]]
+name = "B1"
+path = "B1.rs"
+
+[[bin]]
+name = "B2"
+path = "B2.rs"
+
+[[bin]]
+name = "C"
+path = "C.rs"
