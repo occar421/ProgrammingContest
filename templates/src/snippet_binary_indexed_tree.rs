@@ -4,38 +4,8 @@ pub mod binary_indexed_tree {
     //! BinaryIndexedTree
     //! https://github.com/occar421/ProgrammingContest/tree/master/templates/src/snippet_binary_indexed_tree.rs
 
-    mod range {
-        use std::ops::{Bound, Range, RangeBounds, RangeFrom, RangeFull, RangeTo};
-
-        /// The range that inclusive bounds are prohibited.
-        pub trait BinaryIndexedTreeSumRange: RangeBounds<usize> {
-            fn to_range(&self, unbounded_end: usize) -> Range<usize> {
-                let start = match self.start_bound() {
-                    Bound::Unbounded => 0,
-                    Bound::Included(&n) => n,
-                    Bound::Excluded(&n) => n + 1,
-                };
-                let end = match self.end_bound() {
-                    Bound::Unbounded => unbounded_end,
-                    Bound::Included(&n) => n + 1,
-                    Bound::Excluded(&n) => n,
-                };
-
-                start..end
-            }
-        }
-        impl BinaryIndexedTreeSumRange for RangeFull {}
-        impl BinaryIndexedTreeSumRange for RangeFrom<usize> {}
-        impl BinaryIndexedTreeSumRange for RangeTo<usize> {}
-        impl BinaryIndexedTreeSumRange for Range<usize> {}
-        impl BinaryIndexedTreeSumRange for (Bound<usize>, Bound<usize>) {}
-        impl BinaryIndexedTreeSumRange for RangeFrom<&usize> {}
-        impl BinaryIndexedTreeSumRange for RangeTo<&usize> {}
-        impl BinaryIndexedTreeSumRange for Range<&usize> {}
-        impl<'a> BinaryIndexedTreeSumRange for (Bound<&'a usize>, Bound<&'a usize>) {}
-    }
-
     use super::GenericInteger;
+    use std::ops::{Bound, Range, RangeBounds};
 
     pub struct BinaryIndexedTree1d<GI: GenericInteger>(Vec<GI>);
 
@@ -67,10 +37,26 @@ pub mod binary_indexed_tree {
         }
 
         /// O(logN)
-        pub fn sum_in(&self, range: impl range::BinaryIndexedTreeSumRange) -> GI {
-            let range = range.to_range(self.0.len());
+        pub fn sum_in(&self, range: impl RangeBounds<usize>) -> GI {
+            let range = Self::normalize_range(range, self.0.len());
 
             self.sum_until(range.end) - self.sum_until(range.start)
+        }
+
+        #[inline]
+        fn normalize_range(range: impl RangeBounds<usize>, unbounded_end: usize) -> Range<usize> {
+            let start = match range.start_bound() {
+                Bound::Unbounded => 0,
+                Bound::Included(&n) => n,
+                Bound::Excluded(&n) => n + 1,
+            };
+            let end = match range.end_bound() {
+                Bound::Unbounded => unbounded_end,
+                Bound::Included(&n) => n + 1,
+                Bound::Excluded(&n) => n,
+            };
+
+            start..end
         }
 
         fn sum_until(&self, to: usize) -> GI {
