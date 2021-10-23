@@ -10,7 +10,7 @@ pub mod union_find {
     //! UnionFind
     //! https://github.com/occar421/ProgrammingContest/tree/master/templates/src/snippet_union_find.rs
 
-    pub use self::mapped::UnionFindMapped as UnionFind;
+    pub use self::wrapped::UnionFindMap;
 
     mod core {
         #[derive(Debug)]
@@ -20,13 +20,13 @@ pub mod union_find {
         }
 
         #[derive(Debug)]
-        pub struct UnionFindCore {
+        pub struct UnionFind {
             nodes: Vec<Node>,
         }
 
-        impl UnionFindCore {
+        impl UnionFind {
             pub fn new(n: usize) -> Self {
-                UnionFindCore {
+                UnionFind {
                     nodes: (0..n).map(|i| Node::Root { size: 1, index: i }).collect(),
                 }
             }
@@ -83,21 +83,21 @@ pub mod union_find {
         }
     }
 
-    mod mapped {
-        use super::core::UnionFindCore;
+    mod wrapped {
+        use super::core::UnionFind as UnionFindCore;
         use std::borrow::Borrow;
         use std::collections::{HashMap, HashSet};
         use std::fmt::{Debug, Formatter};
         use std::hash::Hash;
         use std::iter::FromIterator;
 
-        pub struct UnionFindMapped<'s, N: PartialEq + Hash + Debug> {
+        pub struct UnionFindMap<'s, N> {
             core: UnionFindCore,
             encode_map: HashMap<&'s N, usize>,
             decode_map: HashMap<usize, &'s N>,
         }
 
-        impl<'s, N: Hash + Eq + Debug> UnionFindMapped<'s, N> {
+        impl<'s, N: Hash + Eq + Debug> UnionFindMap<'s, N> {
             pub fn from_set(set: &'s HashSet<N>) -> Self {
                 let labelled_values = set.iter().enumerate();
 
@@ -151,7 +151,7 @@ pub mod union_find {
             }
         }
 
-        impl<N: Hash + Eq + Debug> Debug for UnionFindMapped<'_, N> {
+        impl<N: Hash + Eq + Debug> Debug for UnionFindMap<'_, N> {
             fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
                 writeln!(f, "UnionFindMapped {{")?;
                 writeln!(f, "  encode_map: {:?}", self.encode_map)?;

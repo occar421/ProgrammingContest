@@ -2,15 +2,15 @@
 mod tests {
     use std::collections::HashSet;
     use std::iter::FromIterator;
-    use templates::snippet_union_find::union_find::UnionFind;
+    use templates::snippet_union_find::union_find::UnionFindMap;
     use test_case::test_case;
-    
+
     #[test_case(vec ! [0])]
     #[test_case(vec ! [0, 1])]
     #[test_case(vec ! [0, 1, 2, 3, 4])]
     fn check_initial(values: Vec<usize>) {
         let set = HashSet::from_iter(values);
-        let uf = UnionFind::from_set(&set);
+        let uf = UnionFindMap::from_set(&set);
         let ac_set = HashSet::from_iter(uf.get_roots().copied());
 
         assert_eq!(set, ac_set);
@@ -19,7 +19,7 @@ mod tests {
     #[test]
     fn connect_isize() {
         let data = HashSet::from_iter(vec![-4, -2, 0, 1, 3]);
-        let mut uf = UnionFind::from_set(&data);
+        let mut uf = UnionFindMap::from_set(&data);
         uf.connect_between(-4, -2);
         uf.connect_between(0, &1);
         uf.connect_between(&-4, &3);
@@ -42,7 +42,7 @@ mod tests {
         // );
         let data = HashSet::from_iter(vec!["foo", "bar", "baz", "qux", "quux"]);
 
-        let mut uf = UnionFind::from_set(&data);
+        let mut uf = UnionFindMap::from_set(&data);
         uf.connect_between("foo", "bar");
         uf.connect_between("baz", &"qux");
         uf.connect_between(&"foo", &"quux");
@@ -59,11 +59,11 @@ mod tests {
     #[allow(dead_code)]
     fn compiles_with_debug() {
         let set = HashSet::from_iter(0..5);
-        let uf = UnionFind::from_set(&set);
+        let uf = UnionFindMap::from_set(&set);
         dbg!(uf);
 
         let set = HashSet::from_iter(vec!["a"]);
-        let uf = UnionFind::from_set(&set);
+        let uf = UnionFindMap::from_set(&set);
         dbg!(uf);
     }
 }
