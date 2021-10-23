@@ -11,6 +11,7 @@ pub mod union_find {
     //! https://github.com/occar421/ProgrammingContest/tree/master/templates/src/snippet_union_find.rs
 
     pub use self::wrapped::UnionFindMap;
+    pub use self::wrapped::UnionFindSet;
 
     mod core {
         #[derive(Debug)]
@@ -160,6 +161,7 @@ pub mod union_find {
             {
                 self.connect_between(a, b, merger)
             }
+
             #[inline]
             #[allow(dead_code)]
             pub fn find(&self, node: impl Borrow<N>) -> Option<(&N, &V)> {
@@ -167,7 +169,7 @@ pub mod union_find {
             }
         }
 
-        impl<'m, N: Hash + Eq + Clone, V: Clone> FromIterator<(N, V)> for UnionFindMap<N, V> {
+        impl<N: Hash + Eq + Clone, V: Clone> FromIterator<(N, V)> for UnionFindMap<N, V> {
             fn from_iter<T: IntoIterator<Item = (N, V)>>(iter: T) -> Self {
                 let mut length = 0;
                 let mut encode_map = HashMap::new();
@@ -191,12 +193,75 @@ pub mod union_find {
 
         impl<N: Hash + Eq + Debug, V: Debug> Debug for UnionFindMap<N, V> {
             fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-                writeln!(f, "UnionFindMap {{")?;
+                writeln!(f, "{{")?;
                 writeln!(f, "  encode_map: {:?}", self.encode_map)?;
                 writeln!(f, "  decode_map: {:?}", self.decode_map)?;
                 writeln!(f, "  data_map: {:?}", self.data_map)?;
                 writeln!(f, "  core: {:?}", self.core)?;
                 writeln!(f, "}}")
+            }
+        }
+
+        pub struct UnionFindSet<N> {
+            map: UnionFindMap<N, ()>,
+        }
+
+        impl<N: Hash + Eq + Clone> FromIterator<N> for UnionFindSet<N> {
+            #[inline]
+            fn from_iter<T: IntoIterator<Item = N>>(iter: T) -> Self {
+                Self {
+                    map: UnionFindMap::from_iter(iter.into_iter().map(|x| (x, ()))),
+                }
+            }
+        }
+
+        impl<N: Hash + Eq> UnionFindSet<N> {
+            /// O( log(N) )
+            #[inline]
+            pub fn get_root_of(&self, node: impl Borrow<N>) -> Option<&N> {
+                self.map.get_root_of(node).map(|(k, _)| k)
+            }
+
+            #[inline]
+            pub fn get_size_of(&self, node: impl Borrow<N>) -> Option<usize> {
+                self.map.get_size_of(node)
+            }
+
+            /// O( log(N) )
+            #[inline]
+            pub fn connect_between(
+                &mut self,
+                a: impl Borrow<N>,
+                b: impl Borrow<N>,
+            ) -> Option<bool> {
+                self.map.connect_between(a, b, Self::noop)
+            }
+
+            #[inline]
+            fn noop(_: (), _: ()) -> () {}
+
+            #[inline]
+            pub fn get_roots<'a>(&'a self) -> Box<dyn Iterator<Item = &N> + 'a> {
+                Box::new(self.map.get_roots().map(|(k, _)| k))
+            }
+
+            #[inline]
+            #[allow(dead_code)]
+            pub fn union<F>(&mut self, a: impl Borrow<N>, b: impl Borrow<N>) -> Option<bool> {
+                self.connect_between(a, b)
+            }
+
+            #[inline]
+            #[allow(dead_code)]
+            pub fn find(&self, node: impl Borrow<N>) -> Option<&N> {
+                self.get_root_of(node)
+            }
+        }
+
+        impl<N: Hash + Eq + Debug> Debug for UnionFindSet<N> {
+            #[inline]
+            fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+                writeln!(f, "{:?}", self.map)
             }
         }
     }
