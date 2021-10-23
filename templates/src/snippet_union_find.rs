@@ -95,7 +95,7 @@ pub mod union_find {
             core: UnionFindCore,
             encode_map: HashMap<&'m N, usize>,
             decode_map: HashMap<usize, &'m N>, // can be Vec?
-            data_map: HashMap<usize, V>,       // can be Vec?
+            data_map: HashMap<usize, V>,       // only keep root?
         }
 
         impl<'m, N: Hash + Eq + Debug, V: Clone> UnionFindMap<'m, N, V> {

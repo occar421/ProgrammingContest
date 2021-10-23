@@ -40,6 +40,40 @@ mod tests {
             assert_eq!(uf.get_root_of(7).unwrap().1, &385);
             assert_eq!(uf.get_root_of(11).unwrap().1, &385);
         }
+
+        #[test]
+        fn connect_usize_vec() {
+            let data = HashMap::from_iter(
+                vec![vec![11usize, 12], vec![21, 22], vec![31, 32]]
+                    .into_iter()
+                    .enumerate(),
+            );
+            let mut uf = UnionFindMap::from_map(&data);
+
+            assert_eq!(uf.get_root_of(0).unwrap().1, &vec![11, 12]);
+            assert_eq!(uf.get_root_of(1).unwrap().1, &vec![21, 22]);
+            assert_eq!(uf.get_root_of(2).unwrap().1, &vec![31, 32]);
+
+            uf.connect_between(0, 1, |a, b| {
+                let mut a = a.clone();
+                a.extend(b.into_iter());
+                a
+            });
+
+            assert_eq!(uf.get_root_of(0).unwrap().1, &vec![11, 12, 21, 22]);
+            assert_eq!(uf.get_root_of(1).unwrap().1, &vec![11, 12, 21, 22]);
+            assert_eq!(uf.get_root_of(2).unwrap().1, &vec![31, 32]);
+
+            uf.connect_between(2, 1, |a, b| {
+                let mut a = a.clone();
+                a.extend(b.into_iter());
+                a
+            });
+
+            assert_eq!(uf.get_root_of(0).unwrap().1, &vec![31, 32, 11, 12, 21, 22]);
+            assert_eq!(uf.get_root_of(1).unwrap().1, &vec![31, 32, 11, 12, 21, 22]);
+            assert_eq!(uf.get_root_of(2).unwrap().1, &vec![31, 32, 11, 12, 21, 22]);
+        }
     }
 
     mod set {
