@@ -86,33 +86,39 @@ pub mod union_find {
     mod wrapped {
         use super::core::UnionFind as UnionFindCore;
         use std::borrow::Borrow;
-        use std::collections::{HashMap, HashSet};
+        use std::collections::HashMap;
         use std::fmt::{Debug, Formatter};
         use std::hash::Hash;
         use std::iter::FromIterator;
 
-        pub struct UnionFindMap<'s, N> {
+        pub struct UnionFindMap<'m, N, V> {
             core: UnionFindCore,
-            encode_map: HashMap<&'s N, usize>,
-            decode_map: HashMap<usize, &'s N>,
+            encode_map: HashMap<&'m N, usize>,
+            decode_map: HashMap<usize, &'m N>, // can be Vec?
+            data_map: HashMap<usize, V>,       // can be Vec?
         }
 
-        impl<'s, N: Hash + Eq + Debug> UnionFindMap<'s, N> {
-            pub fn from_set(set: &'s HashSet<N>) -> Self {
-                let labelled_values = set.iter().enumerate();
+        impl<'m, N: Hash + Eq + Debug, V: Clone> UnionFindMap<'m, N, V> {
+            pub fn from_map(map: &'m HashMap<N, V>) -> Self {
+                let labelled_pairs = map.iter().enumerate();
 
                 Self {
-                    core: UnionFindCore::new(set.len()),
-                    encode_map: HashMap::from_iter(labelled_values.clone().map(|(i, x)| (x, i))),
-                    decode_map: HashMap::from_iter(labelled_values),
+                    core: UnionFindCore::new(map.len()),
+                    encode_map: HashMap::from_iter(
+                        labelled_pairs.clone().map(|(i, (k, _))| (k, i)),
+                    ),
+                    decode_map: HashMap::from_iter(
+                        labelled_pairs.clone().map(|(i, (k, _))| (i, k)),
+                    ),
+                    data_map: HashMap::from_iter(labelled_pairs.map(|(i, (_, v))| (i, v.clone()))),
                 }
             }
 
             /// O( log(N) )
-            pub fn get_root_of(&self, node: impl Borrow<N>) -> Option<&N> {
+            pub fn get_root_of(&self, node: impl Borrow<N>) -> Option<(&N, &V)> {
                 let core_node = *self.encode_map.get(node.borrow())?;
                 let core_root = self.core.get_root_of(core_node)?;
-                Some(self.decode_map[&core_root])
+                Some((self.decode_map[&core_root], &self.data_map[&core_root]))
             }
 
             pub fn get_size_of(&self, node: impl Borrow<N>) -> Option<usize> {
@@ -121,37 +127,59 @@ pub mod union_find {
             }
 
             /// O( log(N) )
-            pub fn connect_between(
+            pub fn connect_between<F>(
                 &mut self,
                 a: impl Borrow<N>,
                 b: impl Borrow<N>,
-            ) -> Option<bool> {
+                merger: F,
+            ) -> Option<bool>
+            where
+                F: Fn(&V, &V) -> V,
+            {
                 let core_a = *self.encode_map.get(a.borrow())?;
+                let root_a = self.core.get_root_of(core_a)?;
                 let core_b = *self.encode_map.get(b.borrow())?;
-                self.core.connect_between(core_a, core_b)
+                let root_b = self.core.get_root_of(core_b)?;
+
+                let connected = self.core.connect_between(core_a, core_b)?;
+                if connected {
+                    let common = self.core.get_root_of(core_a).unwrap();
+                    *self.data_map.get_mut(&common).unwrap() =
+                        merger(&self.data_map[&root_a], &self.data_map[&root_b]);
+                }
+
+                Some(connected)
             }
 
-            pub fn get_roots<'a>(&'a self) -> Box<dyn Iterator<Item = &N> + 'a> {
+            pub fn get_roots<'a>(&'a self) -> Box<dyn Iterator<Item = (&N, &V)> + 'a> {
                 Box::new(
-                    self.core
-                        .get_roots()
-                        .map(move |core_root| self.decode_map[core_root]),
+                    self.core.get_roots().map(move |core_root| {
+                        (self.decode_map[core_root], &self.data_map[core_root])
+                    }),
                 )
             }
 
             #[inline]
             #[allow(dead_code)]
-            pub fn union(&mut self, a: impl Borrow<N>, b: impl Borrow<N>) -> Option<bool> {
-                self.connect_between(a, b)
+            pub fn union<F>(
+                &mut self,
+                a: impl Borrow<N>,
+                b: impl Borrow<N>,
+                merger: F,
+            ) -> Option<bool>
+            where
+                F: Fn(&V, &V) -> V,
+            {
+                self.connect_between(a, b, merger)
             }
             #[inline]
             #[allow(dead_code)]
-            pub fn find(&self, node: impl Borrow<N>) -> Option<&N> {
+            pub fn find(&self, node: impl Borrow<N>) -> Option<(&N, &V)> {
                 self.get_root_of(node)
             }
         }
 
-        impl<N: Hash + Eq + Debug> Debug for UnionFindMap<'_, N> {
+        impl<N: Hash + Eq + Debug, V> Debug for UnionFindMap<'_, N, V> {
             fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
                 writeln!(f, "UnionFindMapped {{")?;
                 writeln!(f, "  encode_map: {:?}", self.encode_map)?;
