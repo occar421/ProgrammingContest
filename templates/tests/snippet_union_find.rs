@@ -72,6 +72,17 @@ mod tests {
             assert_eq!(uf.get_root_of(1).unwrap().1, &vec![31, 32, 11, 12, 21, 22]);
             assert_eq!(uf.get_root_of(2).unwrap().1, &vec![31, 32, 11, 12, 21, 22]);
         }
+
+        #[allow(dead_code)]
+        fn compiles_with_debug() {
+            let map = HashMap::from_iter((0..5).into_iter().map(|x| (x, x)));
+            let uf = UnionFindMap::from_map(&map);
+            dbg!(uf);
+
+            let set = HashMap::from_iter(vec![(0, "a")]);
+            let uf = UnionFindMap::from_map(&set);
+            dbg!(uf);
+        }
     }
 
     mod set {
