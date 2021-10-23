@@ -93,8 +93,8 @@ pub mod union_find {
 
         pub struct UnionFindMapped<'s, N: PartialEq + Hash + Debug> {
             core: UnionFindCore,
-            map: HashMap<&'s N, usize>,
-            r_map: HashMap<usize, &'s N>,
+            encode_map: HashMap<&'s N, usize>,
+            decode_map: HashMap<usize, &'s N>,
         }
 
         impl<'s, N: Hash + Eq + Debug> UnionFindMapped<'s, N> {
@@ -103,20 +103,20 @@ pub mod union_find {
 
                 Self {
                     core: UnionFindCore::new(set.len()),
-                    map: HashMap::from_iter(labelled_values.clone().map(|(i, x)| (x, i))),
-                    r_map: HashMap::from_iter(labelled_values),
+                    encode_map: HashMap::from_iter(labelled_values.clone().map(|(i, x)| (x, i))),
+                    decode_map: HashMap::from_iter(labelled_values),
                 }
             }
 
             /// O( log(N) )
             pub fn get_root_of(&self, node: impl Borrow<N>) -> Option<&N> {
-                let core_node = *self.map.get(node.borrow())?;
+                let core_node = *self.encode_map.get(node.borrow())?;
                 let core_root = self.core.get_root_of(core_node)?;
-                Some(self.r_map[&core_root])
+                Some(self.decode_map[&core_root])
             }
 
             pub fn get_size_of(&self, node: impl Borrow<N>) -> Option<usize> {
-                let core_node = *self.map.get(node.borrow())?;
+                let core_node = *self.encode_map.get(node.borrow())?;
                 self.core.get_size_of(core_node)
             }
 
@@ -126,8 +126,8 @@ pub mod union_find {
                 a: impl Borrow<N>,
                 b: impl Borrow<N>,
             ) -> Option<bool> {
-                let core_a = *self.map.get(a.borrow())?;
-                let core_b = *self.map.get(b.borrow())?;
+                let core_a = *self.encode_map.get(a.borrow())?;
+                let core_b = *self.encode_map.get(b.borrow())?;
                 self.core.connect_between(core_a, core_b)
             }
 
@@ -135,18 +135,18 @@ pub mod union_find {
                 Box::new(
                     self.core
                         .get_roots()
-                        .map(move |core_root| self.r_map[core_root]),
+                        .map(move |core_root| self.decode_map[core_root]),
                 )
             }
 
             #[inline]
             #[allow(dead_code)]
-            fn union(&mut self, a: impl Borrow<N>, b: impl Borrow<N>) -> Option<bool> {
+            pub fn union(&mut self, a: impl Borrow<N>, b: impl Borrow<N>) -> Option<bool> {
                 self.connect_between(a, b)
             }
             #[inline]
             #[allow(dead_code)]
-            fn find(&self, node: impl Borrow<N>) -> Option<&N> {
+            pub fn find(&self, node: impl Borrow<N>) -> Option<&N> {
                 self.get_root_of(node)
             }
         }
@@ -154,8 +154,8 @@ pub mod union_find {
         impl<N: Hash + Eq + Debug> Debug for UnionFindMapped<'_, N> {
             fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
                 writeln!(f, "UnionFindMapped {{")?;
-                writeln!(f, "  map: {:?}", self.map)?;
-                writeln!(f, "  r_map: {:?}", self.r_map)?;
+                writeln!(f, "  encode_map: {:?}", self.encode_map)?;
+                writeln!(f, "  decode_map: {:?}", self.decode_map)?;
                 writeln!(f, "  core: {:?}", self.core)?;
                 writeln!(f, "}}")
             }
