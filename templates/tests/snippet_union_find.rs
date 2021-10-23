@@ -16,7 +16,7 @@ mod tests {
             assert_eq!(uf.get_root_of(7).unwrap().1, &7);
             assert_eq!(uf.get_root_of(11).unwrap().1, &11);
 
-            uf.connect_between(2, 3, |&a, &b| a * b);
+            uf.connect_between(2, 3, |a, b| a * b);
 
             assert_eq!(uf.get_root_of(2).unwrap().1, &6);
             assert_eq!(uf.get_root_of(3).unwrap().1, &6);
@@ -24,7 +24,7 @@ mod tests {
             assert_eq!(uf.get_root_of(7).unwrap().1, &7);
             assert_eq!(uf.get_root_of(11).unwrap().1, &11);
 
-            uf.connect_between(5, &7, |&a, &b| a * b);
+            uf.connect_between(5, &7, |a, b| a * b);
 
             assert_eq!(uf.get_root_of(2).unwrap().1, &6);
             assert_eq!(uf.get_root_of(3).unwrap().1, &6);
@@ -32,7 +32,7 @@ mod tests {
             assert_eq!(uf.get_root_of(7).unwrap().1, &35);
             assert_eq!(uf.get_root_of(11).unwrap().1, &11);
 
-            uf.connect_between(&5, &11, |&a, &b| a * b);
+            uf.connect_between(&5, &11, |a, b| a * b);
 
             assert_eq!(uf.get_root_of(2).unwrap().1, &6);
             assert_eq!(uf.get_root_of(3).unwrap().1, &6);
@@ -54,9 +54,8 @@ mod tests {
             assert_eq!(uf.get_root_of(1).unwrap().1, &vec![21, 22]);
             assert_eq!(uf.get_root_of(2).unwrap().1, &vec![31, 32]);
 
-            uf.connect_between(0, 1, |a, b| {
-                let mut a = a.clone();
-                a.extend(b.into_iter());
+            uf.connect_between(0, 1, |mut a, mut b| {
+                a.append(&mut b);
                 a
             });
 
@@ -64,9 +63,8 @@ mod tests {
             assert_eq!(uf.get_root_of(1).unwrap().1, &vec![11, 12, 21, 22]);
             assert_eq!(uf.get_root_of(2).unwrap().1, &vec![31, 32]);
 
-            uf.connect_between(2, 1, |a, b| {
-                let mut a = a.clone();
-                a.extend(b.into_iter());
+            uf.connect_between(2, 1, |mut a, mut b| {
+                a.append(&mut b);
                 a
             });
 

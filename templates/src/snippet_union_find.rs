@@ -95,7 +95,8 @@ pub mod union_find {
             core: UnionFindCore,
             encode_map: HashMap<&'m N, usize>,
             decode_map: HashMap<usize, &'m N>, // can be Vec?
-            data_map: HashMap<usize, V>,       // only keep root?
+            // only keeps root values
+            data_map: HashMap<usize, V>,
         }
 
         impl<'m, N: Hash + Eq + Debug, V: Clone> UnionFindMap<'m, N, V> {
@@ -118,7 +119,7 @@ pub mod union_find {
             pub fn get_root_of(&self, node: impl Borrow<N>) -> Option<(&N, &V)> {
                 let core_node = *self.encode_map.get(node.borrow())?;
                 let core_root = self.core.get_root_of(core_node)?;
-                Some((self.decode_map[&core_root], &self.data_map[&core_root]))
+                Some((self.decode_map[&core_root], self.data_map.get(&core_root)?))
             }
 
             pub fn get_size_of(&self, node: impl Borrow<N>) -> Option<usize> {
@@ -134,7 +135,7 @@ pub mod union_find {
                 merger: F,
             ) -> Option<bool>
             where
-                F: Fn(&V, &V) -> V,
+                F: Fn(V, V) -> V,
             {
                 let core_a = *self.encode_map.get(a.borrow())?;
                 let root_a = self.core.get_root_of(core_a)?;
@@ -144,8 +145,9 @@ pub mod union_find {
                 let connected = self.core.connect_between(core_a, core_b)?;
                 if connected {
                     let common = self.core.get_root_of(core_a).unwrap();
-                    *self.data_map.get_mut(&common).unwrap() =
-                        merger(&self.data_map[&root_a], &self.data_map[&root_b]);
+                    let data_a = self.data_map.remove(&root_a).unwrap();
+                    let data_b = self.data_map.remove(&root_b).unwrap();
+                    self.data_map.insert(common, merger(data_a, data_b));
                 }
 
                 Some(connected)
@@ -168,7 +170,7 @@ pub mod union_find {
                 merger: F,
             ) -> Option<bool>
             where
-                F: Fn(&V, &V) -> V,
+                F: Fn(V, V) -> V,
             {
                 self.connect_between(a, b, merger)
             }
