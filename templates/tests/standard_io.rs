@@ -206,4 +206,57 @@ mod tests {
         let gen = templates::standard_io::ascii_to_index_gen(base);
         gen(ascii)
     }
+
+    #[test_case(1, 0 => panics)]
+    #[test_case(0, 1 => 0)]
+    #[test_case(1, 1 => 1)]
+    #[test_case(0, 2 => 0)]
+    #[test_case(1, 2 => 1)]
+    #[test_case(2, 2 => 1)]
+    #[test_case(3, 2 => 2)]
+    #[test_case(4, 2 => 2)]
+    fn div_ceil_usize(a: usize, b: usize) -> usize {
+        templates::standard_io::div_ceil(a, b)
+    }
+
+    mod div_ceil_isize {
+        use test_case::test_case;
+
+        #[test_case(1, 0 => panics)]
+        #[test_case(0, 1 => 0)]
+        #[test_case(1, 1 => 1)]
+        #[test_case(0, 2 => 0)]
+        #[test_case(1, 2 => 1)]
+        #[test_case(2, 2 => 1)]
+        #[test_case(3, 2 => 2)]
+        #[test_case(4, 2 => 2)]
+        fn pos_pos(a: isize, b: isize) -> isize {
+            templates::standard_io::div_ceil(a, b)
+        }
+
+        #[test_case(0, -2 => 0)]
+        #[test_case(1, -2 => 0)]
+        #[test_case(2, -2 => -1)]
+        #[test_case(3, -2 => -1)]
+        #[test_case(4, -2 => -2)]
+        fn pos_neg(a: isize, b: isize) -> isize {
+            templates::standard_io::div_ceil(a, b)
+        }
+
+        #[test_case(-1, 2 => 0)]
+        #[test_case(-2, 2 => -1)]
+        #[test_case(-3, 2 => -1)]
+        #[test_case(-4, 2 => -2)]
+        fn neg_pos(a: isize, b: isize) -> isize {
+            templates::standard_io::div_ceil(a, b)
+        }
+
+        #[test_case(-1, -2 => 1)]
+        #[test_case(-2, -2 => 1)]
+        #[test_case(-3, -2 => 2)]
+        #[test_case(-4, -2 => 2)]
+        fn neg_neg(a: isize, b: isize) -> isize {
+            templates::standard_io::div_ceil(a, b)
+        }
+    }
 }

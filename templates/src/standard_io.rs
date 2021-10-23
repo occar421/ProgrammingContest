@@ -720,6 +720,22 @@ pub struct Point2d<T> {
     pub y: T,
 }
 
+pub fn div_ceil<T: GenericInteger>(dividend: T, divisor: T) -> T {
+    let rounded_towards_zero_quotient = dividend / divisor;
+    let divided_evenly = (dividend % divisor) == T::zero();
+
+    if divided_evenly {
+        return rounded_towards_zero_quotient;
+    }
+
+    let was_rounded_down = (divisor > T::zero()) == (dividend > T::zero());
+    if was_rounded_down {
+        rounded_towards_zero_quotient + T::one()
+    } else {
+        rounded_towards_zero_quotient
+    }
+}
+
 // -- end of helpers
 
 fn main() {
