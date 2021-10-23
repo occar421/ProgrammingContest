@@ -6,77 +6,78 @@ mod tests {
 
         #[test]
         fn connect_usize_multiple() {
-            let mut uf = UnionFindMap::from_iter(vec![2usize, 3, 5, 7, 11].iter().map(|&x| (x, x)));
+            let mut ufm =
+                UnionFindMap::from_iter(vec![2usize, 3, 5, 7, 11].iter().map(|&x| (x, x)));
 
-            assert_eq!(uf.get_root_of(2).unwrap().1, &2);
-            assert_eq!(uf.get_root_of(3).unwrap().1, &3);
-            assert_eq!(uf.get_root_of(5).unwrap().1, &5);
-            assert_eq!(uf.get_root_of(7).unwrap().1, &7);
-            assert_eq!(uf.get_root_of(11).unwrap().1, &11);
+            assert_eq!(ufm.get_root_of(2).unwrap().1, &2);
+            assert_eq!(ufm.get_root_of(3).unwrap().1, &3);
+            assert_eq!(ufm.get_root_of(5).unwrap().1, &5);
+            assert_eq!(ufm.get_root_of(7).unwrap().1, &7);
+            assert_eq!(ufm.get_root_of(11).unwrap().1, &11);
 
-            uf.connect_between(2, 3, |a, b| a * b);
+            ufm.connect_between(2, 3, |a, b| a * b);
 
-            assert_eq!(uf.get_root_of(2).unwrap().1, &6);
-            assert_eq!(uf.get_root_of(3).unwrap().1, &6);
-            assert_eq!(uf.get_root_of(5).unwrap().1, &5);
-            assert_eq!(uf.get_root_of(7).unwrap().1, &7);
-            assert_eq!(uf.get_root_of(11).unwrap().1, &11);
+            assert_eq!(ufm.get_root_of(2).unwrap().1, &6);
+            assert_eq!(ufm.get_root_of(3).unwrap().1, &6);
+            assert_eq!(ufm.get_root_of(5).unwrap().1, &5);
+            assert_eq!(ufm.get_root_of(7).unwrap().1, &7);
+            assert_eq!(ufm.get_root_of(11).unwrap().1, &11);
 
-            uf.connect_between(5, &7, |a, b| a * b);
+            ufm.connect_between(5, &7, |a, b| a * b);
 
-            assert_eq!(uf.get_root_of(2).unwrap().1, &6);
-            assert_eq!(uf.get_root_of(3).unwrap().1, &6);
-            assert_eq!(uf.get_root_of(5).unwrap().1, &35);
-            assert_eq!(uf.get_root_of(7).unwrap().1, &35);
-            assert_eq!(uf.get_root_of(11).unwrap().1, &11);
+            assert_eq!(ufm.get_root_of(2).unwrap().1, &6);
+            assert_eq!(ufm.get_root_of(3).unwrap().1, &6);
+            assert_eq!(ufm.get_root_of(5).unwrap().1, &35);
+            assert_eq!(ufm.get_root_of(7).unwrap().1, &35);
+            assert_eq!(ufm.get_root_of(11).unwrap().1, &11);
 
-            uf.connect_between(&5, &11, |a, b| a * b);
+            ufm.connect_between(&5, &11, |a, b| a * b);
 
-            assert_eq!(uf.get_root_of(2).unwrap().1, &6);
-            assert_eq!(uf.get_root_of(3).unwrap().1, &6);
-            assert_eq!(uf.get_root_of(5).unwrap().1, &385);
-            assert_eq!(uf.get_root_of(7).unwrap().1, &385);
-            assert_eq!(uf.get_root_of(11).unwrap().1, &385);
+            assert_eq!(ufm.get_root_of(2).unwrap().1, &6);
+            assert_eq!(ufm.get_root_of(3).unwrap().1, &6);
+            assert_eq!(ufm.get_root_of(5).unwrap().1, &385);
+            assert_eq!(ufm.get_root_of(7).unwrap().1, &385);
+            assert_eq!(ufm.get_root_of(11).unwrap().1, &385);
         }
 
         #[test]
         fn connect_usize_vec() {
-            let mut uf = UnionFindMap::from_iter(
+            let mut ufm = UnionFindMap::from_iter(
                 vec![vec![11usize, 12], vec![21, 22], vec![31, 32]]
                     .into_iter()
                     .enumerate(),
             );
 
-            assert_eq!(uf.get_root_of(0).unwrap().1, &vec![11, 12]);
-            assert_eq!(uf.get_root_of(1).unwrap().1, &vec![21, 22]);
-            assert_eq!(uf.get_root_of(2).unwrap().1, &vec![31, 32]);
+            assert_eq!(ufm.get_root_of(0).unwrap().1, &vec![11, 12]);
+            assert_eq!(ufm.get_root_of(1).unwrap().1, &vec![21, 22]);
+            assert_eq!(ufm.get_root_of(2).unwrap().1, &vec![31, 32]);
 
-            uf.connect_between(0, 1, |mut a, mut b| {
+            ufm.connect_between(0, 1, |mut a, mut b| {
                 a.append(&mut b);
                 a
             });
 
-            assert_eq!(uf.get_root_of(0).unwrap().1, &vec![11, 12, 21, 22]);
-            assert_eq!(uf.get_root_of(1).unwrap().1, &vec![11, 12, 21, 22]);
-            assert_eq!(uf.get_root_of(2).unwrap().1, &vec![31, 32]);
+            assert_eq!(ufm.get_root_of(0).unwrap().1, &vec![11, 12, 21, 22]);
+            assert_eq!(ufm.get_root_of(1).unwrap().1, &vec![11, 12, 21, 22]);
+            assert_eq!(ufm.get_root_of(2).unwrap().1, &vec![31, 32]);
 
-            uf.connect_between(2, 1, |mut a, mut b| {
+            ufm.connect_between(2, 1, |mut a, mut b| {
                 a.append(&mut b);
                 a
             });
 
-            assert_eq!(uf.get_root_of(0).unwrap().1, &vec![31, 32, 11, 12, 21, 22]);
-            assert_eq!(uf.get_root_of(1).unwrap().1, &vec![31, 32, 11, 12, 21, 22]);
-            assert_eq!(uf.get_root_of(2).unwrap().1, &vec![31, 32, 11, 12, 21, 22]);
+            assert_eq!(ufm.get_root_of(0).unwrap().1, &vec![31, 32, 11, 12, 21, 22]);
+            assert_eq!(ufm.get_root_of(1).unwrap().1, &vec![31, 32, 11, 12, 21, 22]);
+            assert_eq!(ufm.get_root_of(2).unwrap().1, &vec![31, 32, 11, 12, 21, 22]);
         }
 
         #[allow(dead_code)]
         fn compiles_with_debug() {
-            let uf = UnionFindMap::from_iter((0..5).into_iter().map(|x| (x, x)));
-            dbg!(uf);
+            let ufm = UnionFindMap::from_iter((0..5).into_iter().map(|x| (x, x)));
+            dbg!(ufm);
 
-            let uf = UnionFindMap::from_iter(vec![(0, "a")]);
-            dbg!(uf);
+            let ufm = UnionFindMap::from_iter(vec![(0, "a")]);
+            dbg!(ufm);
         }
     }
 
