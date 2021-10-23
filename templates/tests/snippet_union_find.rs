@@ -1,14 +1,12 @@
 #[cfg(test)]
 mod tests {
     mod map {
-        use std::collections::HashMap;
         use std::iter::FromIterator;
         use templates::snippet_union_find::union_find::UnionFindMap;
 
         #[test]
         fn connect_usize_multiple() {
-            let data = HashMap::from_iter(vec![2usize, 3, 5, 7, 11].iter().map(|&x| (x, x)));
-            let mut uf = UnionFindMap::from_map(&data);
+            let mut uf = UnionFindMap::from_iter(vec![2usize, 3, 5, 7, 11].iter().map(|&x| (x, x)));
 
             assert_eq!(uf.get_root_of(2).unwrap().1, &2);
             assert_eq!(uf.get_root_of(3).unwrap().1, &3);
@@ -43,12 +41,11 @@ mod tests {
 
         #[test]
         fn connect_usize_vec() {
-            let data = HashMap::from_iter(
+            let mut uf = UnionFindMap::from_iter(
                 vec![vec![11usize, 12], vec![21, 22], vec![31, 32]]
                     .into_iter()
                     .enumerate(),
             );
-            let mut uf = UnionFindMap::from_map(&data);
 
             assert_eq!(uf.get_root_of(0).unwrap().1, &vec![11, 12]);
             assert_eq!(uf.get_root_of(1).unwrap().1, &vec![21, 22]);
@@ -75,12 +72,10 @@ mod tests {
 
         #[allow(dead_code)]
         fn compiles_with_debug() {
-            let map = HashMap::from_iter((0..5).into_iter().map(|x| (x, x)));
-            let uf = UnionFindMap::from_map(&map);
+            let uf = UnionFindMap::from_iter((0..5).into_iter().map(|x| (x, x)));
             dbg!(uf);
 
-            let set = HashMap::from_iter(vec![(0, "a")]);
-            let uf = UnionFindMap::from_map(&set);
+            let uf = UnionFindMap::from_iter(vec![(0, "a")]);
             dbg!(uf);
         }
     }

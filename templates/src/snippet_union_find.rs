@@ -91,33 +91,23 @@ pub mod union_find {
         use std::hash::Hash;
         use std::iter::FromIterator;
 
-        pub struct UnionFindMap<'m, N, V> {
+        pub struct UnionFindMap<N, V> {
             core: UnionFindCore,
-            encode_map: HashMap<&'m N, usize>,
-            decode_map: Vec<&'m N>,
+            encode_map: HashMap<N, usize>,
+            decode_map: Vec<N>,
             // only keeps root values
             data_map: HashMap<usize, V>,
         }
 
-        impl<'m, N: Hash + Eq + Debug, V: Clone> UnionFindMap<'m, N, V> {
-            pub fn from_map(map: &'m HashMap<N, V>) -> Self {
-                let labelled_pairs = map.iter().enumerate();
-
-                Self {
-                    core: UnionFindCore::new(map.len()),
-                    encode_map: HashMap::from_iter(
-                        labelled_pairs.clone().map(|(i, (k, _))| (k, i)),
-                    ),
-                    decode_map: Vec::from_iter(labelled_pairs.clone().map(|(_, (k, _))| k)),
-                    data_map: HashMap::from_iter(labelled_pairs.map(|(i, (_, v))| (i, v.clone()))),
-                }
-            }
-
+        impl<N: Hash + Eq, V: Clone> UnionFindMap<N, V> {
             /// O( log(N) )
             pub fn get_root_of(&self, node: impl Borrow<N>) -> Option<(&N, &V)> {
                 let core_node = *self.encode_map.get(node.borrow())?;
                 let core_root = self.core.get_root_of(core_node)?;
-                Some((self.decode_map[core_root], self.data_map.get(&core_root)?))
+                Some((
+                    self.decode_map.get(core_root)?,
+                    self.data_map.get(&core_root)?,
+                ))
             }
 
             pub fn get_size_of(&self, node: impl Borrow<N>) -> Option<usize> {
@@ -153,7 +143,7 @@ pub mod union_find {
 
             pub fn get_roots<'a>(&'a self) -> Box<dyn Iterator<Item = (&N, &V)> + 'a> {
                 Box::new(self.core.get_roots().map(move |&core_root| {
-                    (self.decode_map[core_root], &self.data_map[&core_root])
+                    (&self.decode_map[core_root], &self.data_map[&core_root])
                 }))
             }
 
@@ -177,7 +167,29 @@ pub mod union_find {
             }
         }
 
-        impl<N: Hash + Eq + Debug, V: Debug> Debug for UnionFindMap<'_, N, V> {
+        impl<'m, N: Hash + Eq + Clone, V: Clone> FromIterator<(N, V)> for UnionFindMap<N, V> {
+            fn from_iter<T: IntoIterator<Item = (N, V)>>(iter: T) -> Self {
+                let mut length = 0;
+                let mut encode_map = HashMap::new();
+                let mut decode_map = vec![];
+                let mut data_map = HashMap::new();
+                for (i, (n, v)) in iter.into_iter().enumerate() {
+                    length += 1;
+                    encode_map.insert(n.clone(), i);
+                    decode_map.push(n);
+                    data_map.insert(i, v);
+                }
+
+                Self {
+                    core: UnionFindCore::new(length),
+                    encode_map,
+                    decode_map,
+                    data_map,
+                }
+            }
+        }
+
+        impl<N: Hash + Eq + Debug, V: Debug> Debug for UnionFindMap<N, V> {
             fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
                 writeln!(f, "UnionFindMap {{")?;
                 writeln!(f, "  encode_map: {:?}", self.encode_map)?;
