@@ -207,6 +207,20 @@ mod tests {
         gen(ascii)
     }
 
+    mod point2d {
+        use test_case::test_case;
+
+        #[test_case(0.0, 0.0, 0.0)]
+        #[test_case(1.0, 0.0, 1.0)]
+        #[test_case(0.0, 1.0, 1.0)]
+        #[test_case(3.0, 4.0, 5.0)]
+        #[test_case(5.0, 12.0, 13.0)]
+        fn length(x: f64, y: f64, r: f64) {
+            let p = templates::standard_io::Point2d { x, y };
+            templates::assert_eq_with_error!(p.length(), r, 10f64.powi(-6));
+        }
+    }
+
     #[test_case(1, 0 => panics)]
     #[test_case(0, 1 => 0)]
     #[test_case(1, 1 => 1)]

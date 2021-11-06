@@ -141,6 +141,7 @@ macro_rules! assert_judge_with_output {
 }
 
 #[allow(unused_macros)]
+#[macro_export]
 macro_rules! assert_eq_with_error {
     ($left:expr, $right:expr, $precision:expr) => {{
         match (&$left, &$right, &$precision) {
@@ -718,6 +719,195 @@ pub fn ascii_to_index_gen(base: char) -> impl Fn(char) -> usize {
 pub struct Point2d<T> {
     pub x: T,
     pub y: T,
+}
+
+impl<T> Point2d<T>
+where
+    T: GenericInteger,
+{
+    #[inline]
+    pub fn zero() -> Self {
+        Self {
+            x: T::zero(),
+            y: T::zero(),
+        }
+    }
+
+    #[inline]
+    pub fn one() -> Self {
+        Self {
+            x: T::one(),
+            y: T::one(),
+        }
+    }
+}
+
+impl<T> Point2d<T> {
+    pub fn cast_to<U>(self) -> Point2d<U>
+    where
+        U: From<T>,
+    {
+        Point2d {
+            x: U::from(self.x),
+            y: U::from(self.y),
+        }
+    }
+
+    pub fn dot(&self, rhs: &Self) -> T
+    where
+        T: Add<Output = T> + Mul<Output = T> + Clone,
+    {
+        self.x.clone() * rhs.x.clone() + self.y.clone() * rhs.y.clone()
+    }
+}
+
+impl Point2d<usize> {
+    pub fn to_f64(&self) -> Point2d<f64> {
+        Point2d {
+            x: self.x as f64,
+            y: self.y as f64,
+        }
+    }
+}
+
+impl Point2d<f64> {
+    pub fn length(&self) -> f64 {
+        self.x.hypot(self.y)
+    }
+}
+
+impl<T> Add for Point2d<T>
+where
+    T: Add<Output = T>,
+{
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+        }
+    }
+}
+
+impl<T> AddAssign for Point2d<T>
+where
+    T: AddAssign,
+{
+    fn add_assign(&mut self, rhs: Self) {
+        self.x += rhs.x;
+        self.y += rhs.y;
+    }
+}
+
+impl<T> Sub for Point2d<T>
+where
+    T: Sub<Output = T>,
+{
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+        }
+    }
+}
+
+impl<T> SubAssign for Point2d<T>
+where
+    T: SubAssign,
+{
+    fn sub_assign(&mut self, rhs: Self) {
+        self.x -= rhs.x;
+        self.y -= rhs.y;
+    }
+}
+
+impl<T> Mul<T> for Point2d<T>
+where
+    T: Mul<Output = T> + Clone,
+{
+    type Output = Self;
+
+    fn mul(self, rhs: T) -> Self::Output {
+        Self {
+            x: self.x * rhs.clone(),
+            y: self.y * rhs,
+        }
+    }
+}
+
+impl<T> MulAssign<T> for Point2d<T>
+where
+    T: MulAssign + Clone,
+{
+    fn mul_assign(&mut self, rhs: T) {
+        self.x *= rhs.clone();
+        self.y *= rhs;
+    }
+}
+
+impl<T> Div<T> for Point2d<T>
+where
+    T: Div<Output = T> + Clone,
+{
+    type Output = Self;
+
+    fn div(self, rhs: T) -> Self::Output {
+        Self {
+            x: self.x / rhs.clone(),
+            y: self.y / rhs,
+        }
+    }
+}
+
+impl<T> DivAssign<T> for Point2d<T>
+where
+    T: DivAssign + Clone,
+{
+    fn div_assign(&mut self, rhs: T) {
+        self.x /= rhs.clone();
+        self.y /= rhs;
+    }
+}
+
+impl<T> Rem<T> for Point2d<T>
+where
+    T: Rem<Output = T> + Clone,
+{
+    type Output = Self;
+
+    fn rem(self, rhs: T) -> Self::Output {
+        Self {
+            x: self.x % rhs.clone(),
+            y: self.y % rhs,
+        }
+    }
+}
+
+impl<T> RemAssign<T> for Point2d<T>
+where
+    T: RemAssign + Clone,
+{
+    fn rem_assign(&mut self, rhs: T) {
+        self.x %= rhs.clone();
+        self.y %= rhs;
+    }
+}
+
+impl<T> Neg for Point2d<T>
+where
+    T: Neg<Output = T>,
+{
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        Self {
+            x: -self.x,
+            y: -self.y,
+        }
+    }
 }
 
 pub fn div_ceil<T: GenericInteger>(dividend: T, divisor: T) -> T {
