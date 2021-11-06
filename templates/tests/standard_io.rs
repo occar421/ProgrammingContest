@@ -1,5 +1,6 @@
 #[cfg(test)]
 mod tests {
+    use templates::standard_io::IterExt;
     use test_case::test_case;
 
     mod integer {
@@ -45,7 +46,6 @@ mod tests {
     #[test_case(vec ! [8, 9, 0], ", " => "8, 9, 0")]
     #[test_case(vec ! [1, 2, 3, 4], "" => "1234")]
     fn easy_join_with_number(vec: Vec<usize>, separator: &str) -> String {
-        use templates::standard_io::IterExt;
         vec.iter().easy_join(separator)
     }
 
@@ -58,8 +58,26 @@ mod tests {
     #[test_case(vec ! ["lm", "no", "pq"], "," => "lm,no,pq")]
     #[test_case(vec ! ["r", "u", "s", "t"], "" => "rust")]
     fn easy_join_with_string(vec: Vec<&str>, separator: &str) -> String {
-        use templates::standard_io::IterExt;
         vec.iter().easy_join(separator)
+    }
+
+    #[test]
+    fn group_with() {
+        let data = vec![1, 1, 2, 2, 3];
+        let result = data.into_iter().group_with();
+        assert_eq!(result.len(), 3);
+        assert_eq!(result[&1], vec![1, 1]);
+        assert_eq!(result[&2], vec![2, 2]);
+        assert_eq!(result[&3], vec![3]);
+    }
+
+    #[test]
+    fn group_with_key() {
+        let data = vec![1, 1, 2, 2, 3];
+        let result = data.into_iter().group_with_key(|&x| x > 1);
+        assert_eq!(result.len(), 2);
+        assert_eq!(result[&true], vec![2, 2, 3]);
+        assert_eq!(result[&false], vec![1, 1]);
     }
 
     #[test]

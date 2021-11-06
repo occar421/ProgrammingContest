@@ -576,6 +576,26 @@ pub trait IterExt: Iterator {
             .collect::<Vec<_>>()
             .join(separator)
     }
+
+    fn group_with(self) -> HashMap<Self::Item, Vec<Self::Item>>
+    where
+        Self: Sized,
+        Self::Item: Eq + Hash + Clone,
+    {
+        self.group_with_key(|x| x.clone())
+    }
+
+    fn group_with_key<K, F>(self, mut f: F) -> HashMap<K, Vec<Self::Item>>
+    where
+        Self: Sized,
+        F: FnMut(&Self::Item) -> K,
+        K: Eq + Hash,
+    {
+        self.fold(HashMap::new(), |mut acc, item| {
+            acc.entry(f(&item)).or_insert(vec![]).push(item);
+            acc
+        })
+    }
 }
 
 impl<TItem, TTrait> IterExt for TTrait where TTrait: Iterator<Item = TItem> {}
