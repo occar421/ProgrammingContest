@@ -567,25 +567,18 @@ pub fn eratosthenes_sieve(n: usize) -> Vec<usize> {
     primes
 }
 
-pub trait IterExt<T>
-where
-    T: Display,
-{
-    fn easy_join(&mut self, separator: &str) -> String;
-}
-
-impl<TItem, TTrait> IterExt<TItem> for TTrait
-where
-    TItem: Display,
-    TTrait: Iterator<Item = TItem>,
-{
-    #[inline]
-    fn easy_join(&mut self, separator: &str) -> String {
+pub trait IterExt: Iterator {
+    fn easy_join(&mut self, separator: &str) -> String
+    where
+        Self::Item: Display,
+    {
         self.map(|i| format!("{}", i))
             .collect::<Vec<_>>()
             .join(separator)
     }
 }
+
+impl<TItem, TTrait> IterExt for TTrait where TTrait: Iterator<Item = TItem> {}
 
 pub trait VecExt<T> {
     fn add_like_string(&mut self) -> T;
