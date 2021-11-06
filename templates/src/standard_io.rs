@@ -111,6 +111,14 @@ macro_rules! read_value {
         }
     };
 
+    ($next:expr, (Point2d<$t:tt>-rev)) => {
+        {
+            let y = read_value!($next, $t);
+            let x = read_value!($next, $t);
+            Point2d { x, y }
+        }
+    };
+
     ($next:expr, $t:ty) => {
         ($next().parse::<$t>().expect("Parse error")) as $t
     };
