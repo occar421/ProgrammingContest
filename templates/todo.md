@@ -1,4 +1,7 @@
-* UnionFind map/set
+* 約数列挙
+* 個数列挙型 HashMap/BTreeMap
+* トポロジカルソート
+* 閉路検出
 * 余計な空白に影響されない `assert_judge!`
 * 組み合わせなど
     * Permutation, Combination, etc.
@@ -10,5 +13,3 @@
 * コードコメントに使用例を記載
 * Integer（本物の整数型） と GeneralizedInteger（整数もどき） の分離 現 GenericInteger は Integer に
 * into_iter の活用
-* トポロジカルソート
-* 閉路検出

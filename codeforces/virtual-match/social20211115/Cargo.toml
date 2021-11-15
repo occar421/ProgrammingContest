@@ -1,0 +1,30 @@
+[package]
+name = "social20211115"
+version = "0.1.0"
+authors = ["MasuqaT <occar@hotmail.co.jp>"]
+edition = "2018"
+publish = false
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+[[bin]]
+name = "A"
+path = "A.rs"
+
+[[bin]]
+name = "B"
+path = "B.rs"
+
+[[bin]]
+name = "C"
+path = "C.rs"
+
+[[bin]]
+name = "D"
+path = "D.rs"
+
+[[bin]]
+name = "E"
+path = "E.rs"
