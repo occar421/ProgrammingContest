@@ -1,5 +1,4 @@
 * 約数列挙
-* 個数列挙型 HashMap/BTreeMap
 * トポロジカルソート
 * 閉路検出
 * 余計な空白に影響されない `assert_judge!`
