@@ -296,6 +296,21 @@ mod tests {
         use templates::standard_io::HashMultiset;
 
         #[test]
+        fn value_quantity_pairs() {
+            let mut set = HashMultiset::new();
+
+            set.insert(1);
+            set.insert(2);
+            set.insert(2);
+
+            let mut pairs: Vec<_> = set.value_quantity_pairs().collect();
+            pairs.sort_unstable_by_key(|x| x.0);
+
+            assert_eq!(pairs[0], (&1, &1));
+            assert_eq!(pairs[1], (&2, &2));
+        }
+
+        #[test]
         fn len() {
             let mut set = HashMultiset::new();
             set.insert(1);
@@ -330,6 +345,98 @@ mod tests {
         #[test]
         fn contains() {
             let mut set = HashMultiset::new();
+
+            assert!(!set.contains(&1));
+
+            set.insert(1);
+
+            assert!(set.contains(&1));
+
+            set.insert(1);
+
+            assert!(set.contains(&1));
+
+            set.remove_single(&1);
+
+            assert!(set.contains(&1));
+
+            set.remove_single(&1);
+
+            assert!(!set.contains(&1));
+        }
+    }
+
+    mod btree_multiset {
+        use std::iter::FromIterator;
+        use templates::standard_io::BTreeMultiset;
+
+        #[test]
+        fn value_quantity_pairs() {
+            let mut set = BTreeMultiset::new();
+
+            set.insert(1);
+            set.insert(2);
+            set.insert(2);
+
+            let mut pairs: Vec<_> = set.value_quantity_pairs().collect();
+            pairs.sort_unstable_by_key(|x| x.0);
+
+            assert_eq!(pairs[0], (&1, &1));
+            assert_eq!(pairs[1], (&2, &2));
+        }
+
+        #[test]
+        fn key_range() {
+            let set = BTreeMultiset::from_iter(vec![1, 2, 2, 3, 4, 4, 5]);
+
+            let mut lte3_asc = set.key_range(..=3);
+            assert_eq!(lte3_asc.next(), Some((&1, &1)));
+            assert_eq!(lte3_asc.next(), Some((&2, &2)));
+            assert_eq!(lte3_asc.next(), Some((&3, &1)));
+            assert_eq!(lte3_asc.next(), None);
+
+            let mut gte3_desc = set.key_range(3..);
+            assert_eq!(gte3_desc.next_back(), Some((&5, &1)));
+            assert_eq!(gte3_desc.next_back(), Some((&4, &2)));
+            assert_eq!(gte3_desc.next_back(), Some((&3, &1)));
+            assert_eq!(gte3_desc.next_back(), None);
+        }
+
+        #[test]
+        fn len() {
+            let mut set = BTreeMultiset::new();
+            set.insert(1);
+            set.insert(2);
+            set.insert(2);
+            assert_eq!(set.len(), 3);
+        }
+
+        #[test]
+        fn is_empty() {
+            let mut set = BTreeMultiset::new();
+
+            assert!(set.is_empty());
+
+            set.insert(1);
+
+            assert!(!set.is_empty());
+
+            set.insert(1);
+
+            assert!(!set.is_empty());
+
+            set.remove_single(&1);
+
+            assert!(!set.is_empty());
+
+            set.remove_single(&1);
+
+            assert!(set.is_empty());
+        }
+
+        #[test]
+        fn contains() {
+            let mut set = BTreeMultiset::new();
 
             assert!(!set.contains(&1));
 

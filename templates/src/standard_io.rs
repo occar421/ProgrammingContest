@@ -962,25 +962,10 @@ mod multiset {
     use std::fmt;
     use std::hash::Hash;
     use std::iter::FromIterator;
+    use std::ops::RangeBounds;
 
     pub struct HashMultiset<T> {
         map: HashMap<T, usize>,
-    }
-
-    impl<T: Hash + Eq> HashMultiset<T> {
-        #[inline]
-        pub fn new() -> Self {
-            Self {
-                map: HashMap::new(),
-            }
-        }
-
-        #[inline]
-        pub fn with_capacity(capacity: usize) -> Self {
-            Self {
-                map: HashMap::with_capacity(capacity),
-            }
-        }
     }
 
     impl<T> HashMultiset<T> {
@@ -1009,6 +994,26 @@ mod multiset {
     where
         T: Eq + Hash,
     {
+        #[inline]
+        pub fn new() -> Self {
+            Self {
+                map: HashMap::new(),
+            }
+        }
+
+        #[inline]
+        pub fn with_capacity(capacity: usize) -> Self {
+            Self {
+                map: HashMap::with_capacity(capacity),
+            }
+        }
+
+        #[inline]
+        pub fn value_quantity_pairs(&self) -> hash_map::Iter<'_, T, usize> {
+            self.map.iter()
+        }
+
+        #[inline]
         pub fn contains<Q: ?Sized>(&self, value: &Q) -> bool
         where
             T: Borrow<Q>,
@@ -1048,6 +1053,7 @@ mod multiset {
             }
         }
 
+        #[inline]
         pub fn remove_many<Q: ?Sized>(&mut self, value: &Q) -> bool
         where
             T: Borrow<Q>,
@@ -1120,6 +1126,126 @@ mod multiset {
             Self {
                 map: HashMap::default(),
             }
+        }
+    }
+
+    pub struct BTreeMultiset<T> {
+        map: BTreeMap<T, usize>,
+    }
+
+    impl<T> BTreeMultiset<T> {
+        #[inline]
+        pub fn len(&self) -> usize {
+            self.map.values().sum()
+        }
+
+        #[inline]
+        pub fn is_empty(&self) -> bool {
+            self.map.is_empty()
+        }
+    }
+
+    impl<T: Ord> BTreeMultiset<T> {
+        #[inline]
+        pub fn new() -> Self {
+            Self {
+                map: BTreeMap::new(),
+            }
+        }
+
+        #[inline]
+        pub fn value_quantity_pairs(&self) -> btree_map::Iter<'_, T, usize> {
+            self.map.iter()
+        }
+
+        #[inline]
+        pub fn key_range<K: ?Sized, R>(&self, range: R) -> btree_map::Range<'_, T, usize>
+        where
+            K: Ord,
+            T: Borrow<K>,
+            R: RangeBounds<K>,
+        {
+            self.map.range(range)
+        }
+
+        #[inline]
+        pub fn clear(&mut self) {
+            self.map.clear()
+        }
+
+        #[inline]
+        pub fn contains<Q: ?Sized>(&self, value: &Q) -> bool
+        where
+            T: Borrow<Q>,
+            Q: Ord,
+        {
+            self.map.contains_key(value)
+        }
+
+        pub fn insert(&mut self, value: T) -> bool {
+            *self.map.entry(value).or_insert(0) += 1;
+            true
+        }
+
+        pub fn remove_single<Q: ?Sized>(&mut self, value: &Q) -> bool
+        where
+            T: Borrow<Q>,
+            Q: Ord,
+        {
+            if let Some(v) = self.map.get_mut(&value) {
+                *v -= 1;
+                if *v == 0 {
+                    self.map.remove(&value);
+                }
+                true
+            } else {
+                false
+            }
+        }
+
+        #[inline]
+        pub fn remove_many<Q: ?Sized>(&mut self, value: &Q) -> bool
+        where
+            T: Borrow<Q>,
+            Q: Ord,
+        {
+            self.map.remove(value).is_some()
+        }
+    }
+
+    impl<T: fmt::Debug> fmt::Debug for BTreeMultiset<T> {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            f.debug_set().entries(self.map.iter()).finish()
+        }
+    }
+
+    impl<T: Ord> FromIterator<T> for BTreeMultiset<T> {
+        fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
+            let mut set = BTreeMultiset::new();
+            set.extend(iter);
+            set
+        }
+    }
+
+    impl<T: Ord> Extend<T> for BTreeMultiset<T> {
+        #[inline]
+        fn extend<Iter: IntoIterator<Item = T>>(&mut self, iter: Iter) {
+            iter.into_iter().for_each(move |elem| {
+                self.insert(elem);
+            });
+        }
+    }
+
+    impl<'a, T: 'a + Ord + Copy> Extend<&'a T> for BTreeMultiset<T> {
+        #[inline]
+        fn extend<I: IntoIterator<Item = &'a T>>(&mut self, iter: I) {
+            self.extend(iter.into_iter().cloned());
+        }
+    }
+
+    impl<T: Ord> Default for BTreeMultiset<T> {
+        fn default() -> Self {
+            Self::new()
         }
     }
 }
