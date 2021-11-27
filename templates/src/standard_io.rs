@@ -133,7 +133,14 @@ macro_rules! assert_judge {
     ($method:ident, $input:expr, $expected:expr) => {{
         let output = assert_judge_with_output!($method, $input);
 
-        assert_eq!(output, $expected.trim());
+        let expected = $expected
+            .trim()
+            .lines()
+            .map(|l| l.trim())
+            .collect::<Vec<_>>()
+            .join("\n");
+
+        assert_eq!(output, expected);
     }};
 }
 
@@ -148,7 +155,10 @@ macro_rules! assert_judge_with_output {
         String::from_utf8(output)
             .expect("Not UTF-8")
             .trim()
-            .to_string()
+            .lines()
+            .map(|l| l.trim())
+            .collect::<Vec<_>>()
+            .join("\n")
     }};
 }
 

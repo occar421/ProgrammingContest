@@ -1,7 +1,6 @@
 * 約数列挙
 * トポロジカルソート
 * 閉路検出
-* 余計な空白に影響されない `assert_judge!`
 * 組み合わせなど
     * Permutation, Combination, etc.
     * https://docs.python.org/ja/3/library/itertools.html 組合せイテレータ:
