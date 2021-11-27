@@ -2,7 +2,9 @@
 // https://github.com/occar421/ProgrammingContest/tree/master/templates/src/standard_io.rs
 
 #[allow(unused_imports)]
-use point::*;
+pub use multiset::*;
+#[allow(unused_imports)]
+pub use point::*;
 use std::cmp::*;
 use std::collections::*;
 use std::fmt::{Debug, Display};
@@ -951,6 +953,174 @@ pub fn div_ceil<T: GenericInteger>(dividend: T, divisor: T) -> T {
         rounded_towards_zero_quotient + T::one()
     } else {
         rounded_towards_zero_quotient
+    }
+}
+
+mod multiset {
+    use std::borrow::Borrow;
+    use std::collections::*;
+    use std::fmt;
+    use std::hash::Hash;
+    use std::iter::FromIterator;
+
+    pub struct HashMultiset<T> {
+        map: HashMap<T, usize>,
+    }
+
+    impl<T: Hash + Eq> HashMultiset<T> {
+        #[inline]
+        pub fn new() -> Self {
+            Self {
+                map: HashMap::new(),
+            }
+        }
+
+        #[inline]
+        pub fn with_capacity(capacity: usize) -> Self {
+            Self {
+                map: HashMap::with_capacity(capacity),
+            }
+        }
+    }
+
+    impl<T> HashMultiset<T> {
+        #[inline]
+        pub fn capacity(&self) -> usize {
+            self.map.capacity()
+        }
+
+        #[inline]
+        pub fn len(&self) -> usize {
+            self.map.values().sum()
+        }
+
+        #[inline]
+        pub fn is_empty(&self) -> bool {
+            self.map.is_empty()
+        }
+
+        #[inline]
+        pub fn clear(&mut self) {
+            self.map.clear()
+        }
+    }
+
+    impl<T> HashMultiset<T>
+    where
+        T: Eq + Hash,
+    {
+        pub fn contains<Q: ?Sized>(&self, value: &Q) -> bool
+        where
+            T: Borrow<Q>,
+            Q: Hash + Eq,
+        {
+            self.map.contains_key(&value)
+        }
+
+        #[inline]
+        pub fn get<Q: ?Sized>(&self, value: &Q) -> Option<&T>
+        where
+            T: Borrow<Q>,
+            Q: Hash + Eq,
+        {
+            self.map.get_key_value(value).map(|(k, _)| k)
+        }
+
+        #[inline]
+        pub fn insert(&mut self, value: T) -> bool {
+            *self.map.entry(value).or_insert(0) += 1;
+            true
+        }
+
+        pub fn remove_single<Q: ?Sized>(&mut self, value: &Q) -> bool
+        where
+            T: Borrow<Q>,
+            Q: Hash + Eq,
+        {
+            if let Some(v) = self.map.get_mut(&value) {
+                *v -= 1;
+                if *v == 0 {
+                    self.map.remove(&value);
+                }
+                true
+            } else {
+                false
+            }
+        }
+
+        pub fn remove_many<Q: ?Sized>(&mut self, value: &Q) -> bool
+        where
+            T: Borrow<Q>,
+            Q: Hash + Eq,
+        {
+            self.map.remove(value).is_some()
+        }
+    }
+
+    impl<T> PartialEq for HashMultiset<T>
+    where
+        T: Eq + Hash,
+    {
+        fn eq(&self, other: &Self) -> bool {
+            self.map.eq(&other.map)
+        }
+    }
+
+    impl<T> Eq for HashMultiset<T> where T: Eq + Hash {}
+
+    impl<T> fmt::Debug for HashMultiset<T>
+    where
+        T: Eq + Hash + fmt::Debug,
+    {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            f.debug_set().entries(self.map.iter()).finish()
+        }
+    }
+
+    impl<T> FromIterator<T> for HashMultiset<T>
+    where
+        T: Eq + Hash,
+    {
+        #[inline]
+        fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> HashMultiset<T> {
+            let mut set = Self::new();
+            set.extend(iter);
+            set
+        }
+    }
+
+    impl<T> Extend<T> for HashMultiset<T>
+    where
+        T: Eq + Hash,
+    {
+        #[inline]
+        fn extend<I: IntoIterator<Item = T>>(&mut self, iter: I) {
+            for k in iter.into_iter() {
+                self.insert(k);
+            }
+        }
+    }
+
+    impl<'a, T> Extend<&'a T> for HashMultiset<T>
+    where
+        T: 'a + Eq + Hash + Copy,
+    {
+        #[inline]
+        fn extend<I: IntoIterator<Item = &'a T>>(&mut self, iter: I) {
+            self.extend(iter.into_iter().cloned());
+        }
+    }
+
+    impl<T> Default for HashMultiset<T>
+    where
+        T: Eq + Hash,
+    {
+        #[inline]
+        fn default() -> Self {
+            Self {
+                map: HashMap::default(),
+            }
+        }
     }
 }
 

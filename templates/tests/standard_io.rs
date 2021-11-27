@@ -291,4 +291,63 @@ mod tests {
             templates::standard_io::div_ceil(a, b)
         }
     }
+
+    mod hash_multiset {
+        use templates::standard_io::HashMultiset;
+
+        #[test]
+        fn len() {
+            let mut set = HashMultiset::new();
+            set.insert(1);
+            set.insert(2);
+            set.insert(2);
+            assert_eq!(set.len(), 3);
+        }
+
+        #[test]
+        fn is_empty() {
+            let mut set = HashMultiset::new();
+
+            assert!(set.is_empty());
+
+            set.insert(1);
+
+            assert!(!set.is_empty());
+
+            set.insert(1);
+
+            assert!(!set.is_empty());
+
+            set.remove_single(&1);
+
+            assert!(!set.is_empty());
+
+            set.remove_single(&1);
+
+            assert!(set.is_empty());
+        }
+
+        #[test]
+        fn contains() {
+            let mut set = HashMultiset::new();
+
+            assert!(!set.contains(&1));
+
+            set.insert(1);
+
+            assert!(set.contains(&1));
+
+            set.insert(1);
+
+            assert!(set.contains(&1));
+
+            set.remove_single(&1);
+
+            assert!(set.contains(&1));
+
+            set.remove_single(&1);
+
+            assert!(!set.contains(&1));
+        }
+    }
 }
