@@ -548,6 +548,27 @@ pub fn prime_factorize(n: usize) -> HashMap<usize, usize> {
     map
 }
 
+#[allow(dead_code)]
+pub fn divisors_of(n: usize) -> HashSet<usize> {
+    let mut divisor_seeds = HashSet::new();
+    divisor_seeds.insert(1);
+
+    let mut factors = prime_factorize(n);
+    for (&factor, &num) in factors.iter() {
+        let mut new_points = divisor_seeds.clone();
+        let mut m = factor;
+        for i in 1..=num {
+            for point in divisor_seeds.iter() {
+                new_points.insert(m * point);
+            }
+            m *= factor
+        }
+        divisor_seeds = new_points;
+    }
+
+    divisor_seeds
+}
+
 const INC: [usize; 8] = [4, 2, 4, 2, 4, 6, 2, 6];
 
 // https://memo.sugyan.com/entry/2021/02/06/021949
