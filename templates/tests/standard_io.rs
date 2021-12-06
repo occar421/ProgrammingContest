@@ -1,5 +1,6 @@
 #[cfg(test)]
 mod tests {
+    use std::iter::FromIterator;
     use templates::standard_io::IterExt;
     use test_case::test_case;
 
@@ -100,6 +101,21 @@ mod tests {
         let mut pairs: Vec<_> = result.iter().collect();
         pairs.sort_by_key(|(key, _)| *key);
         pairs.iter().map(|(key, value)| (**key, **value)).collect()
+    }
+
+    #[test_case(1 => vec![1])]
+    #[test_case(2 => vec![1, 2])]
+    #[test_case(3 => vec![1, 3])]
+    #[test_case(4 => vec![1, 2, 4])]
+    #[test_case(5 => vec![1, 5])]
+    #[test_case(6 => vec![1, 2, 3, 6])]
+    #[test_case(8 => vec![1, 2, 4, 8])]
+    #[test_case(12 => vec![1, 2, 3, 4, 6, 12])]
+    fn divisors_of(n: usize) -> Vec<usize> {
+        let result = templates::standard_io::divisors_of(n);
+        let mut result = Vec::from_iter(result);
+        result.sort_unstable();
+        result
     }
 
     #[test_case(0 => Vec::<usize>::new())]

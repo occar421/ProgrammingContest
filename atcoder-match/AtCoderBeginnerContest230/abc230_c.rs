@@ -548,27 +548,6 @@ pub fn prime_factorize(n: usize) -> HashMap<usize, usize> {
     map
 }
 
-#[allow(dead_code)]
-pub fn divisors_of(n: usize) -> HashSet<usize> {
-    let mut divisor_seeds = HashSet::new();
-    divisor_seeds.insert(1);
-
-    let mut factors = prime_factorize(n);
-    for (&factor, &num) in factors.iter() {
-        let mut new_points = divisor_seeds.clone();
-        let mut m = factor;
-        for i in 1..=num {
-            for point in divisor_seeds.iter() {
-                new_points.insert(m * point);
-            }
-            m *= factor
-        }
-        divisor_seeds = new_points;
-    }
-
-    divisor_seeds
-}
-
 const INC: [usize; 8] = [4, 2, 4, 2, 4, 6, 2, 6];
 
 // https://memo.sugyan.com/entry/2021/02/06/021949
@@ -1327,15 +1306,33 @@ where
 
     {
         input! {
-            // FIXME: arguments
-            // n: usize,
-            // mut a: [usize1; n],
+            n: usize, a: usize1, b: usize1,
+            p: usize1, q: usize1, r: usize1, s: usize1,
         }
 
-        // FIXME: logic
+        let mut rows = nested_vec![false; q - p + 1; s - r + 1];
 
-        // FIXME: print
-        println!();
+        for i in p..=q {
+            for j in r..=s {
+                // if a + k == i && b + k == j => k == k {
+                if i + b == j + a {
+                    rows[i - p][j - r] = true;
+                }
+
+                // if a + k == i && b - k == j => k == k {
+                // if i - a == b - j {
+                if i + j == a + b {
+                    rows[i - p][j - r] = true;
+                }
+            }
+        }
+
+        for row in rows.iter() {
+            for cell in row.iter() {
+                print!("{}", if *cell { "#" } else { "." });
+            }
+            println!();
+        }
     }
 
     Ok(())
@@ -1347,26 +1344,50 @@ mod tests {
 
     #[test]
     fn sample1() {
-        assert_judge!(process, "1", "2");
+        assert_judge!(
+            process,
+            "
+5 3 2
+1 5 1 5
+",
+            "
+...#.
+#.#..
+.#...
+#.#..
+...#.
+"
+        );
+    }
 
-        // let output = assert_judge_with_output!(process, "3");
-        //
-        // input_original! {
-        //     source = output;
-        //     o: [u32; 3],
-        // }
-        //
-        // assert_eq!(1, o[0]);
+    #[test]
+    fn sample2() {
+        assert_judge!(
+            process,
+            "
+5 3 3
+4 5 2 5
+",
+            "
+#.#.
+...#
+"
+        );
+    }
 
-        // let output = assert_judge_with_output!(process, "10 1.00000");
-        //
-        // input_original! {
-        //      source = output;
-        //      o: f64,
-        // }
-        //
-        // assert_eq_with_error!(4f64, o, 10f64.powi(-6));
-
-        // assert_judge_with_error!(process, "7", "2.52163", f64 | 10f64.powi(-2));
+    #[test]
+    fn sample3() {
+        assert_judge!(
+            process,
+            "
+1000000000000000000 999999999999999999 999999999999999999
+999999999999999998 1000000000000000000 999999999999999998 1000000000000000000
+",
+            "
+#.#
+.#.
+#.#
+"
+        );
     }
 }

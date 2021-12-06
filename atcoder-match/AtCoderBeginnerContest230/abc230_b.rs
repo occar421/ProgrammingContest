@@ -548,27 +548,6 @@ pub fn prime_factorize(n: usize) -> HashMap<usize, usize> {
     map
 }
 
-#[allow(dead_code)]
-pub fn divisors_of(n: usize) -> HashSet<usize> {
-    let mut divisor_seeds = HashSet::new();
-    divisor_seeds.insert(1);
-
-    let mut factors = prime_factorize(n);
-    for (&factor, &num) in factors.iter() {
-        let mut new_points = divisor_seeds.clone();
-        let mut m = factor;
-        for i in 1..=num {
-            for point in divisor_seeds.iter() {
-                new_points.insert(m * point);
-            }
-            m *= factor
-        }
-        divisor_seeds = new_points;
-    }
-
-    divisor_seeds
-}
-
 const INC: [usize; 8] = [4, 2, 4, 2, 4, 6, 2, 6];
 
 // https://memo.sugyan.com/entry/2021/02/06/021949
@@ -1327,15 +1306,17 @@ where
 
     {
         input! {
-            // FIXME: arguments
-            // n: usize,
-            // mut a: [usize1; n],
+            s: String
         }
 
-        // FIXME: logic
-
-        // FIXME: print
-        println!();
+        println!(
+            "{}",
+            if "oxxoxxoxxoxxoxx".contains(&s) {
+                "Yes"
+            } else {
+                "No"
+            }
+        );
     }
 
     Ok(())
@@ -1347,26 +1328,16 @@ mod tests {
 
     #[test]
     fn sample1() {
-        assert_judge!(process, "1", "2");
+        assert_judge!(process, "xoxxoxxo", "Yes");
+    }
 
-        // let output = assert_judge_with_output!(process, "3");
-        //
-        // input_original! {
-        //     source = output;
-        //     o: [u32; 3],
-        // }
-        //
-        // assert_eq!(1, o[0]);
+    #[test]
+    fn sample2() {
+        assert_judge!(process, "xxoxxoxo", "No");
+    }
 
-        // let output = assert_judge_with_output!(process, "10 1.00000");
-        //
-        // input_original! {
-        //      source = output;
-        //      o: f64,
-        // }
-        //
-        // assert_eq_with_error!(4f64, o, 10f64.powi(-6));
-
-        // assert_judge_with_error!(process, "7", "2.52163", f64 | 10f64.powi(-2));
+    #[test]
+    fn sample3() {
+        assert_judge!(process, "ox", "Yes");
     }
 }
