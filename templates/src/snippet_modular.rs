@@ -1,12 +1,10 @@
-use crate::standard_io::{
-    AutoProduct, AutoSum, GenericInteger, Max, Min, PartialMax, PartialMin, ThenSome,
-};
+use crate::standard_io::{AutoProduct, AutoSum, GenericInteger, Max, Min, PartialMax, PartialMin};
 
 pub mod modular {
     //! Modular
     //! https://github.com/occar421/ProgrammingContest/tree/master/templates/src/snippet_modular.rs
 
-    use super::{AutoProduct, AutoSum, GenericInteger, Max, Min, PartialMax, PartialMin, ThenSome};
+    use super::{AutoProduct, AutoSum, GenericInteger, Max, Min, PartialMax, PartialMin};
     use std::cmp::Ordering;
     use std::fmt::{Debug, Display, Formatter};
     use std::hash::{Hash, Hasher};
@@ -182,10 +180,9 @@ pub mod modular {
 
         #[inline]
         pub fn reciprocal(&self) -> Option<Self> {
-            (self.value != 0).then_some_(
+            (self.value != 0).then(||
                 // Fermat's little theorem
-                self.pow(Self::new(M::modulo() - 2)),
-            )
+                self.pow(Self::new(M::modulo() - 2)))
         }
 
         #[inline]

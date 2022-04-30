@@ -578,7 +578,7 @@ pub fn eratosthenes_sieve(n: usize) -> Vec<usize> {
     if n < 7 {
         return [2, 3, 5]
             .iter()
-            .filter_map(|&x| (x <= n).then_some_(x))
+            .filter_map(|&x| (x <= n).then(|| x))
             .collect();
     }
     let nf = n as f64;
@@ -681,33 +681,6 @@ macro_rules! invert_index {
         goal
     }};
 }
-
-pub trait Then: Into<bool> {
-    fn then_<T, F>(self, f: F) -> Option<T>
-    where
-        F: Fn() -> T,
-    {
-        if self.into() {
-            Some(f())
-        } else {
-            None
-        }
-    }
-}
-
-impl Then for bool {}
-
-pub trait ThenSome: Into<bool> {
-    fn then_some_<T>(self, t: T) -> Option<T> {
-        if self.into() {
-            Some(t)
-        } else {
-            None
-        }
-    }
-}
-
-impl ThenSome for bool {}
 
 // From https://kuretchi.hateblo.jp/entry/rust_nested_vec
 #[allow(unused_macros)]
