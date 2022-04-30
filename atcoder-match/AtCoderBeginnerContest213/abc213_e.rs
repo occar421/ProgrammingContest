@@ -887,7 +887,7 @@ where
         }
 
         let mut heap = BinaryHeap::new();
-        let mut visited = nested_vec![None; h; w];
+        // let mut visited = nested_vec![None; h; w];
         heap.push((0, 0));
         while let Some(current) = heap.pop() {}
 

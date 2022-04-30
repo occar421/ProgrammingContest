@@ -1,0 +1,13 @@
+{
+  "folders": [
+    { "name": "Templates", "path": "templates" },
+    { "name": "AOJ", "path": "aizu_online_judge" },
+    { "name": "AtCoder Match", "path": "atcoder-match" },
+    { "name": "AtCoder Practice", "path": "atcoder-practice" },
+    { "name": "Codeforces", "path": "codeforces" },
+    { "name": "Omnibus", "path": "omnibus" },
+    { "name": "yukicoder", "path": "yukicoder" },
+    { "name": "root", "path": "." }
+  ],
+  "settings": {}
+}
