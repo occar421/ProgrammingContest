@@ -20,5 +20,5 @@ members = [
     "match-revisit",
     "virtual-match",
     "virtual-match/AtCoderRegularContest124",
-    "virtual-match/20210823",
+    "virtual-match/_20210823",
 ]
