@@ -237,18 +237,39 @@ pub mod bit {
     }
 
     #[derive(Copy, Clone)]
-    pub struct BitBasedSet {
-        size: usize,
+    pub struct BitBasedSet<const SIZE: usize> {
         value: usize,
     }
 
-    impl BitBasedSet {
-        fn new(size: usize, value: usize) -> Self {
-            Self { size, value }
+    impl<const SIZE: usize> BitBasedSet<SIZE> {
+        fn new(value: usize) -> Self {
+            Self { value }
         }
 
-        pub fn generator_of(size: usize) -> BitBasedSetGenerator {
-            BitBasedSetGenerator::new(size)
+        #[inline]
+        pub fn universal_set() -> Self {
+            Self::new((0b1 << SIZE) - 1)
+        }
+
+        #[inline]
+        pub fn empty_set() -> Self {
+            Self::new(0)
+        }
+
+        #[inline]
+        pub fn combination() -> usize {
+            0b1 << SIZE as u32
+        }
+
+        pub fn by_indices_iter<I>(iter: I) -> Self
+        where
+            I: Iterator<Item = usize>,
+        {
+            let mut v = 0;
+            for i in iter {
+                v |= 0b1 << i;
+            }
+            Self::new(v)
         }
 
         #[inline]
@@ -268,34 +289,38 @@ pub mod bit {
 
         #[inline]
         pub fn complement(&self) -> Self {
-            Self::new(
-                self.size,
-                self.value ^ BitBasedSetGenerator::new(self.size).universal_set().value,
-            )
+            Self::new(self.value ^ Self::universal_set().value)
         }
 
         #[inline]
         pub fn excluded_set(&self, index: usize) -> Self {
-            Self::new(self.size, self.value & !(0b1 << index))
+            Self::new(self.value & !(0b1 << index))
         }
 
         #[inline]
         pub fn appended_set(&self, index: usize) -> Self {
-            Self::new(self.size, self.value | (0b1 << index))
+            Self::new(self.value | (0b1 << index))
         }
     }
 
-    pub struct BitBasedSetIntoIter {
-        set: BitBasedSet,
+    impl<const SIZE: usize> From<usize> for BitBasedSet<SIZE> {
+        #[inline]
+        fn from(value: usize) -> Self {
+            BitBasedSet::new(value)
+        }
+    }
+
+    pub struct BitBasedSetIntoIter<const SIZE: usize> {
+        set: BitBasedSet<SIZE>,
         current: usize,
     }
 
-    impl Iterator for BitBasedSetIntoIter {
+    impl<const SIZE: usize> Iterator for BitBasedSetIntoIter<SIZE> {
         type Item = usize;
 
         fn next(&mut self) -> Option<Self::Item> {
             let mut current = self.current;
-            while self.set.size >= current {
+            while SIZE >= current {
                 if self.set.includes(current) {
                     self.current = current + 1;
                     return Some(current);
@@ -306,56 +331,16 @@ pub mod bit {
         }
     }
 
-    impl IntoIterator for BitBasedSet {
+    impl<const SIZE: usize> IntoIterator for BitBasedSet<SIZE> {
         type Item = usize;
-        type IntoIter = BitBasedSetIntoIter;
+        type IntoIter = BitBasedSetIntoIter<SIZE>;
 
+        #[inline]
         fn into_iter(self) -> Self::IntoIter {
             BitBasedSetIntoIter {
                 set: self,
                 current: 0,
             }
-        }
-    }
-
-    pub struct BitBasedSetGenerator {
-        size: usize,
-    }
-
-    impl BitBasedSetGenerator {
-        fn new(size: usize) -> Self {
-            Self { size }
-        }
-
-        #[inline]
-        pub fn universal_set(&self) -> BitBasedSet {
-            BitBasedSet::new(self.size, (0b1 << self.size) - 1)
-        }
-
-        #[inline]
-        pub fn empty_set(&self) -> BitBasedSet {
-            BitBasedSet::new(self.size, 0)
-        }
-
-        #[inline]
-        pub fn combination(&self) -> usize {
-            0b1 << self.size as u32
-        }
-
-        #[inline]
-        pub fn from(&self, v: usize) -> BitBasedSet {
-            BitBasedSet::new(self.size, v)
-        }
-
-        pub fn by_indices_iter<I>(&self, iter: I) -> BitBasedSet
-        where
-            I: Iterator<Item = usize>,
-        {
-            let mut v = 0;
-            for i in iter {
-                v |= 0b1 << i;
-            }
-            BitBasedSet::new(self.size, v)
         }
     }
 }

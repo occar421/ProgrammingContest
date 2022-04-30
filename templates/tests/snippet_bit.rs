@@ -148,80 +148,68 @@ mod tests {
         use templates::snippet_bit::bit::BitBasedSet;
         use test_case::test_case;
 
-        #[test]
-        fn bbs2gen_static() {
-            let bbs2gen = BitBasedSet::generator_of(2);
+        type Bbs2 = BitBasedSet<2>;
+        type Bbs4 = BitBasedSet<4>;
+        type Bbs8 = BitBasedSet<8>;
 
-            assert_eq!(bbs2gen.universal_set().dump(), 0b011);
-            assert_eq!(bbs2gen.empty_set().dump(), 0b000);
-            assert_eq!(bbs2gen.combination(), 4);
+        #[test]
+        fn bbs2_static() {
+            assert_eq!(Bbs2::universal_set().dump(), 0b011);
+            assert_eq!(Bbs2::empty_set().dump(), 0b000);
+            assert_eq!(Bbs2::combination(), 4);
         }
 
         #[test]
         fn bbs8_by_nodes_iter() {
-            let bbs8gen = BitBasedSet::generator_of(8);
-
-            let bbs = bbs8gen.by_indices_iter(vec![1, 2, 4].into_iter());
+            let bbs = Bbs8::by_indices_iter(vec![1, 2, 4].into_iter());
             assert_eq!(bbs.dump(), 0b0010110)
         }
 
         #[test_case(0 => false)]
         #[test_case(1 => true)]
         fn bbs2_includes(index: usize) -> bool {
-            let bbs2gen = BitBasedSet::generator_of(2);
-
-            let bbs = bbs2gen.empty_set().appended_set(1);
+            let bbs = Bbs2::empty_set().appended_set(1);
             bbs.includes(index)
         }
 
         #[test]
         fn bbs2_is_empty() {
-            let bbs2gen = BitBasedSet::generator_of(2);
-
-            assert_eq!(bbs2gen.empty_set().is_empty(), true);
-            assert_eq!(bbs2gen.empty_set().appended_set(1).is_empty(), false);
+            assert_eq!(Bbs2::empty_set().is_empty(), true);
+            assert_eq!(Bbs2::empty_set().appended_set(1).is_empty(), false);
         }
 
         #[test_case(0 => true)]
         #[test_case(1 => false)]
         fn bbs2_complement(index: usize) -> bool {
-            let bbs2gen = BitBasedSet::generator_of(2);
-
-            let bbs = bbs2gen.empty_set().appended_set(1).complement();
+            let bbs = Bbs2::empty_set().appended_set(1).complement();
             bbs.includes(index)
         }
 
         #[test]
         fn bbs2_excluded_set() {
-            let bbs2gen = BitBasedSet::generator_of(2);
-
-            let bbs = bbs2gen.empty_set().excluded_set(1);
+            let bbs = Bbs2::empty_set().excluded_set(1);
             assert_eq!(bbs.includes(0), false);
             assert_eq!(bbs.includes(1), false);
 
-            let bbs = bbs2gen.universal_set().excluded_set(1);
+            let bbs = Bbs2::universal_set().excluded_set(1);
             assert_eq!(bbs.includes(0), true);
             assert_eq!(bbs.includes(1), false);
         }
 
         #[test]
         fn bbs2_appended_set() {
-            let bbs2gen = BitBasedSet::generator_of(2);
-
-            let bbs = bbs2gen.empty_set().appended_set(1);
+            let bbs = Bbs2::empty_set().appended_set(1);
             assert_eq!(bbs.includes(0), false);
             assert_eq!(bbs.includes(1), true);
 
-            let bbs = bbs2gen.universal_set().appended_set(1);
+            let bbs = Bbs2::universal_set().appended_set(1);
             assert_eq!(bbs.includes(0), true);
             assert_eq!(bbs.includes(1), true);
         }
 
         #[test]
         fn bbs4_into_iter() {
-            let bbs4gen = BitBasedSet::generator_of(4);
-
-            let bbs = bbs4gen.empty_set().appended_set(2).appended_set(1);
+            let bbs = Bbs4::empty_set().appended_set(2).appended_set(1);
             let mut bbs_iter = bbs.into_iter();
             assert_eq!(bbs_iter.next(), Some(1));
             assert_eq!(bbs_iter.next(), Some(2));
@@ -230,9 +218,7 @@ mod tests {
 
         #[test]
         fn bbs4_from() {
-            let bbs4gen = BitBasedSet::generator_of(4);
-
-            let bbs = bbs4gen.from(0b1001);
+            let bbs = Bbs4::from(0b1001);
             assert!(bbs.includes(0));
             assert!(!bbs.includes(1));
             assert!(!bbs.includes(2));
