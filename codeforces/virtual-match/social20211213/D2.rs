@@ -553,11 +553,11 @@ pub fn divisors_of(n: usize) -> HashSet<usize> {
     let mut divisor_seeds = HashSet::new();
     divisor_seeds.insert(1);
 
-    let factors = prime_factorize(n);
+    let mut factors = prime_factorize(n);
     for (&factor, &num) in factors.iter() {
         let mut new_points = divisor_seeds.clone();
         let mut m = factor;
-        for _ in 1..=num {
+        for i in 1..=num {
             for point in divisor_seeds.iter() {
                 new_points.insert(m * point);
             }

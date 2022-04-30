@@ -553,11 +553,11 @@ pub fn divisors_of(n: usize) -> HashSet<usize> {
     let mut divisor_seeds = HashSet::new();
     divisor_seeds.insert(1);
 
-    let factors = prime_factorize(n);
+    let mut factors = prime_factorize(n);
     for (&factor, &num) in factors.iter() {
         let mut new_points = divisor_seeds.clone();
         let mut m = factor;
-        for _ in 1..=num {
+        for i in 1..=num {
             for point in divisor_seeds.iter() {
                 new_points.insert(m * point);
             }
@@ -1327,15 +1327,42 @@ where
 
     {
         input! {
-            // FIXME: arguments
-            // n: usize,
-            // mut a: [usize1; n],
+            t: usize,
         }
 
-        // FIXME: logic
+        for _ in 0..t {
+            input! {
+                n: usize, k: usize,
+                uv: [(usize1, usize1); n - 1],
+            }
 
-        // FIXME: print
-        println!();
+            let mut edges = HashMap::new();
+            for &(u, v) in uv.iter() {
+                edges.entry(u).or_insert(vec![]).push(v);
+                edges.entry(v).or_insert(vec![]).push(u);
+            }
+
+            let mut rest = n;
+            for count in 1..=k {
+                let mut rank1s = HashSet::new();
+                for i in 0..n {
+                    if edges[&i].len() == 1 {
+                        rank1s.insert(i);
+                    }
+                }
+                rest -= rank1s.len();
+                for i in rank1s.iter() {
+                    let target = edges.remove(&i).unwrap();
+                    if target.len() > 0 {
+                        let target = target[0];
+                        let pos = edges[&target].iter().position(|x| *x == *i).unwrap();
+                        edges.get_mut(&target).unwrap().remove(pos);
+                    }
+                }
+            }
+
+            println!("{}", rest);
+        }
     }
 
     Ok(())
@@ -1347,26 +1374,62 @@ mod tests {
 
     #[test]
     fn sample1() {
-        assert_judge!(process, "1", "2");
+        assert_judge!(
+            process,
+            "
+6
 
-        // let output = assert_judge_with_output!(process, "3");
-        //
-        // input_original! {
-        //     source = output;
-        //     o: [u32; 3],
-        // }
-        //
-        // assert_eq!(1, o[0]);
+14 1
+1 2
+2 3
+2 4
+4 5
+4 6
+2 7
+7 8
+8 9
+8 10
+3 11
+3 12
+1 13
+13 14
 
-        // let output = assert_judge_with_output!(process, "10 1.00000");
-        //
-        // input_original! {
-        //      source = output;
-        //      o: f64,
-        // }
-        //
-        // assert_eq_with_error!(4f64, o, 10f64.powi(-6));
+2 200000
+1 2
 
-        // assert_judge_with_error!(process, "7", "2.52163", f64 | 10f64.powi(-2));
+3 2
+1 2
+2 3
+
+5 1
+5 1
+3 2
+2 1
+5 4
+
+6 2
+5 1
+2 5
+5 6
+4 2
+3 4
+
+7 1
+4 3
+5 1
+1 3
+6 1
+1 7
+2 1
+",
+            "
+7
+0
+0
+3
+1
+2
+"
+        );
     }
 }

@@ -553,11 +553,11 @@ pub fn divisors_of(n: usize) -> HashSet<usize> {
     let mut divisor_seeds = HashSet::new();
     divisor_seeds.insert(1);
 
-    let factors = prime_factorize(n);
+    let mut factors = prime_factorize(n);
     for (&factor, &num) in factors.iter() {
         let mut new_points = divisor_seeds.clone();
         let mut m = factor;
-        for _ in 1..=num {
+        for i in 1..=num {
             for point in divisor_seeds.iter() {
                 new_points.insert(m * point);
             }
@@ -1327,15 +1327,33 @@ where
 
     {
         input! {
-            // FIXME: arguments
-            // n: usize,
-            // mut a: [usize1; n],
+            t: usize,
         }
 
-        // FIXME: logic
+        for _ in 0..t {
+            input! {
+                n: usize,
+                a: [isize; n],
+            }
 
-        // FIXME: print
-        println!();
+            let min = partial_min!(a).unwrap();
+
+            let new_a: Vec<_> = a
+                .into_iter()
+                .map(|a_i| a_i - min)
+                .filter(|a_i| *a_i > 0)
+                .collect();
+
+            if new_a.is_empty() {
+                println!("-1");
+            } else if new_a.len() == 1 {
+                println!("{}", new_a[0]);
+            } else {
+                let first = new_a[0];
+                let result = new_a.into_iter().skip(1).fold(first, |acc, x| gcd(acc, x));
+                println!("{}", result);
+            }
+        }
     }
 
     Ok(())
@@ -1347,26 +1365,22 @@ mod tests {
 
     #[test]
     fn sample1() {
-        assert_judge!(process, "1", "2");
-
-        // let output = assert_judge_with_output!(process, "3");
-        //
-        // input_original! {
-        //     source = output;
-        //     o: [u32; 3],
-        // }
-        //
-        // assert_eq!(1, o[0]);
-
-        // let output = assert_judge_with_output!(process, "10 1.00000");
-        //
-        // input_original! {
-        //      source = output;
-        //      o: f64,
-        // }
-        //
-        // assert_eq_with_error!(4f64, o, 10f64.powi(-6));
-
-        // assert_judge_with_error!(process, "7", "2.52163", f64 | 10f64.powi(-2));
+        assert_judge!(
+            process,
+            "
+3
+6
+1 5 3 1 1 5
+8
+-1 0 1 -1 0 1 -1 0
+4
+100 -1000 -1000 -1000
+",
+            "
+2
+1
+1100
+"
+        );
     }
 }

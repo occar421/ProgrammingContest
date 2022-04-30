@@ -548,27 +548,6 @@ pub fn prime_factorize(n: usize) -> HashMap<usize, usize> {
     map
 }
 
-#[allow(dead_code)]
-pub fn divisors_of(n: usize) -> HashSet<usize> {
-    let mut divisor_seeds = HashSet::new();
-    divisor_seeds.insert(1);
-
-    let factors = prime_factorize(n);
-    for (&factor, &num) in factors.iter() {
-        let mut new_points = divisor_seeds.clone();
-        let mut m = factor;
-        for _ in 1..=num {
-            for point in divisor_seeds.iter() {
-                new_points.insert(m * point);
-            }
-            m *= factor
-        }
-        divisor_seeds = new_points;
-    }
-
-    divisor_seeds
-}
-
 const INC: [usize; 8] = [4, 2, 4, 2, 4, 6, 2, 6];
 
 // https://memo.sugyan.com/entry/2021/02/06/021949
@@ -1327,15 +1306,34 @@ where
 
     {
         input! {
-            // FIXME: arguments
-            // n: usize,
-            // mut a: [usize1; n],
+            t: usize,
         }
 
-        // FIXME: logic
+        for _ in 0..t {
+            input! {
+                k: usize, x: usize,
+            }
 
-        // FIXME: print
-        println!();
+            if x >= k * (k + 1) - k {
+                // whole triangle
+                println!("{}", k * 2 - 1);
+                continue;
+            }
+
+            let first_n = (((1 + 8 * x) as f64).sqrt() - 1.0) / 2.0;
+            let first_n = first_n.ceil() as usize;
+            if first_n <= k {
+                // on criming or top of k triangle
+                println!("{}", first_n);
+                continue;
+            }
+
+            let consumed = k * (k + 1) / 2;
+            dbg!(x, consumed);
+            let second_n = ((1 * 8 * (x - consumed)) as f64).sqrt() + 2.0 * k as f64 + 1.0;
+            dbg!(k, first_n, second_n);
+            println!("-1");
+        }
     }
 
     Ok(())
@@ -1347,26 +1345,27 @@ mod tests {
 
     #[test]
     fn sample1() {
-        assert_judge!(process, "1", "2");
-
-        // let output = assert_judge_with_output!(process, "3");
-        //
-        // input_original! {
-        //     source = output;
-        //     o: [u32; 3],
-        // }
-        //
-        // assert_eq!(1, o[0]);
-
-        // let output = assert_judge_with_output!(process, "10 1.00000");
-        //
-        // input_original! {
-        //      source = output;
-        //      o: f64,
-        // }
-        //
-        // assert_eq_with_error!(4f64, o, 10f64.powi(-6));
-
-        // assert_judge_with_error!(process, "7", "2.52163", f64 | 10f64.powi(-2));
+        assert_judge!(
+            process,
+            "
+7
+4 6
+4 7
+1 2
+3 7
+2 5
+100 1
+1000000000 923456789987654321
+",
+            "
+3
+4
+1
+4
+3
+1
+1608737403
+"
+        );
     }
 }

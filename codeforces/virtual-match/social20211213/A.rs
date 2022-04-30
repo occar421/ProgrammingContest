@@ -553,11 +553,11 @@ pub fn divisors_of(n: usize) -> HashSet<usize> {
     let mut divisor_seeds = HashSet::new();
     divisor_seeds.insert(1);
 
-    let factors = prime_factorize(n);
+    let mut factors = prime_factorize(n);
     for (&factor, &num) in factors.iter() {
         let mut new_points = divisor_seeds.clone();
         let mut m = factor;
-        for _ in 1..=num {
+        for i in 1..=num {
             for point in divisor_seeds.iter() {
                 new_points.insert(m * point);
             }
@@ -1327,15 +1327,20 @@ where
 
     {
         input! {
-            // FIXME: arguments
-            // n: usize,
-            // mut a: [usize1; n],
+            t: usize,
         }
 
-        // FIXME: logic
+        for _ in 0..t {
+            input! {
+                a: usize, b: usize, c: usize,
+            }
 
-        // FIXME: print
-        println!();
+            fn calc(a: usize, b: usize, c: usize) -> usize {
+                (max!(b, c) + 1).checked_sub(a).unwrap_or(0)
+            }
+
+            println!("{} {} {}", calc(a, b, c), calc(b, c, a), calc(c, a, b),);
+        }
     }
 
     Ok(())
@@ -1347,26 +1352,23 @@ mod tests {
 
     #[test]
     fn sample1() {
-        assert_judge!(process, "1", "2");
-
-        // let output = assert_judge_with_output!(process, "3");
-        //
-        // input_original! {
-        //     source = output;
-        //     o: [u32; 3],
-        // }
-        //
-        // assert_eq!(1, o[0]);
-
-        // let output = assert_judge_with_output!(process, "10 1.00000");
-        //
-        // input_original! {
-        //      source = output;
-        //      o: f64,
-        // }
-        //
-        // assert_eq_with_error!(4f64, o, 10f64.powi(-6));
-
-        // assert_judge_with_error!(process, "7", "2.52163", f64 | 10f64.powi(-2));
+        assert_judge!(
+            process,
+            "
+5
+0 0 0
+10 75 15
+13 13 17
+1000 0 0
+0 1000000000 0
+",
+            "
+1 1 1
+66 0 61
+5 5 0
+0 1001 1001
+1000000001 0 1000000001
+"
+        );
     }
 }

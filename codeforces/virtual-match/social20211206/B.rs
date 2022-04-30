@@ -548,27 +548,6 @@ pub fn prime_factorize(n: usize) -> HashMap<usize, usize> {
     map
 }
 
-#[allow(dead_code)]
-pub fn divisors_of(n: usize) -> HashSet<usize> {
-    let mut divisor_seeds = HashSet::new();
-    divisor_seeds.insert(1);
-
-    let factors = prime_factorize(n);
-    for (&factor, &num) in factors.iter() {
-        let mut new_points = divisor_seeds.clone();
-        let mut m = factor;
-        for _ in 1..=num {
-            for point in divisor_seeds.iter() {
-                new_points.insert(m * point);
-            }
-            m *= factor
-        }
-        divisor_seeds = new_points;
-    }
-
-    divisor_seeds
-}
-
 const INC: [usize; 8] = [4, 2, 4, 2, 4, 6, 2, 6];
 
 // https://memo.sugyan.com/entry/2021/02/06/021949
@@ -1327,15 +1306,63 @@ where
 
     {
         input! {
-            // FIXME: arguments
-            // n: usize,
-            // mut a: [usize1; n],
+            t: usize,
         }
 
-        // FIXME: logic
+        for _ in 0..t {
+            input! {
+                n: usize, a: usize, b: usize,
+            }
 
-        // FIXME: print
-        println!();
+            if a > b + 1 {
+                println!("-1");
+                continue;
+            }
+
+            let half = n / 2;
+
+            let mut left = HashSet::new();
+            left.insert(a);
+            let mut right = HashSet::new();
+            right.insert(b);
+            for i in 1..a {
+                right.insert(i);
+            }
+            for i in b + 1..=n {
+                left.insert(i);
+            }
+
+            if left.len() > half || right.len() > half {
+                println!("-1");
+                continue;
+            }
+
+            let mut curr = a + 1;
+            while left.len() < half {
+                left.insert(curr);
+                curr += 1;
+            }
+            while right.len() < half {
+                right.insert(curr);
+                curr += 1;
+            }
+
+            if (1..=n)
+                .into_iter()
+                .any(|i| !left.contains(&i) && !right.contains(&i))
+            {
+                println!("-1");
+                continue;
+            }
+
+            for i in left {
+                print!("{} ", i);
+            }
+            for i in right {
+                print!("{} ", i);
+            }
+            println!();
+        }
     }
 
     Ok(())
@@ -1347,26 +1374,27 @@ mod tests {
 
     #[test]
     fn sample1() {
-        assert_judge!(process, "1", "2");
-
-        // let output = assert_judge_with_output!(process, "3");
-        //
-        // input_original! {
-        //     source = output;
-        //     o: [u32; 3],
-        // }
-        //
-        // assert_eq!(1, o[0]);
-
-        // let output = assert_judge_with_output!(process, "10 1.00000");
-        //
-        // input_original! {
-        //      source = output;
-        //      o: f64,
-        // }
-        //
-        // assert_eq_with_error!(4f64, o, 10f64.powi(-6));
-
-        // assert_judge_with_error!(process, "7", "2.52163", f64 | 10f64.powi(-2));
+        assert_judge!(
+            process,
+            "
+7
+6 2 5
+6 1 3
+6 4 3
+4 2 4
+10 5 3
+2 1 2
+2 2 1
+",
+            "
+4 2 6 5 3 1
+-1
+6 4 5 1 3 2
+3 2 4 1
+-1
+1 2
+2 1
+"
+        );
     }
 }
