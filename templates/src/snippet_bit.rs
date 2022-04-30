@@ -2,46 +2,19 @@ pub mod bit {
     //! Bit
     //! https://github.com/occar421/ProgrammingContest/tree/master/templates/src/snippet_bit.rs
 
-    use std::marker::PhantomData;
     use std::ops::{
         BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Index, Not, Shl, ShlAssign,
         Shr, ShrAssign,
     };
 
-    pub trait BitSizeExt: Clone + Copy {
-        fn size() -> usize;
-    }
-
-    #[macro_export]
-    macro_rules! bit_set {
-        ($num: literal as $alias: ident) => {
-            bit_size!($num in bit as $alias);
-        };
-        ($num: literal in $module_base: path as $alias: ident) => {
-            #[derive(Debug, Clone, Copy, Default, PartialOrd, Ord, PartialEq, Eq)]
-            pub struct BitSize;
-
-            use $module_base as base;
-
-            impl base::BitSizeExt for BitSize {
-                #[inline]
-                fn size() -> usize {
-                    $num
-                }
-            }
-
-            type $alias = base::BitSet<BitSize>;
-        };
-    }
-
+    /// ```
+    /// # use templates::snippet_bit::bit::BitSet;
+    /// type BitSet2 = BitSet<2>;
+    /// ```
     #[derive(Clone)]
-    pub struct BitSet<S>
-    where
-        S: BitSizeExt,
-    {
+    pub struct BitSet<const SIZE: usize> {
         // little endian
         chunks: Vec<u64>,
-        size: PhantomData<S>,
     }
 
     const CHUNK_BIT_SIZE: usize = 64;
@@ -49,14 +22,10 @@ pub mod bit {
     // 2 ^ 6 = 64
     const CHUNK_BIT_LENGTH: usize = 6;
 
-    impl<S> BitSet<S>
-    where
-        S: BitSizeExt,
-    {
+    impl<const SIZE: usize> BitSet<SIZE> {
         pub fn zero() -> Self {
             Self {
-                chunks: vec![0; (S::size() + (CHUNK_BIT_SIZE - 1)) / CHUNK_BIT_SIZE],
-                size: PhantomData,
+                chunks: vec![0; (SIZE + (CHUNK_BIT_SIZE - 1)) / CHUNK_BIT_SIZE],
             }
         }
 
@@ -72,7 +41,7 @@ pub mod bit {
         }
 
         pub fn set(&mut self, index: usize, value: bool) {
-            assert!(index < S::size());
+            assert!(index < SIZE);
 
             let target_bit = 1 << (index & CHUNK_INDEX_MASK);
 
@@ -87,20 +56,18 @@ pub mod bit {
             self.chunks.iter().map(|x| x.count_ones()).sum()
         }
 
+        const R: usize = SIZE & CHUNK_INDEX_MASK;
+
         fn chomp(&mut self) {
-            let r = S::size() & CHUNK_INDEX_MASK;
             if let Some(bits) = self.chunks.last_mut() {
-                let d = CHUNK_BIT_SIZE - r;
+                let d = CHUNK_BIT_SIZE - Self::R;
                 // erase "overflowed" bits
                 *bits = (*bits << d) >> d;
             }
         }
     }
 
-    impl<S> Not for BitSet<S>
-    where
-        S: BitSizeExt,
-    {
+    impl<const SIZE: usize> Not for BitSet<SIZE> {
         type Output = Self;
 
         fn not(self) -> Self::Output {
@@ -113,48 +80,36 @@ pub mod bit {
         }
     }
 
-    impl<S> BitAnd<BitSet<S>> for BitSet<S>
-    where
-        S: BitSizeExt,
-    {
+    impl<const SIZE: usize> BitAnd<BitSet<SIZE>> for BitSet<SIZE> {
         type Output = Self;
 
-        fn bitand(self, rhs: BitSet<S>) -> Self::Output {
+        fn bitand(self, rhs: BitSet<SIZE>) -> Self::Output {
             let mut v = self.clone();
             v &= rhs;
             v
         }
     }
 
-    impl<S> BitAndAssign<BitSet<S>> for BitSet<S>
-    where
-        S: BitSizeExt,
-    {
-        fn bitand_assign(&mut self, rhs: BitSet<S>) {
+    impl<const SIZE: usize> BitAndAssign<BitSet<SIZE>> for BitSet<SIZE> {
+        fn bitand_assign(&mut self, rhs: BitSet<SIZE>) {
             for (self_piece, rhs_piece) in self.chunks.iter_mut().zip(rhs.chunks.iter()) {
                 *self_piece &= rhs_piece;
             }
         }
     }
 
-    impl<S> BitOr<BitSet<S>> for BitSet<S>
-    where
-        S: BitSizeExt,
-    {
+    impl<const SIZE: usize> BitOr<BitSet<SIZE>> for BitSet<SIZE> {
         type Output = Self;
 
-        fn bitor(self, rhs: BitSet<S>) -> Self::Output {
+        fn bitor(self, rhs: BitSet<SIZE>) -> Self::Output {
             let mut v = self.clone();
             v |= rhs;
             v
         }
     }
 
-    impl<S> BitOrAssign<BitSet<S>> for BitSet<S>
-    where
-        S: BitSizeExt,
-    {
-        fn bitor_assign(&mut self, rhs: BitSet<S>) {
+    impl<const SIZE: usize> BitOrAssign<BitSet<SIZE>> for BitSet<SIZE> {
+        fn bitor_assign(&mut self, rhs: BitSet<SIZE>) {
             for (self_piece, rhs_piece) in self.chunks.iter_mut().zip(rhs.chunks.iter()) {
                 *self_piece |= rhs_piece;
             }
@@ -162,34 +117,25 @@ pub mod bit {
         }
     }
 
-    impl<S> BitXor<BitSet<S>> for BitSet<S>
-    where
-        S: BitSizeExt,
-    {
+    impl<const SIZE: usize> BitXor<BitSet<SIZE>> for BitSet<SIZE> {
         type Output = Self;
 
-        fn bitxor(self, rhs: BitSet<S>) -> Self::Output {
+        fn bitxor(self, rhs: BitSet<SIZE>) -> Self::Output {
             let mut v = self.clone();
             v ^= rhs;
             v
         }
     }
 
-    impl<S> BitXorAssign<BitSet<S>> for BitSet<S>
-    where
-        S: BitSizeExt,
-    {
-        fn bitxor_assign(&mut self, rhs: BitSet<S>) {
+    impl<const SIZE: usize> BitXorAssign<BitSet<SIZE>> for BitSet<SIZE> {
+        fn bitxor_assign(&mut self, rhs: BitSet<SIZE>) {
             for (self_piece, rhs_piece) in self.chunks.iter_mut().zip(rhs.chunks.iter()) {
                 *self_piece ^= rhs_piece;
             }
         }
     }
 
-    impl<S> Shl<usize> for BitSet<S>
-    where
-        S: BitSizeExt,
-    {
+    impl<const SIZE: usize> Shl<usize> for BitSet<SIZE> {
         type Output = Self;
 
         fn shl(self, rhs: usize) -> Self::Output {
@@ -199,10 +145,7 @@ pub mod bit {
         }
     }
 
-    impl<S> ShlAssign<usize> for BitSet<S>
-    where
-        S: BitSizeExt,
-    {
+    impl<const SIZE: usize> ShlAssign<usize> for BitSet<SIZE> {
         fn shl_assign(&mut self, rhs: usize) {
             let chunk_shifts = rhs >> CHUNK_BIT_LENGTH;
             let shifts_in_chunk = rhs & CHUNK_INDEX_MASK;
@@ -238,10 +181,7 @@ pub mod bit {
         }
     }
 
-    impl<S> Shr<usize> for BitSet<S>
-    where
-        S: BitSizeExt,
-    {
+    impl<const SIZE: usize> Shr<usize> for BitSet<SIZE> {
         type Output = Self;
 
         fn shr(self, rhs: usize) -> Self::Output {
@@ -251,10 +191,7 @@ pub mod bit {
         }
     }
 
-    impl<S> ShrAssign<usize> for BitSet<S>
-    where
-        S: BitSizeExt,
-    {
+    impl<const SIZE: usize> ShrAssign<usize> for BitSet<SIZE> {
         fn shr_assign(&mut self, rhs: usize) {
             let chunk_shifts = rhs >> CHUNK_BIT_LENGTH;
             let shifts_in_chunk = rhs & CHUNK_INDEX_MASK;
@@ -291,10 +228,7 @@ pub mod bit {
     const TRUE_REF: &bool = &true;
     const FALSE_REF: &bool = &false;
 
-    impl<S> Index<usize> for BitSet<S>
-    where
-        S: BitSizeExt,
-    {
+    impl<const SIZE: usize> Index<usize> for BitSet<SIZE> {
         type Output = bool;
 
         fn index(&self, index: usize) -> &Self::Output {
