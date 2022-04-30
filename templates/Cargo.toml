@@ -2,11 +2,11 @@
 name = "templates"
 version = "0.1.0"
 authors = ["MasuqaT <occar@hotmail.co.jp>"]
-edition = "2018"
+edition = "2021"
 
 [dev-dependencies]
 # Waiting for the update of the original repo
-test-case = "1.1.0"
+test-case = "2.0.2"
 
 [dependencies]
 paste = "0.1"
