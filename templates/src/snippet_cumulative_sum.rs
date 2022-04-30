@@ -85,8 +85,8 @@ pub mod cumulative_sum {
         ///
         /// # Examples
         ///
-        ///     source: a b c
-        ///     range: 0 1 2 3
+        /// //  source: a b c
+        /// //  range: 0 1 2 3
         ///
         /// `0..2` => `a + b`
         ///
@@ -148,10 +148,10 @@ pub mod cumulative_sum {
         /// O(1)
         ///
         /// # Examples
-        ///     source:   a b c
-        ///               d e f
-        ///               g h i
-        ///     h_range: 0 1 2 3
+        /// //  source:   a b c
+        /// //            d e f
+        /// //            g h i
+        /// //  h_range: 0 1 2 3
         ///
         /// `0..2, 0..2` => `a + b + d + e`
         ///

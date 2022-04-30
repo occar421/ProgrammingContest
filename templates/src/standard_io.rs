@@ -1335,7 +1335,7 @@ where
         // FIXME: logic
 
         // FIXME: print
-        println!();
+        println!("2");
     }
 
     Ok(())

@@ -45,9 +45,9 @@ pub mod binary_search {
         /// ```
         /// # use templates::snippet_binary_search::binary_search::BinaryBorderSearch;
         /// let vec = vec![1, 2, 3];
-        /// let result = vec.search_true_false_border(|&x| x > 1);
-        /// assert_eq!(result.max_true, 0);
-        /// assert_eq!(result.min_false, 1);
+        /// let result = vec.search_true_false_border(|&x| x <= 1);
+        /// assert_eq!(result.max_true, Some(0));
+        /// assert_eq!(result.min_false, Some(1));
         /// ```
         #[inline]
         fn search_true_false_border(
@@ -64,8 +64,8 @@ pub mod binary_search {
         /// # use templates::snippet_binary_search::binary_search::BinaryBorderSearch;
         /// let range = 1..4;
         /// let result = range.search_true_false_border(|&x| x <= 1);
-        /// assert_eq!(result.max_true, 1);
-        /// assert_eq!(result.min_false, 2);
+        /// assert_eq!(result.max_true, Some(1));
+        /// assert_eq!(result.min_false, Some(2));
         /// ```
         fn search_true_false_border(&self, predicate: impl Fn(&GI) -> bool) -> TFBorderResult<GI> {
             if self.start >= self.end {
@@ -123,7 +123,7 @@ pub mod binary_search {
         /// # use templates::snippet_binary_search::binary_search::BinaryBorderSearch;
         /// let range = -1..=1;
         /// let result = range.search_true_false_border(|&x| x <= 1);
-        /// assert_eq!(result.max_true, 1);
+        /// assert_eq!(result.max_true, Some(1));
         /// assert_eq!(result.min_false, None);
         /// ```
         #[inline]
