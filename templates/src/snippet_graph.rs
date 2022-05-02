@@ -50,6 +50,38 @@ pub mod graph {
             result.run(start_node, initial_cost);
             result
         }
+
+        /// 01-BFS
+        ///
+        /// # Remarks
+        /// ```math
+        /// \mathcal{O}\left( E + V \right)
+        /// ```
+        ///
+        /// # Example
+        /// ```
+        /// # use std::collections::HashMap;
+        /// # use templates::snippet_graph::graph::{Graph, SearchResult, StandardGraph};
+        /// # let mut edges = HashMap::new();
+        /// edges.entry(0).or_insert(vec![]).push((1, 1));
+        ///
+        /// # let graph = StandardGraph::new(&edges);
+        /// // let graph = SomeGraph::new(&edges);
+        /// let d = graph.x01bfs(0);
+        /// assert_eq!(d.cost_to(0), Some(0));
+        /// assert_eq!(d.cost_to(1), Some(1));
+        /// assert_eq!(d.cost_to(2), None);
+        /// ```
+        fn x01bfs(&self, start_node: Self::Node) -> x01bfs::Result<Self>
+        where
+            Self: Sized,
+            Self::Node: Clone + Hash + Eq,
+            Self::Cost: GenericInteger,
+        {
+            let mut result = x01bfs::Result::new(self);
+            result.run(start_node);
+            result
+        }
     }
 
     pub struct StandardGraph<'a, Node, Cost> {
@@ -71,18 +103,6 @@ pub mod graph {
     impl<'a, Node, Cost> StandardGraph<'a, Node, Cost> {
         pub fn new(edges: &'a HashMap<Node, Vec<(Node, Cost)>>) -> Self {
             Self { edges }
-        }
-
-        /// 01-BFS
-        /// O(E+V)
-        pub fn x01bfs(&self, start_node: Node) -> x01bfs::Result<Self>
-        where
-            Node: Clone + Hash + Eq,
-            Cost: GenericInteger,
-        {
-            let mut result = x01bfs::Result::new(self);
-            result.run(start_node);
-            result
         }
     }
 
