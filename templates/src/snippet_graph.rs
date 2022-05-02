@@ -9,11 +9,11 @@ pub mod graph {
     use std::hash::Hash;
     use std::ops::Add;
 
-    pub struct Graph<'a, Node, Cost> {
+    pub struct StandardGraph<'a, Node, Cost> {
         edges: &'a HashMap<Node, Vec<(Node, Cost)>>,
     }
 
-    impl<'a, Node, Cost> Graph<'a, Node, Cost> {
+    impl<'a, Node, Cost> StandardGraph<'a, Node, Cost> {
         pub fn new(edges: &'a HashMap<Node, Vec<(Node, Cost)>>) -> Self {
             Self { edges }
         }
@@ -75,7 +75,7 @@ pub mod graph {
     }
 
     mod dijkstra {
-        use super::{Graph, SearchResult, VisitedNodeInfo};
+        use super::{SearchResult, StandardGraph, VisitedNodeInfo};
         use std::cmp::Ordering;
         use std::collections::{BinaryHeap, HashMap};
         use std::hash::Hash;
@@ -84,7 +84,7 @@ pub mod graph {
         pub struct Result<'a, Node, Cost> {
             heap: BinaryHeap<Query<Node, Cost>>,
             visited_nodes: HashMap<Node, VisitedNodeInfo<Node, Cost>>,
-            graph: &'a Graph<'a, Node, Cost>,
+            graph: &'a StandardGraph<'a, Node, Cost>,
         }
 
         impl<'a, Node, Cost> Result<'a, Node, Cost>
@@ -92,7 +92,7 @@ pub mod graph {
             Node: Clone + Hash + Eq,
             Cost: Clone + Ord + Add<Cost, Output = Cost>,
         {
-            pub fn new(graph: &'a Graph<'a, Node, Cost>) -> Self {
+            pub fn new(graph: &'a StandardGraph<'a, Node, Cost>) -> Self {
                 Self {
                     heap: BinaryHeap::new(),
                     visited_nodes: HashMap::new(),
@@ -185,14 +185,14 @@ pub mod graph {
 
     mod x01bfs {
         use super::super::GenericInteger;
-        use super::{Graph, SearchResult, VisitedNodeInfo};
+        use super::{SearchResult, StandardGraph, VisitedNodeInfo};
         use std::collections::{HashMap, VecDeque};
         use std::hash::Hash;
 
         pub struct Result<'a, Node, Cost> {
             deque: VecDeque<Query<Node, Cost>>,
             visited_nodes: HashMap<Node, VisitedNodeInfo<Node, Cost>>,
-            graph: &'a Graph<'a, Node, Cost>,
+            graph: &'a StandardGraph<'a, Node, Cost>,
         }
 
         impl<'a, Node, Cost> Result<'a, Node, Cost>
@@ -200,7 +200,7 @@ pub mod graph {
             Node: Clone + Hash + Eq,
             Cost: GenericInteger,
         {
-            pub fn new(graph: &'a Graph<'a, Node, Cost>) -> Self {
+            pub fn new(graph: &'a StandardGraph<'a, Node, Cost>) -> Self {
                 Self {
                     deque: VecDeque::new(),
                     visited_nodes: HashMap::new(),

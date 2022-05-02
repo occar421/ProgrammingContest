@@ -3,14 +3,14 @@ mod tests {
 
     mod dijkstra {
         use std::collections::HashMap;
-        use templates::snippet_graph::graph::{Graph, SearchResult};
+        use templates::snippet_graph::graph::{SearchResult, StandardGraph};
 
         #[test]
         fn cost_int() {
             let mut edges = HashMap::new();
             edges.entry(0).or_insert(vec![]).push((1, 2));
 
-            let graph = Graph::new(&edges);
+            let graph = StandardGraph::new(&edges);
             let d = graph.dijkstra(0, 0);
             assert_eq!(d.cost_to(0), Some(0));
             assert_eq!(d.cost_to(1), Some(2));
@@ -22,7 +22,7 @@ mod tests {
             let mut edges = HashMap::new();
             edges.entry((0, 'a')).or_insert(vec![]).push(((0, 'b'), 2));
 
-            let graph = Graph::new(&edges);
+            let graph = StandardGraph::new(&edges);
             let d = graph.dijkstra((0, 'a'), 0);
             assert_eq!(d.cost_to((0, 'a')), Some(0));
             assert_eq!(d.cost_to((0, 'b')), Some(2));
@@ -46,7 +46,7 @@ mod tests {
                 .or_insert(vec![])
                 .push((p(0, 'b'), 2));
 
-            let graph = Graph::new(&edges);
+            let graph = StandardGraph::new(&edges);
             let d = graph.dijkstra(p(0, 'a'), 0);
             assert_eq!(d.cost_to(p(0, 'a')), Some(0));
             assert_eq!(d.cost_to(p(0, 'b')), Some(2));
@@ -67,7 +67,7 @@ mod tests {
             let mut edges = HashMap::new();
             edges.entry(&p_0a).or_insert(vec![]).push((&p_0b, 2));
 
-            let graph = Graph::new(&edges);
+            let graph = StandardGraph::new(&edges);
             let d = graph.dijkstra(&p_0a, 0);
             assert_eq!(d.cost_to(&p_0a), Some(0));
             assert_eq!(d.cost_to(&p_0b), Some(2));
@@ -79,7 +79,7 @@ mod tests {
             let mut edges = HashMap::new();
             edges.entry(0).or_insert(vec![]).push((1, 2));
 
-            let graph = Graph::new(&edges);
+            let graph = StandardGraph::new(&edges);
             let d = graph.dijkstra(0, 0);
             assert_eq!(d.path_to(0).unwrap()[0], 0);
             assert_eq!(d.path_to(1).unwrap()[0], 0);
@@ -90,14 +90,14 @@ mod tests {
 
     mod x01bfs {
         use std::collections::HashMap;
-        use templates::snippet_graph::graph::{Graph, SearchResult};
+        use templates::snippet_graph::graph::{SearchResult, StandardGraph};
 
         #[test]
         fn cost_int() {
             let mut edges = HashMap::new();
             edges.entry(0).or_insert(vec![]).push((1, 1));
 
-            let graph = Graph::new(&edges);
+            let graph = StandardGraph::new(&edges);
             let d = graph.x01bfs(0);
             assert_eq!(d.cost_to(0), Some(0));
             assert_eq!(d.cost_to(1), Some(1));
@@ -109,7 +109,7 @@ mod tests {
             let mut edges = HashMap::new();
             edges.entry((0, 'a')).or_insert(vec![]).push(((0, 'b'), 1));
 
-            let graph = Graph::new(&edges);
+            let graph = StandardGraph::new(&edges);
             let d = graph.x01bfs((0, 'a'));
             assert_eq!(d.cost_to((0, 'a')), Some(0));
             assert_eq!(d.cost_to((0, 'b')), Some(1));
@@ -133,7 +133,7 @@ mod tests {
                 .or_insert(vec![])
                 .push((p(0, 'b'), 1));
 
-            let graph = Graph::new(&edges);
+            let graph = StandardGraph::new(&edges);
             let d = graph.x01bfs(p(0, 'a'));
             assert_eq!(d.cost_to(p(0, 'a')), Some(0));
             assert_eq!(d.cost_to(p(0, 'b')), Some(1));
@@ -154,7 +154,7 @@ mod tests {
             let mut edges = HashMap::new();
             edges.entry(&p_0a).or_insert(vec![]).push((&p_0b, 1));
 
-            let graph = Graph::new(&edges);
+            let graph = StandardGraph::new(&edges);
             let d = graph.x01bfs(&p_0a);
             assert_eq!(d.cost_to(&p_0a), Some(0));
             assert_eq!(d.cost_to(&p_0b), Some(1));
@@ -166,7 +166,7 @@ mod tests {
             let mut edges = HashMap::new();
             edges.entry(0).or_insert(vec![]).push((1, 1));
 
-            let graph = Graph::new(&edges);
+            let graph = StandardGraph::new(&edges);
             let d = graph.x01bfs(0);
             assert_eq!(d.path_to(0).unwrap()[0], 0);
             assert_eq!(d.path_to(1).unwrap()[0], 0);
