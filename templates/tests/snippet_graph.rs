@@ -3,7 +3,7 @@ mod tests {
 
     mod dijkstra {
         use std::collections::HashMap;
-        use templates::snippet_graph::graph::{SearchResult, StandardGraph};
+        use templates::snippet_graph::graph::{Graph, SearchResult, StandardGraph};
 
         #[test]
         fn cost_int() {

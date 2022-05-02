@@ -15,6 +15,41 @@ pub mod graph {
 
         // TODO: use Iterator instead of Vec
         fn edges_of(&self, node: &Self::Node) -> Option<&Vec<(Self::Node, Self::Cost)>>;
+
+        /// Dijkstra
+        ///
+        /// # Remarks
+        /// ```math
+        /// \mathcal{O}\left( \left( E + V \right) \log V \right)
+        /// ```
+        ///
+        /// # Example
+        /// ```
+        /// # use std::collections::HashMap;
+        /// # use templates::snippet_graph::graph::{Graph, SearchResult, StandardGraph};
+        /// # let mut edges = HashMap::new();
+        /// edges.entry(0).or_insert(vec![]).push((1, 2));
+        /// # let graph = StandardGraph::new(&edges);
+        /// // let graph = SomeGraph::new(&edges);
+        /// let d = graph.dijkstra(0, 0);
+        /// assert_eq!(d.cost_to(0), Some(0));
+        /// assert_eq!(d.cost_to(1), Some(2));
+        /// assert_eq!(d.cost_to(2), None);
+        /// ```
+        fn dijkstra(
+            &self,
+            start_node: Self::Node,
+            initial_cost: Self::Cost,
+        ) -> dijkstra::Result<Self>
+        where
+            Self: Sized,
+            Self::Node: Clone + Hash + Eq,
+            Self::Cost: Clone + Ord + Add<Self::Cost, Output = Self::Cost>,
+        {
+            let mut result = dijkstra::Result::new(self);
+            result.run(start_node, initial_cost);
+            result
+        }
     }
 
     pub struct StandardGraph<'a, Node, Cost> {
@@ -36,18 +71,6 @@ pub mod graph {
     impl<'a, Node, Cost> StandardGraph<'a, Node, Cost> {
         pub fn new(edges: &'a HashMap<Node, Vec<(Node, Cost)>>) -> Self {
             Self { edges }
-        }
-
-        /// Dijkstra
-        /// O( (E+V) logV )
-        pub fn dijkstra(&self, start_node: Node, initial_cost: Cost) -> dijkstra::Result<Self>
-        where
-            Node: Clone + Hash + Eq,
-            Cost: Clone + Ord + Add<Cost, Output = Cost>,
-        {
-            let mut result = dijkstra::Result::new(self);
-            result.run(start_node, initial_cost);
-            result
         }
 
         /// 01-BFS
