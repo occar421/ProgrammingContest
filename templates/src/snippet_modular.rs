@@ -72,8 +72,7 @@ pub mod modular {
     impl<const MODULO: usize> FromStr for PrimeModularUsize<MODULO> {
         type Err = std::num::ParseIntError;
 
-        #[inline]
-        fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        fn from_str(s: &str) -> Result<Self, Self::Err> {
             usize::from_str(s).map(|x| Self::new(x))
         }
     }
@@ -113,14 +112,12 @@ pub mod modular {
             Self::new(result)
         }
 
-        #[inline]
         pub fn reciprocal(&self) -> Option<Self> {
             (self.value != 0).then(||
                 // Fermat's little theorem
                 self.pow(Self::new(MODULO - 2)))
         }
 
-        #[inline]
         pub fn checked_div<T>(self, rhs: T) -> Option<Self>
         where
             T: Into<Self>,
@@ -156,7 +153,6 @@ pub mod modular {
     }
 
     impl<const MODULO: usize> From<isize> for PrimeModularUsize<MODULO> {
-        #[inline]
         fn from(v: isize) -> Self {
             if v >= 0 {
                 Self::new(v as usize)
