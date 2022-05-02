@@ -12,15 +12,25 @@ pub mod graph {
     pub trait Graph {
         type Node;
         type Cost;
+
+        // TODO: use Iterator instead of Vec
+        fn edges_of(&self, node: &Self::Node) -> Option<&Vec<(Self::Node, Self::Cost)>>;
     }
 
     pub struct StandardGraph<'a, Node, Cost> {
         edges: &'a HashMap<Node, Vec<(Node, Cost)>>,
     }
 
-    impl<'a, Node, Cost> Graph for StandardGraph<'a, Node, Cost> {
+    impl<'a, Node, Cost> Graph for StandardGraph<'a, Node, Cost>
+    where
+        Node: Hash + Eq,
+    {
         type Node = Node;
         type Cost = Cost;
+
+        fn edges_of(&self, node: &Self::Node) -> Option<&Vec<(Self::Node, Self::Cost)>> {
+            self.edges.get(node)
+        }
     }
 
     impl<'a, Node, Cost> StandardGraph<'a, Node, Cost> {
@@ -30,7 +40,7 @@ pub mod graph {
 
         /// Dijkstra
         /// O( (E+V) logV )
-        pub fn dijkstra(&self, start_node: Node, initial_cost: Cost) -> dijkstra::Result<Node, Cost>
+        pub fn dijkstra(&self, start_node: Node, initial_cost: Cost) -> dijkstra::Result<Self>
         where
             Node: Clone + Hash + Eq,
             Cost: Clone + Ord + Add<Cost, Output = Cost>,
@@ -85,24 +95,28 @@ pub mod graph {
     }
 
     mod dijkstra {
-        use super::{SearchResult, StandardGraph, VisitedNodeInfo};
+        use super::{SearchResult, VisitedNodeInfo};
         use std::cmp::Ordering;
         use std::collections::{BinaryHeap, HashMap};
         use std::hash::Hash;
         use std::ops::Add;
 
-        pub struct Result<'a, Node, Cost> {
-            heap: BinaryHeap<Query<Node, Cost>>,
-            visited_nodes: HashMap<Node, VisitedNodeInfo<Node, Cost>>,
-            graph: &'a StandardGraph<'a, Node, Cost>,
+        pub struct Result<'a, Graph>
+        where
+            Graph: super::Graph,
+        {
+            heap: BinaryHeap<Query<Graph::Node, Graph::Cost>>,
+            visited_nodes: HashMap<Graph::Node, VisitedNodeInfo<Graph::Node, Graph::Cost>>,
+            graph: &'a Graph,
         }
 
-        impl<'a, Node, Cost> Result<'a, Node, Cost>
+        impl<'a, Graph> Result<'a, Graph>
         where
-            Node: Clone + Hash + Eq,
-            Cost: Clone + Ord + Add<Cost, Output = Cost>,
+            Graph: super::Graph,
+            Graph::Node: Clone + Hash + Eq,
+            Graph::Cost: Clone + Ord + Add<Graph::Cost, Output = Graph::Cost>,
         {
-            pub fn new(graph: &'a StandardGraph<'a, Node, Cost>) -> Self {
+            pub fn new(graph: &'a Graph) -> Self {
                 Self {
                     heap: BinaryHeap::new(),
                     visited_nodes: HashMap::new(),
@@ -110,7 +124,7 @@ pub mod graph {
                 }
             }
 
-            pub fn run(&mut self, start_node: Node, initial_cost: Cost) {
+            pub fn run(&mut self, start_node: Graph::Node, initial_cost: Graph::Cost) {
                 self.heap.push(Query {
                     cost: initial_cost,
                     node: start_node,
@@ -134,7 +148,7 @@ pub mod graph {
                         },
                     );
 
-                    if let Some(edges) = self.graph.edges.get(&node) {
+                    if let Some(edges) = self.graph.edges_of(&node) {
                         for (dest, move_cost) in edges.iter() {
                             self.heap.push(Query {
                                 cost: cost.clone() + move_cost.clone(),
@@ -147,12 +161,15 @@ pub mod graph {
             }
         }
 
-        impl<'a, Node, Cost> SearchResult<Node, Cost> for Result<'a, Node, Cost>
+        impl<'a, Graph> SearchResult<Graph::Node, Graph::Cost> for Result<'a, Graph>
         where
-            Node: Clone + Hash + Eq,
-            Cost: Clone,
+            Graph: super::Graph,
+            Graph::Node: Clone + Hash + Eq,
+            Graph::Cost: Clone,
         {
-            fn visited_nodes(&self) -> &HashMap<Node, VisitedNodeInfo<Node, Cost>> {
+            fn visited_nodes(
+                &self,
+            ) -> &HashMap<Graph::Node, VisitedNodeInfo<Graph::Node, Graph::Cost>> {
                 &self.visited_nodes
             }
         }
