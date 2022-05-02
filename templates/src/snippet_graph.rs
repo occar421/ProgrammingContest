@@ -52,7 +52,7 @@ pub mod graph {
 
         /// 01-BFS
         /// O(E+V)
-        pub fn x01bfs(&self, start_node: Node) -> x01bfs::Result<Node, Cost>
+        pub fn x01bfs(&self, start_node: Node) -> x01bfs::Result<Self>
         where
             Node: Clone + Hash + Eq,
             Cost: GenericInteger,
@@ -212,22 +212,26 @@ pub mod graph {
 
     mod x01bfs {
         use super::super::GenericInteger;
-        use super::{SearchResult, StandardGraph, VisitedNodeInfo};
+        use super::{SearchResult, VisitedNodeInfo};
         use std::collections::{HashMap, VecDeque};
         use std::hash::Hash;
 
-        pub struct Result<'a, Node, Cost> {
-            deque: VecDeque<Query<Node, Cost>>,
-            visited_nodes: HashMap<Node, VisitedNodeInfo<Node, Cost>>,
-            graph: &'a StandardGraph<'a, Node, Cost>,
+        pub struct Result<'a, Graph>
+        where
+            Graph: super::Graph,
+        {
+            deque: VecDeque<Query<Graph::Node, Graph::Cost>>,
+            visited_nodes: HashMap<Graph::Node, VisitedNodeInfo<Graph::Node, Graph::Cost>>,
+            graph: &'a Graph,
         }
 
-        impl<'a, Node, Cost> Result<'a, Node, Cost>
+        impl<'a, Graph> Result<'a, Graph>
         where
-            Node: Clone + Hash + Eq,
-            Cost: GenericInteger,
+            Graph: super::Graph,
+            Graph::Node: Clone + Hash + Eq,
+            Graph::Cost: GenericInteger,
         {
-            pub fn new(graph: &'a StandardGraph<'a, Node, Cost>) -> Self {
+            pub fn new(graph: &'a Graph) -> Self {
                 Self {
                     deque: VecDeque::new(),
                     visited_nodes: HashMap::new(),
@@ -235,9 +239,9 @@ pub mod graph {
                 }
             }
 
-            pub fn run(&mut self, start_node: Node) {
+            pub fn run(&mut self, start_node: Graph::Node) {
                 self.deque.push_front(Query {
-                    cost: Cost::zero(),
+                    cost: Graph::Cost::zero(),
                     node: start_node,
                     previous_node: None,
                 });
@@ -259,17 +263,17 @@ pub mod graph {
                         },
                     );
 
-                    if let Some(edges) = self.graph.edges.get(&node) {
+                    if let Some(edges) = self.graph.edges_of(&node) {
                         for (dest, move_cost) in edges.iter() {
-                            if *move_cost == Cost::zero() {
+                            if *move_cost == Graph::Cost::zero() {
                                 self.deque.push_front(Query {
                                     cost,
                                     node: dest.clone(),
                                     previous_node: node.clone().into(),
                                 });
-                            } else if *move_cost == Cost::one() {
+                            } else if *move_cost == Graph::Cost::one() {
                                 self.deque.push_back(Query {
-                                    cost: cost + Cost::one(),
+                                    cost: cost + Graph::Cost::one(),
                                     node: dest.clone(),
                                     previous_node: node.clone().into(),
                                 });
@@ -282,12 +286,15 @@ pub mod graph {
             }
         }
 
-        impl<'a, Node, Cost> SearchResult<Node, Cost> for Result<'a, Node, Cost>
+        impl<'a, Graph> SearchResult<Graph::Node, Graph::Cost> for Result<'a, Graph>
         where
-            Node: Clone + Hash + Eq,
-            Cost: Clone,
+            Graph: super::Graph,
+            Graph::Node: Clone + Hash + Eq,
+            Graph::Cost: Clone,
         {
-            fn visited_nodes(&self) -> &HashMap<Node, VisitedNodeInfo<Node, Cost>> {
+            fn visited_nodes(
+                &self,
+            ) -> &HashMap<Graph::Node, VisitedNodeInfo<Graph::Node, Graph::Cost>> {
                 &self.visited_nodes
             }
         }
