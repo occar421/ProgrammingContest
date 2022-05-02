@@ -85,25 +85,33 @@ pub mod graph {
         }
     }
 
-    pub struct StandardGraph<'a, Node, Cost> {
-        edges: &'a HashMap<Node, Vec<(Node, Cost)>>,
-    }
+    pub use standard::StandardGraph;
 
-    impl<'a, Node, Cost> Graph for StandardGraph<'a, Node, Cost>
-    where
-        Node: Hash + Eq,
-    {
-        type Node = Node;
-        type Cost = Cost;
+    mod standard {
+        use super::Graph;
+        use std::collections::HashMap;
+        use std::hash::Hash;
 
-        fn edges_of(&self, node: &Self::Node) -> Option<&Vec<(Self::Node, Self::Cost)>> {
-            self.edges.get(node)
+        pub struct StandardGraph<'a, Node, Cost> {
+            edges: &'a HashMap<Node, Vec<(Node, Cost)>>,
         }
-    }
 
-    impl<'a, Node, Cost> StandardGraph<'a, Node, Cost> {
-        pub fn new(edges: &'a HashMap<Node, Vec<(Node, Cost)>>) -> Self {
-            Self { edges }
+        impl<'a, Node, Cost> Graph for StandardGraph<'a, Node, Cost>
+        where
+            Node: Hash + Eq,
+        {
+            type Node = Node;
+            type Cost = Cost;
+
+            fn edges_of(&self, node: &Self::Node) -> Option<&Vec<(Self::Node, Self::Cost)>> {
+                self.edges.get(node)
+            }
+        }
+
+        impl<'a, Node, Cost> StandardGraph<'a, Node, Cost> {
+            pub fn new(edges: &'a HashMap<Node, Vec<(Node, Cost)>>) -> Self {
+                Self { edges }
+            }
         }
     }
 
