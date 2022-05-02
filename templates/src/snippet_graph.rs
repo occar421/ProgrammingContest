@@ -9,8 +9,18 @@ pub mod graph {
     use std::hash::Hash;
     use std::ops::Add;
 
+    pub trait Graph {
+        type Node;
+        type Cost;
+    }
+
     pub struct StandardGraph<'a, Node, Cost> {
         edges: &'a HashMap<Node, Vec<(Node, Cost)>>,
+    }
+
+    impl<'a, Node, Cost> Graph for StandardGraph<'a, Node, Cost> {
+        type Node = Node;
+        type Cost = Cost;
     }
 
     impl<'a, Node, Cost> StandardGraph<'a, Node, Cost> {
