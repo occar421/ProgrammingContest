@@ -11,6 +11,7 @@ pub mod graph {
 
     pub trait Graph {
         type Node;
+        // TODO: separate to `EdgeCost` and `PathCost`
         type Cost;
 
         // TODO: use Iterator instead of Vec
