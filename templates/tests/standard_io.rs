@@ -47,7 +47,7 @@ mod tests {
     #[test_case(vec ! [8, 9, 0], ", " => "8, 9, 0")]
     #[test_case(vec ! [1, 2, 3, 4], "" => "1234")]
     fn easy_join_with_number(vec: Vec<usize>, separator: &str) -> String {
-        vec.iter().easy_join(separator)
+        vec.iter().join_as_string(separator)
     }
 
     #[test_case(vec ! [], " " => "")]
@@ -59,7 +59,7 @@ mod tests {
     #[test_case(vec ! ["lm", "no", "pq"], "," => "lm,no,pq")]
     #[test_case(vec ! ["r", "u", "s", "t"], "" => "rust")]
     fn easy_join_with_string(vec: Vec<&str>, separator: &str) -> String {
-        vec.iter().easy_join(separator)
+        vec.iter().join_as_string(separator)
     }
 
     #[test]

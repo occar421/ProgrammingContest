@@ -78,7 +78,6 @@ pub mod modular {
         }
     }
 
-    // Rust in AtCoder does not support const generics due to its version
     impl<const MODULO: usize> PrimeModularUsize<MODULO> {
         /// Return the modular value
         ///

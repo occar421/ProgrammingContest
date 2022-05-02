@@ -519,6 +519,21 @@ where
     return (gcd, lcm);
 }
 
+/// Return prime factors （素因数）
+///
+/// # Remarks
+/// ```math
+/// \mathcal{O}\left(\sqrt N \right)
+/// ```
+///
+/// # Examples
+/// ```
+/// # use templates::standard_io::prime_factorize;
+/// let factors = prime_factorize(12);
+/// assert_eq!(factors.len(), 2);
+/// assert_eq!(factors[&2], 2);
+/// assert_eq!(factors[&3], 1);
+/// ```
 /// O(√N)
 #[allow(dead_code)]
 pub fn prime_factorize(n: usize) -> HashMap<usize, usize> {
@@ -548,6 +563,17 @@ pub fn prime_factorize(n: usize) -> HashMap<usize, usize> {
     map
 }
 
+/// Return all divisors （約数） of `n`
+///
+/// # Remarks
+/// Unknown time complexity order`
+///
+/// # Examples
+/// ```
+/// # use templates::standard_io::divisors_of;
+/// let divisors = divisors_of(6);
+/// assert_eq!(Vec::from_iter(divisors), vec![1, 2, 3, 6]);
+/// ```
 #[allow(dead_code)]
 pub fn divisors_of(n: usize) -> HashSet<usize> {
     let mut divisor_seeds = HashSet::new();
@@ -571,8 +597,22 @@ pub fn divisors_of(n: usize) -> HashSet<usize> {
 
 const INC: [usize; 8] = [4, 2, 4, 2, 4, 6, 2, 6];
 
-// https://memo.sugyan.com/entry/2021/02/06/021949
-/// O(N log(logN) )
+/// Return prime numbers （素数） by Eratosthenes' Sieve
+///
+/// # Remarks
+/// ```math
+/// \mathcal{O}\left(N \log\left(\log N \right) \right)
+/// ```
+///
+/// # Example
+/// ```
+/// # use templates::standard_io::eratosthenes_sieve;
+/// let primes = eratosthenes_sieve(20);
+/// assert_eq!(primes, vec![2, 3, 5, 7, 11, 13, 17, 19])
+/// ```
+///
+/// # Reference
+/// https://memo.sugyan.com/entry/2021/02/06/021949
 #[allow(dead_code)]
 pub fn eratosthenes_sieve(n: usize) -> Vec<usize> {
     if n < 7 {
@@ -611,7 +651,15 @@ pub fn eratosthenes_sieve(n: usize) -> Vec<usize> {
 }
 
 pub trait IterExt: Iterator {
-    fn easy_join(&mut self, separator: &str) -> String
+    /// Concatenate numbers
+    ///
+    /// # Example
+    /// ```
+    /// # use templates::standard_io::IterExt;
+    /// let mut numbers = vec![12, 34];
+    /// assert_eq!(numbers.join_as_string(","), "12,34".to_string());
+    /// ```
+    fn join_as_string(&mut self, separator: &str) -> String
     where
         Self::Item: Display,
     {
@@ -620,6 +668,33 @@ pub trait IterExt: Iterator {
             .join(separator)
     }
 
+    /// Concatenate numbers
+    ///
+    /// # Example
+    /// ```
+    /// # use templates::standard_io::IterExt;
+    /// let mut numbers = vec![12, 34];
+    /// assert_eq!(numbers.concat_numbers(), 1234);
+    /// ```
+    fn concat_numbers(&mut self) -> Result<Self::Item, <Self::Item as FromStr>::Err>
+    where
+        Self::Item: Display + FromStr,
+    {
+        self.join_as_string("").parse()
+    }
+
+    /// Group with value
+    ///
+    /// # Example
+    /// ```
+    /// # use templates::standard_io::IterExt;
+    /// let data = vec![1, 1, 2, 2, 3];
+    /// let result = data.into_iter().group_with();
+    /// assert_eq!(result.len(), 3);
+    /// assert_eq!(result[&1], vec![1, 1]);
+    /// assert_eq!(result[&2], vec![2, 2]);
+    /// assert_eq!(result[&3], vec![3]);
+    /// ```
     fn group_with(self) -> HashMap<Self::Item, Vec<Self::Item>>
     where
         Self: Sized,
@@ -628,6 +703,17 @@ pub trait IterExt: Iterator {
         self.group_with_key(|x| x.clone())
     }
 
+    /// Group with key
+    ///
+    /// # Example
+    /// ```
+    /// # use templates::standard_io::IterExt;
+    /// let data = vec![1, 1, 2, 2, 3];
+    /// let result = data.into_iter().group_with_key(|&x| x > 1);
+    /// assert_eq!(result.len(), 2);
+    /// assert_eq!(result[&true], vec![2, 2, 3]);
+    /// assert_eq!(result[&false], vec![1, 1]);
+    /// ```
     fn group_with_key<K, F>(self, mut f: F) -> HashMap<K, Vec<Self::Item>>
     where
         Self: Sized,
@@ -642,24 +728,6 @@ pub trait IterExt: Iterator {
 }
 
 impl<TItem, TTrait> IterExt for TTrait where TTrait: Iterator<Item = TItem> {}
-
-pub trait VecExt<T> {
-    fn add_like_string(&mut self) -> T;
-}
-
-impl<T> VecExt<T> for Vec<T>
-where
-    T: GenericInteger,
-{
-    #[inline]
-    fn add_like_string(&mut self) -> T {
-        if let Ok(value) = self.iter().easy_join("").parse::<T>() {
-            value
-        } else {
-            panic!("Invalid value")
-        }
-    }
-}
 
 #[allow(unused_macros)]
 #[macro_export]
@@ -736,10 +804,34 @@ impl<T: PartialOrd> Ord for Total<T> {
     }
 }
 
+/// Index to ASCII char
+///
+/// # Example
+/// ```
+/// # use templates::standard_io::index_to_ascii_gen;
+/// let ita = index_to_ascii_gen('a');
+/// assert_eq!(ita(0), 'a');
+/// assert_eq!(ita(1), 'b');
+/// let ita = index_to_ascii_gen('A');
+/// assert_eq!(ita(0), 'A');
+/// assert_eq!(ita(1), 'B');
+/// ```
 pub fn index_to_ascii_gen(base: char) -> impl Fn(usize) -> char {
     move |index| (index as u8 + base as u8) as char
 }
 
+/// Index to ASCII char
+///
+/// # Example
+/// ```
+/// # use templates::standard_io::ascii_to_index_gen;
+/// let ati = ascii_to_index_gen('a');
+/// assert_eq!('a', 0);
+/// assert_eq!('b', 1);
+/// let ati = ascii_to_index_gen('A');
+/// assert_eq!('A', 0);
+/// assert_eq!('B', 1);
+/// ```
 pub fn ascii_to_index_gen(base: char) -> impl Fn(char) -> usize {
     move |ascii| ascii as usize - base as usize
 }
@@ -944,6 +1036,14 @@ mod point {
     }
 }
 
+/// Divide and ceil
+///
+/// # Example
+/// ```
+/// # use templates::standard_io::div_ceil;
+/// assert_eq!(div_ceil(10, 5), 2);
+/// assert_eq!(div_ceil(11, 5), 3);
+/// ```
 pub fn div_ceil<T: GenericInteger>(dividend: T, divisor: T) -> T {
     let rounded_towards_zero_quotient = dividend / divisor;
     let divided_evenly = (dividend % divisor) == T::zero();
