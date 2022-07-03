@@ -62,6 +62,13 @@ mod tests {
         vec.iter().join_as_string(separator)
     }
 
+    #[test_case(vec ! [1] => 1)]
+    #[test_case(vec ! [12, 3] => 123)]
+    #[test_case(vec ! [12, 34] => panics)]
+    fn concat_numbers(vec: Vec<u8>) -> u8 {
+        vec.into_iter().concat_numbers().unwrap().clone()
+    }
+
     #[test]
     fn group_with() {
         let data = vec![1, 1, 2, 2, 3];
