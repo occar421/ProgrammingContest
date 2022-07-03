@@ -796,9 +796,22 @@ macro_rules! dbg_raw {
     };
 }
 
-// From https://qiita.com/hatoo@github/items/fa14ad36a1b568d14f3e
+/// Total cmp for float variables
+///
+/// ref. https://qiita.com/hatoo@github/items/fa14ad36a1b568d14f3e
+///
+/// Thought with `f32#total_cmp`, `Total` is useful for using `sort_by_key`.
+///
+/// # Example
+/// ```
+/// # use templates::standard_io::Total;
+/// let mut v: Vec<f64> = vec![1.0, 3.0, 2.0];
+/// v.sort_by_key(|&x| Total(x));
+///
+/// assert_eq!(v, vec![1.0, 2.0, 3.0]);
+/// ```
 #[derive(PartialEq, PartialOrd)]
-struct Total<T>(T);
+pub struct Total<T>(pub T);
 
 impl<T: PartialEq> Eq for Total<T> {}
 
