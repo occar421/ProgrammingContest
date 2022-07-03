@@ -5,8 +5,4 @@ authors = ["MasuqaT <occar@hotmail.co.jp>"]
 edition = "2021"
 
 [dev-dependencies]
-# Waiting for the update of the original repo
-test-case = "2.0.2"
-
-[dependencies]
-paste = "0.1"
+test-case = "2.1.0"
