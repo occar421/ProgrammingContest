@@ -1514,20 +1514,18 @@ mod adjacent {
 fn main() {
     use std::io::*;
 
-    let stdio = stdin();
-    let input = stdio.lock();
-
-    let mut stdout = stdout();
-    let output = BufWriter::new(stdout.lock());
+    let input = stdin().lock();
+    let output = BufWriter::new(stdout().lock());
 
     process(input, output).expect("Should not emit error");
-    stdout.flush().unwrap();
+
+    stdout().flush().unwrap();
 }
 
 #[allow(non_snake_case, unused_mut, unused_variables)]
 fn process<R, W>(reader: R, mut writer: W) -> std::io::Result<()>
 where
-    R: std::io::BufRead,
+    R: std::io::Read,
     W: std::io::Write,
 {
     let mut _handler = prepare_input! { stdin = reader };
