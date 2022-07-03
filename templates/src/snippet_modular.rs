@@ -113,7 +113,7 @@ pub mod modular {
         }
 
         pub fn reciprocal(&self) -> Option<Self> {
-            (self.value != 0).then(||
+            (self.value != 0).then(|| // use `then` for lazy evaluation
                 // Fermat's little theorem
                 self.pow(Self::new(MODULO - 2)))
         }

@@ -622,7 +622,7 @@ pub fn eratosthenes_sieve(n: usize) -> Vec<usize> {
     if n < 7 {
         return [2, 3, 5]
             .iter()
-            .filter_map(|&x| (x <= n).then(|| x))
+            .filter_map(|&x| (x <= n).then_some(x))
             .collect();
     }
     let nf = n as f64;
