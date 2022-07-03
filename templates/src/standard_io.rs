@@ -574,7 +574,9 @@ pub fn prime_factorize(n: usize) -> HashMap<usize, usize> {
 /// ```
 /// # use templates::standard_io::divisors_of;
 /// let divisors = divisors_of(6);
-/// assert_eq!(Vec::from_iter(divisors), vec![1, 2, 3, 6]);
+/// let mut divisors = Vec::from_iter(divisors);
+/// divisors.sort();
+/// assert_eq!(divisors, vec![1, 2, 3, 6]);
 /// ```
 #[allow(dead_code)]
 pub fn divisors_of(n: usize) -> HashSet<usize> {
@@ -659,7 +661,7 @@ pub trait IterExt: Iterator {
     /// ```
     /// # use templates::standard_io::IterExt;
     /// let mut numbers = vec![12, 34];
-    /// assert_eq!(numbers.join_as_string(","), "12,34".to_string());
+    /// assert_eq!(numbers.iter().join_as_string(","), "12,34".to_string());
     /// ```
     fn join_as_string(&mut self, separator: &str) -> String
     where
@@ -676,7 +678,7 @@ pub trait IterExt: Iterator {
     /// ```
     /// # use templates::standard_io::IterExt;
     /// let mut numbers = vec![12, 34];
-    /// assert_eq!(numbers.concat_numbers(), 1234);
+    /// assert_eq!(numbers.into_iter().concat_numbers(), Ok(1234));
     /// ```
     fn concat_numbers(&mut self) -> Result<Self::Item, <Self::Item as FromStr>::Err>
     where
@@ -828,11 +830,11 @@ pub fn index_to_ascii_gen(base: char) -> impl Fn(usize) -> char {
 /// ```
 /// # use templates::standard_io::ascii_to_index_gen;
 /// let ati = ascii_to_index_gen('a');
-/// assert_eq!('a', 0);
-/// assert_eq!('b', 1);
+/// assert_eq!(ati('a'), 0);
+/// assert_eq!(ati('b'), 1);
 /// let ati = ascii_to_index_gen('A');
-/// assert_eq!('A', 0);
-/// assert_eq!('B', 1);
+/// assert_eq!(ati('A'), 0);
+/// assert_eq!(ati('B'), 1);
 /// ```
 pub fn ascii_to_index_gen(base: char) -> impl Fn(char) -> usize {
     move |ascii| ascii as usize - base as usize
