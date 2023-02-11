@@ -54,7 +54,7 @@ pub mod fibonacci_number {
                 n => {
                     let pair = self.generate_inner(n / 2);
                     let FibonacciPair(c, d) = pair.pow2();
-                    if n % 2 == 0 {
+                    if n.is_even() {
                         FibonacciPair(c, d)
                     } else {
                         FibonacciPair(d, c + d)

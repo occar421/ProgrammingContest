@@ -387,12 +387,12 @@ pub mod modular {
 
         #[inline]
         fn is_odd(&self) -> bool {
-            self.value % 2 == 1
+            self.value.is_odd()
         }
 
         #[inline]
         fn is_even(&self) -> bool {
-            self.value % 2 == 0
+            self.value.is_even()
         }
     }
 
